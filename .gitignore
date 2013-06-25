@@ -1,0 +1,26 @@
+# GigaDB files #
+######################
+/assets
+/images
+/protected/config/local.php
+/protected/config/data
+/protected/data/data_fresh.sql
+/protected/runtime/
+/protected/scripts/data/dbchanges.txt
+/protected/scripts/data/lastIndexer.txt
+/protected/scripts/data/lastdataset.txt
+/protected/scripts/set_env.sh
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+*~
+.*.swp
+.DS_Store
