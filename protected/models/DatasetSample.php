@@ -21,7 +21,9 @@ class DatasetSample extends CActiveRecord
 	 */
 
 	public $doi_search;
-
+        public $species; //common_name in species
+        public $attribute;
+        public $code;
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
@@ -43,8 +45,10 @@ class DatasetSample extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('dataset_id, sample_id', 'required'),
+			array('dataset_id,species,code', 'required'),
 			array('dataset_id, sample_id', 'numerical', 'integerOnly'=>true),
+                    
+                        array('species,code,attribute','safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, dataset_id, sample_id, doi_search', 'safe', 'on'=>'search'),
@@ -74,6 +78,9 @@ class DatasetSample extends CActiveRecord
 			'dataset_id' => 'Dataset',
 			'sample_id' => 'Sample',
 			'doi_search' => 'DOI',
+                        'species' =>'Species',
+                        'attribute' =>'Attribute',
+                        'code' =>'Sample ID'
 		);
 	}
 

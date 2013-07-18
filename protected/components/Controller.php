@@ -51,5 +51,14 @@ class Controller extends CController
         if (Utils::isLanguageSupported($language))
             Yii::app()->language = $language;
     }
-
+    
+    public function redirect($url, $terminate=true, $statusCode=302)
+    {
+       //if(session_id()!== '') 
+       //    @session_write_close();
+         if (Yii::app()->session->useCustomStorage) {
+             Yii::app()->session->close();
+            }
+       parent::redirect($url, $terminate, $statusCode);
+    }
 }

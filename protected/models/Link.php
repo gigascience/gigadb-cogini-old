@@ -20,7 +20,7 @@ class Link extends MyActiveRecord
 	 * @return Link the static model class
 	 */
     public $doi_search;
-
+    public $acc_num;
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
@@ -42,7 +42,7 @@ class Link extends MyActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('dataset_id, link', 'required'),
+			array('dataset_id, link, acc_num', 'required'),
 			array('dataset_id', 'numerical', 'integerOnly'=>true),
 			array('link', 'length', 'max'=>100),
 			array('is_primary', 'safe'),
@@ -72,9 +72,11 @@ class Link extends MyActiveRecord
 		return array(
 			'id' => 'ID',
 			'dataset_id' => 'Dataset',
+                        'acc_num' => 'Accession number',
+                        'database' => 'Database',
 			'is_primary' => 'Is Primary',
 			'link' => 'Link',
-            'doi_search' => 'DOI',
+                        'doi_search' => 'DOI',
 		);
 	}
 
@@ -174,4 +176,12 @@ class Link extends MyActiveRecord
 
 
     }
+    
+    
+     public function getDatabase(){
+        $temp=explode(":",$this->link);
+    	$prefix=$temp[0];  	
+        return trim($prefix);
+    }
+
 }

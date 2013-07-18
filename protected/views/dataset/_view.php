@@ -1,5 +1,5 @@
 <div class="view">
-
+    
 	<b><?php echo MyHtml::encode($data->getAttributeLabel('id')); ?>:</b>
 	<?php echo MyHtml::link(MyHtml::encode($data->id), array('view', 'id'=>$data->id)); ?>
 	<br />

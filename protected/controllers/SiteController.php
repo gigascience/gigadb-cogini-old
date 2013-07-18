@@ -65,17 +65,49 @@ class SiteController extends Controller {
         #    }
 	    #}
 
-		$form=new SearchForm;  // Use for Form
-        $dataset = new Dataset; // Use for auto suggestion
+            $form=new SearchForm;  // Use for Form
+            $dataset = new Dataset; // Use for auto suggestion
+        
+            $type =0;
+//            if(isset($_GET['type'])){
+//                $type=$_GET['type'];
+//             //  $this->redirect("/site/dataset/".$type); 
+//            }
+//             if(isset($_POST['type'])) 
+//                 $type=$_POST['type'];
+            
+             
+             
+	    $datasetModel=$this->getDatasetByType($type);  // Use for image slider content
+            $count = count($datasetModel);
+            //
+          //  $count =count($datasetModel);
+         //  $this->redirect("/site/dataset/".type);
 
-	    $datasetModel=$this->getDatasetByType(0);  // Use for image slider content
-
-
+            
 	    $datasettypes_hints = Type::model()->findAll();
+//            $type_count=count($datasettypes_hints);
+            
+            $type_info=Type::model()->getListTypes();
+            
+      
+            foreach($type_info as $key=>$value){
+                $temp = count($this->getDatasetByType($key));
+                if($temp > 1)
+                     $type_info[$key]=$value." (".$temp.") datasets";
+                else
+                     $type_info[$key]=$value." (".$temp.") dataset";
+            }
+            
+           
+            if($count>1)
+                 $temp="All Types "." (".$count.") datasets";
+            else
+                 $temp="All Types "." (".$count.") dataset";
+        
+            array_unshift($type_info, $temp);
 
-
-
-	    $news = News::model()->findAll("start_date<=current_date AND end_date>=current_date");
+	$news = News::model()->findAll("start_date<=current_date AND end_date>=current_date");
 
 
         $criteria=new CDbCriteria;
@@ -91,13 +123,18 @@ class SiteController extends Controller {
         $rss_arr = array_merge($latest_datasets , $latest_messages);
 
         $this->sortRssArray($rss_arr);
-
+        
+       // $this->refresh();
+        //$this->render('dataset');
         $this->render('index',array('datasets'=>$datasetModel,
 					        	'form'=>$form,'dataset'=>$dataset,
 					        	'news'=>$news,
 					        	'dataset_hint'=>$datasettypes_hints ,
                                 'rss_arr' => $rss_arr ,
-                                'latest_datasets'=>$latest_datasets));
+                                'latest_datasets'=>$latest_datasets,
+                                'count' => $count,
+                                'type_info'=>$type_info
+                ));
 	}
 
     private function sortRssArray(&$rss_arr){
@@ -184,12 +221,22 @@ class SiteController extends Controller {
 	}
 
 	public function actionAjaxLoadDataset(){
-		 $type=0;
+                 $type=0;
+		 $typeText='';
+		 #$datasettypes_hints =Type::model()->findAll();
 
 		 if(isset($_POST['type'])) $type=$_POST['type'];
+		 if(isset($_POST['typeText'])){
+                     $p = strpos($_POST['typeText'], " (");
+                     $typeText= substr($_POST['typeText'],0,$p);
+                 }
 
 		 $datasetModel=$this->getDatasetByType($type);
-		 $this->renderPartial('slider',array('datasets'=>$datasetModel));
+
+		# $type=$datasettypes_hints[$type];
+                
+                // $this->redirect(array('/site/index?type='.$type));
+		$this->renderPartial('slider',array('datasets'=>$datasetModel,'typeText'=>$typeText));
 
 	}
 	/**
@@ -200,7 +247,7 @@ class SiteController extends Controller {
 		// collect user input data
 		if (isset($_POST['LoginForm'])) {
 			$model->attributes=$_POST['LoginForm'];
-            $model->username = strtolower($_POST['LoginForm']['username']);
+                       $model->username = strtolower($_POST['LoginForm']['username']);
 			// validate user input and redirect to the previous page if valid
 			if($model->validate())
 				$this->redirect(Yii::app()->user->returnUrl);

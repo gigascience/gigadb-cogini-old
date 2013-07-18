@@ -1,8 +1,12 @@
 <? $this->pageTitle = Yii::app()->name ?>
 
-
-<p style="text-align:center"><i><? echo $this->renderInternal('Yii::app()->basePath'.'/../files/html/gigadb.html'); ?></i></p>
+<p style="text-align:center"><i>  
+    GigaDB contains <? echo $count?> discoverable, trackable, and citable datasets that have been assigned DOIs and are available for public download and use.  
+    <?// echo $this->renderInternal('Yii::app()->basePath'.'/../files/html/gigadb.html?count='.$count); ?>
+    </i></p>
+    
 <p>
+
 <? $this->renderPartial('/search/_form',array('model'=>$form,'dataset'=>$dataset,'search_result'=>null)); ?>
 
 <? if(count($news)>0) {?>
@@ -11,15 +15,20 @@
     </div>
 <? }?>
 
+
+
 <div class="row">
     <div class="span8" id="dataset_slider">
         <div class="module-box">
             <h2><?=Yii::t('app' , 'Datasets and tools') ?></h2>
             <?
-            echo CHtml::dropDownList('type', "", CMap::mergeArray(array(0=>Yii::t('app' , 'All types')),MyHtml::listData($dataset_hint,'id','name')) ,array('ajax'=>array('url'=>array('site/AjaxLoadDataset'),'update'=>'#slider_partial','type'=>'POST','data'=>array('type'=>'js:$(this).val()'))));
+            echo CHtml::dropDownList('type', "",$type_info ,array('ajax'=>array('url'=>array('/site/ajaxLoadDataset'),'update'=>'#slider_partial','type'=>'POST','data'=>array('type'=>'js:$(this).val()','typeText'=>'js:$(this).find("option::selected").text()'))));
+           
             ?>
+         
+                     
             <?
-            $hint="";
+             $hint="";
             foreach ($dataset_hint as $key => $value) {
               $hint=$hint.$value->name.": ".$value->description."</br>";
             }
@@ -27,12 +36,14 @@
             ?>
 
             <a class="hint" id="dataset-hint" data-content="<? echo $hint; ?>"></a>
-            <div id="slider_partial">
-            <? $this->renderPartial('slider',array('datasets'=>$datasets)); ?>
+            
+
+            <div id="slider_partial" style="display:inline">                           
+            <? $typeText="10.5524"; $this->renderPartial('slider',array('datasets'=>$datasets,'typeText'=>$typeText)); ?>
             </div>
         </div><!--module-box-->
     </div>
-
+    
     <div class="span4">
         <?=MyHtml::link(MyHtml::image("/images/rss.png")." RSS" , "/rss/latest" , array('target' => '_blank', 'class'=>'rsslink'))?>
         <div class='module-box'>

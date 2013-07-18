@@ -14,11 +14,6 @@ class User extends CActiveRecord {
     public $validacion;
 
 
-
-
-
-
-
     /**
      * Returns the static model of the specified AR class.
      * @return MyActiveRecord the static model class

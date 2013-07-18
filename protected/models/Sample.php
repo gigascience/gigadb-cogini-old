@@ -22,6 +22,7 @@ class Sample extends CActiveRecord
 	 */
     public $species_search;
     public $dois_search;
+    public $ids_search;
 
 	public static function model($className=__CLASS__)
 	{
@@ -50,7 +51,7 @@ class Sample extends CActiveRecord
 			array('code', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, species_id, s_attrs, code , species_search, dois_search', 'safe', 'on'=>'search'),
+			array('id, species_id, s_attrs, code , species_search, dois_search,ids_search','safe', 'on'=>'search'),
 		);
 	}
 
@@ -81,6 +82,7 @@ class Sample extends CActiveRecord
 			'code' => 'Sample ID',
             'species_search' => 'Species Name',
             'dois_search' => 'DOIs',
+             'ids_search' =>'ID search'
 		);
 	}
 
@@ -204,4 +206,9 @@ EO_SQL;
 			return $sampleAttributes;
 		}
 	}
+        
+     public function getFullSample(){
+        $species = Species::model()->findByAttributes(array('id'=>$this->species_id))->common_name;
+        return "Species Name: ".$species . ' Attributes:' . $this->s_attrs . ' Sample ID:' . $this->code;
+    }
 }

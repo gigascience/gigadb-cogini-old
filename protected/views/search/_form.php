@@ -1,17 +1,28 @@
 
 <div class="row">
+    
     <div class="span12">
-
+        
     <? if (Yii::app()->user->hasFlash('keyword')) { ?>
+        <font color="red">
         <div>
         <?= Yii::app()->user->getFlash('keyword'); ?>
         </div>
+        </font>
     <? } ?>
-
+        
     <?php echo MyHtml::beginForm('/search/index','GET',array('class'=>'form-search well','onsubmit'=>'return validateForm(this);')); ?>
+
     <?php echo MyHtml::errorSummary($model); ?>
+     
     <?php
-        $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
+       
+         if(isset($previous_doi))
+            //echo  "<a href=\"/dataset/".$previous_doi."\" title=\"previous dataset\"><img src=\"/images/left_arrow.png\" class=\"search_arrow\" /></a>";
+          echo "<a class=\"carousel-doi left \" href=\"/dataset/".$previous_doi."\">&lsaquo;</a>";
+//  <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
+    
+         $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
             'name'=>'keyword',
             //'source'=>array('ac1', 'ac2', 'ac3'),
             // 'source'=> array_values($dataset->getListTitles()),
@@ -25,10 +36,20 @@
                                  ),
             ));
         echo MyHtml::submitButton(Yii::t('app' , 'Search'), array('class'=>'span2 btn-green'));
+      //    $image = CHtml::image(Yii::app()->baseUrl.'/images/right_arrow.png',array('class'=>'span2'));
+       // echo Myhtml::link($image,"");
+       
     ?>
-
+ 
+    <? 
+       if(isset($next_doi))
+          //  echo  "<a href=\"/dataset/".$next_doi."\" title=\"next dataset\"><img src=\"/images/right_arrow.png\" class=\"search_arrow\" /></a>";
+            echo "<a class=\"carousel-doi right\" href=\"/dataset/".$next_doi."\">&rsaquo;</a>";
+    ?>
+  
     <a data-toggle="modal" href="#how-to-use-advanced-search" class="hint advanced-search-hint"></a>
 
+    
     <?php echo MyHtml::endForm(); ?>
 
     <div class="modal hide fade" id="how-to-use-advanced-search">

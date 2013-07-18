@@ -1,3 +1,7 @@
+
+  <?
+   echo "  ".Myhtml::link("view all","/search/index?keyword=".$typeText."&yt0=Search");
+    ?>
 <div id="myCarousel" class="carousel slide" >
   <!-- Carousel items -->
   <div class="carousel-inner module-inner" style='height:305px;'>
@@ -5,6 +9,7 @@
     $active="active";
     $itemPerSlide=3;
     $i=0;
+    
     foreach ($datasets as $key=>$dataset){
         if($i%$itemPerSlide==0)  {?>
         <div class="<? echo $active; ?> item">
@@ -33,6 +38,10 @@
     } ?>
 
   </div>
+   
+ 
+  
+            
   <!-- Carousel nav -->
   <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
   <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>

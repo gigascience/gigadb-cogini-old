@@ -11,6 +11,27 @@ class SearchController extends Controller
         $this->render('emailMatchedSearches');
     }
 
+    
+        
+    public function actionResetPageSize(){
+       
+        
+        
+        if(isset($_POST['pageSize'])){
+            // $_SESSION['pageSize'] = $_POST['pageSize'];  
+            $cookie = new CHttpCookie('pageSize', $_POST['pageSize']);
+             //half year
+            $cookie->expire = time()+60*60*24*180; 
+            Yii::app()->request->cookies['pageSize'] = $cookie;
+           
+             
+        }
+        if(isset($_POST['url'])){
+             $this->redirect($_POST['url']);
+        }
+        
+    }
+    
     public function actionIndex($keyword=false)
     {
         if($keyword){
@@ -41,7 +62,13 @@ class SearchController extends Controller
             //$form->criteria=json_encode($criteria);
             //$list_result_file=$this->searchFile($criteria);
             $list_result_dataset=$this->searchDataset($criteria);
-
+            
+            //redirect to the index when the search result is empty
+            if(count($list_result_dataset)==0){
+                // Yii::app()->user->setFlash('keyword',serialize($criteria));
+                Yii::app()->user->setFlash('keyword','there is no result for '.$keyword);
+                $this->redirect(array("/site/index"));
+            } 
 
 	    // clone searched dataset
             $list_result_dataset_criteria = $list_result_dataset;
@@ -136,6 +163,7 @@ class SearchController extends Controller
             $file_pagination = new MyPagination;
             $file_pagination->tab="result_files";
             $file_pagination->pageVar="file_page";
+           // $file_pagination->pageSize=100;
             $file_result=new CActiveDataProvider('File', array('criteria'=>$file_criteria,'sort'=>$fsort,'pagination'=>$file_pagination));
             if($this->hasSizeFilter($criteria))
                 $total_files_found = $file_result->totalItemCount;
@@ -197,6 +225,7 @@ class SearchController extends Controller
             $dataset_pagination = new MyPagination;
             $dataset_pagination->tab="result_dataset";
             $dataset_pagination->pageVar="dataset_page";
+           // $dataset_pagination->pageSize = 100;
             $dataset_result=new CActiveDataProvider('Dataset', array('criteria'=>$dataset_criteria,'sort'=>$dsort,'pagination'=>$dataset_pagination));
 
 
@@ -474,5 +503,6 @@ class SearchController extends Controller
     private function hasSizeFilter($criteria){
         return (isset($criteria['size_from']) || isset($criteria['size_to']));
     }
+
 
 }

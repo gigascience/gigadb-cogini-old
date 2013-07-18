@@ -19,13 +19,21 @@
         $data = $uploadedDatasets;
     ?>
         <tr class="<?php echo $class; ?>">
-            <td class="content-popup" data-content="<? echo MyHtml::encode($data[$i]->description);?>"> <? echo MyHtml::link("10.5524/".$data[$i]->identifier,"/dataset/".$data[$i]->identifier,array('target'=>'_blank'));?> </td>
+            <? if($data[$i]->upload_status == 'Request') {?>
+            <td class="content-popup" data-content="<? echo MyHtml::encode($data[$i]->description);?>">
+                <a title="click to update" href="<? echo "/dataset/updateSubmit/?id=".$data[$i]->id ?>" >unknown</a>
+            </td>
+            <? } else {?>
+            <td class="content-popup" data-content="<? echo MyHtml::encode($data[$i]->description);?>">
+ <? echo MyHtml::link("10.5524/".$data[$i]->identifier,"/dataset/".$data[$i]->identifier,array('target'=>'_blank'));?>
+            </td>
+            <? } ?>
             <td class="left content-popup" data-content="<? echo MyHtml::encode($data[$i]->description);?>"><? echo $data[$i]->title; ?> </td>
             <td><? echo $data[$i]->commonNames ;?> </td>
             <td >
                 <? foreach( $data[$i]->datasetTypes as $type ){?>
                     <?=$type->name?>
-                    <a class="hint" title="<?= $type->description ?>"></a>
+                 
                 <?}?>
             </td>
             <td><?= MyHtml::encode($data[$i]->upload_status) ?></td>

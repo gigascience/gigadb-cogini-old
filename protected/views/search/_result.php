@@ -1,7 +1,30 @@
+      <script>
+        function doKeyUpValidation(text) {
+                 var validationRegex = /^\d+$/g;
+                     if (!validationRegex.test(text.value)) {
+                          alert('Please enter only numbers.');
+                 }
+        }
+
+     </script>
+     
 <?php
 $dataset_result=$search_result['dataset_result'];
 
 $file_result=$search_result['file_result'];
+//set page size
+//echo Yii::app()->request->cookies['pageSize']->value.'cookie';
+
+//      $pageSize = 10;
+//         if(isset($_SESSION['pageSize']))
+//         $pageSize = $_SESSION['pageSize'];
+//if(isset($_SESSION['pageSize']))
+//    echo 'fuck';
+ $pageSize = isset(Yii::app()->request->cookies['pageSize']) ?
+  Yii::app()->request->cookies['pageSize']->value : 10;
+$dataset_result->getPagination()->pageSize = $pageSize;
+$file_result->getPagination()->pageSize = $pageSize;
+
 $data=$dataset_result->getData();
 
 $fsort=$file_result->getSort();
@@ -45,8 +68,10 @@ foreach ($dsort->directions as $key => $value) {
 <ul class="nav nav-tabs" id="myTab">
 <li class="active"><a href="#result_dataset" rel="#dataset_filter"><?= Yii::t('app' , 'Dataset')?></a></li>
 <li><a href="#result_files" rel="#file_filter"><?=Yii::t('app' , 'File')?></a></li>
+
 </ul>
 
+     
 <div class="tab-content">
     <div class="tab-pane active" id="result_dataset">
         <table class="table table-bordered" id ="list">
@@ -89,17 +114,22 @@ foreach ($dsort->directions as $key => $value) {
         ?>
         </table>
         <?php
+            $pageSize = isset(Yii::app()->request->cookies['pageSize']) ?
+  Yii::app()->request->cookies['pageSize']->value : 10;
+            
             $pagination = $dataset_result->getPagination();
+            $pagination->pageSize = $pageSize;
+            
             $this->widget('CLinkPager', array(
                 'pages' => $pagination,
-                'header'=>'',
+                'header'=>'',     
                 'cssFile' => false,
             ));
         ?>
 
         <?= ($exclude) ? MyHtml::link(Yii::t('app' , "Show Hidden Datasets"), $model->getParams() ,array('class'=>'btn btn_hide')) : '' ?>
     </div>
-
+    
     <div class="tab-pane" id="result_files">
         <table class="table table-bordered" id="list_files">
             <thead>
@@ -115,8 +145,6 @@ foreach ($dsort->directions as $key => $value) {
             <?
 
             foreach ($file_result->getData() as $key=>$file){
-
-
             ?>
             <tr>
                 <td class="left content-popup"  ><? echo MyHtml::link("10.5524/".$file->dataset->identifier,"/dataset/".$file->dataset->identifier); ?></td>
@@ -131,12 +159,19 @@ foreach ($dsort->directions as $key => $value) {
             <? }
             ?>
         </table>
+        
+     
         <?php
             $pagination = $file_result->getPagination();
-
+          
+             $pageSize = isset(Yii::app()->request->cookies['pageSize']) ?
+  Yii::app()->request->cookies['pageSize']->value : 10;
+            
+            $pagination->pageSize = $pageSize;
+           
             $this->widget('CLinkPager', array(
                 'pages' => $pagination,
-                'header'=>'',
+                'header'=>'',          
                 'cssFile' => false,
             ));
 

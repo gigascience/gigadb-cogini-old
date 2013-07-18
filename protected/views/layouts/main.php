@@ -40,7 +40,7 @@
                 <a class="btn" href="/site/login"><?=Yii::t('app' , 'Login')?></a>
                 <a class="btn" href="/user/create" id="btnCreateAccount" title="<?=Yii::t('app' , 'An account with GigaDB is required if you want to upload a dataset or be automatically notified of new content of interest to you')?>"><?=Yii::t('app' , 'Create account')?></a>
                 <? } else { ?>
-                <a class="btn" href="/user/view_profile"><?=Yii::t('app' , 'My GigaDB Page')?></a>
+                  <a class="btn" href="/user/view_profile"><?=Yii::t('app' , Yii::app()->user->first_name.'\'s GigaDB Page')?></a>
                     <? if (Yii::app()->user->checkAccess('admin')) { ?>
                     <a class="btn" href="/site/admin"><?=Yii::t('app' , 'Administration')?></a>
                     <? } ?>
@@ -73,7 +73,7 @@
                 <? if(Yii::app()->user->isGuest) { ?>
                 <li class="<? if(Yii::app()->controller->action->id=='login') echo "active"; ?>"><a href="/site/login"><?=Yii::t('app' , 'Login')?></a>|</li>
                 <? } else { ?>
-                <li class="<? if(Yii::app()->controller->action->id=='view_profile') echo "active"; ?>"><a href="/user/view_profile"><?=Yii::t('app' , 'My GigaDB Page')?></a>|</li>
+                <li class="<? if(Yii::app()->controller->action->id=='view_profile') echo "active"; ?>"><a href="/user/view_profile"><?=Yii::t('app' , Yii::app()->user->first_name.'\'s GigaDB Page')?></a>|</li>
                 <? } ?>
                 <li class="<? if(Yii::app()->controller->action->id=='about') echo "active"; ?>"><a href="/site/about"><?=Yii::t('app' , 'About')?></a>|</li>
                 <li class="<? if(Yii::app()->controller->action->id=='contact') echo "active"; ?>"><a href="/site/contact"><?=Yii::t('app' , 'Contact')?></a>|</li>
