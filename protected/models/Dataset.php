@@ -81,7 +81,7 @@ class Dataset extends MyActiveRecord {
         // will receive user inputs.
         return array(
             array('submitter_id, title', 'required'),
-            array('submitter_id, image_id, publisher_id', 'numerical', 'integerOnly' => true),
+            array('submitter_id, image_id, publisher_id,dataset_size', 'numerical', 'integerOnly' => true),
             array('identifier, excelfile_md5', 'length', 'max' => 32),
             array('title', 'length', 'max' => 30),
             array('upload_status', 'length', 'max' => 45),
@@ -106,7 +106,7 @@ class Dataset extends MyActiveRecord {
         return array(
             'authors' => array(self::MANY_MANY, 'Author', 'dataset_author(dataset_id,author_id)', 'order' => 'authors_authors.rank ASC',),
             'projects' => array(self::MANY_MANY, 'Project', 'dataset_project(dataset_id,project_id)'),
-            'submitter' => array(self::BELONGS_TO, 'GigadbUser', 'submitter_id'),
+            'submitter' => array(self::BELONGS_TO, 'User', 'submitter_id'),
             'image' => array(self::BELONGS_TO, 'Images', 'image_id'),
             'samples' => array(self::MANY_MANY, 'Sample', 'dataset_sample(dataset_id,sample_id)'),
             'externalLinks' => array(self::HAS_MANY, 'ExternalLink', 'dataset_id'),
@@ -190,7 +190,7 @@ class Dataset extends MyActiveRecord {
             $s->setSelect("id as myidex");
             $s->setFilter('myidex', array_filter(explode(',', $criteria['exclude'])), true);
         }
-
+//        var_dump("here");
         $dataset_type = isset($criteria['dataset_type']) ? $criteria['dataset_type'] : "";
         $common_name = isset($criteria['common_name']) ? $criteria['common_name'] : "";
         $project = isset($criteria['project']) ? $criteria['project'] : "";
@@ -327,6 +327,7 @@ class Dataset extends MyActiveRecord {
         $criteria->distinct = true;
         $datasets = Dataset::model()->query($criteria, true);
         $result = array();
+//        var_dump(count($datasets)." datasets model");
         foreach ($datasets as $dataset) {
             foreach ($dataset->files as $file) {
                 array_push($result, $file->id);
@@ -370,4 +371,14 @@ class Dataset extends MyActiveRecord {
         return false;
     }
 
+    
+       public static function clearDatasetSession(){
+      $vars = array('dataset', 'images', 'authors', 'projects',
+            'links', 'externalLinks', 'relations', 'samples','dataset_id','identifier','filecount',
+          'link_database');
+        foreach ($vars as $var) {
+            unset($_SESSION[$var]);
+            //    $_SESSION[$var] = CJSON::decode($dataset_session->$var);
+        }   
+    }
 }

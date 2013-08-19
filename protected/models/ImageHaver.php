@@ -125,7 +125,7 @@ class ImageHaver extends CActiveRecord {
         </table>
       <?php
         } else {
-      echo CHtml::fileField("{$type}_image");
+      echo CHtml::fileField("{$type}_image","",array('class'=>'image'));
     }
   }
 

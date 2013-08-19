@@ -8,4 +8,4 @@ createdb --encoding UNICODE --owner cogini_music_dev cogini_music_dev
 # as root
 cd /var/www/hosts/music.cogini.com/htdocs/protected/scripts
 ./init_perms.sh
-
+ 

@@ -43,7 +43,7 @@ class ExternalLink extends MyActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('dataset_id, url, external_link_type_id', 'required'),
+			array('dataset_id, external_link_type_id', 'required'),
 			array('dataset_id, external_link_type_id', 'numerical', 'integerOnly'=>true),
 			array('url', 'length', 'max'=>128),
 			// The following rule is used by search().

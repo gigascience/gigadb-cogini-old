@@ -29,7 +29,7 @@ class AdminDatasetAuthorController extends Controller {
                 'roles' => array('admin'),
             ),
             array('allow',
-                'actions' => array('create1', 'delete1', 'autocomplete'),
+                'actions' => array('create1', 'delete1', 'autocomplete', 'search'),
                 'users' => array('@'),
             ),
             array('deny', // deny all users
@@ -48,14 +48,37 @@ class AdminDatasetAuthorController extends Controller {
         ));
     }
 
+    public function actionSearch($term) {
+        if (Yii::app()->request->isAjaxRequest && !empty($term)) {
+            $variants = array();
+            $criteria = new CDbCriteria;
+            $criteria->select = 'name';
+            $criteria->distinct = 'true';
+            $criteria->addSearchCondition('name', '%' . $term . '%', false);
+
+            $tags = Author::model()->findAll($criteria);
+            if (!empty($tags)) {
+                foreach ($tags as $tag) {
+                    $variants[] = $tag->attributes['name'];
+                }
+            }
+            echo CJSON::encode($variants);
+            Yii::app()->end();
+        }
+        else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
     public function actionAutocomplete() {
         $res = array();
         $result = array();
         if (isset($_GET['term'])) {
             $connection = Yii::app()->db;
-            $sql = "Select name from author where name like :name";
+            $sql = "Select distinct name from author where name like :name";
             $command = Yii::app()->db->createCommand($sql);
-            $command->bindValue(":name", '%' . $_GET['term'] . '%', PDO::PARAM_STR);
+            $parts = explode(";", $_GET['term']);
+            $part = $parts[count($parts) - 1];
+            $command->bindValue(":name", '%' . $part . '%', PDO::PARAM_STR);
             $res = $command->queryAll();
             if (!empty($res))
                 foreach ($res as $mres) {
@@ -147,46 +170,112 @@ class AdminDatasetAuthorController extends Controller {
         $authors = $_SESSION['authors'];
 
         if (isset($_POST['DatasetAuthor'])) {
-            //store the information in session 
-//            if (!isset($_SESSION['author_id']))
-//                $_SESSION['author_id'] = 0;
-//            $id = $_SESSION['author_id'];
-//            $_SESSION['author_id'] += 1;
-
-
-            $rank = $_POST['DatasetAuthor']['rank'];
-            $name = $_POST['DatasetAuthor']['author_name'];
-            //determin if the record has already in the session
+ 
+           
+            
+            $ranks = trim($_POST['DatasetAuthor']['rank']);
+            $names = trim($_POST['DatasetAuthor']['author_name']);
+            if (substr($names, -1) == ";")
+                $names = substr($names, 0, -1);
             $valid = true;
-            foreach ($authors as $key => $author) {
-                if ($author['rank'] == $rank && $author['name'] == $name) {
-                    $model->addError("error", "Duplicate input");
-                    $valid = false;
-                    break;
+            $namearray = array();
+            if ($names != "")
+                $namearray = explode(";", $names);
+//            var_dump($namearray);
+            if ($ranks == "")
+                $rankarray = array();
+            else
+                $rankarray = explode(";", $ranks);
+//            var_dump($rankarray);
+//            if (count($namearray) != count($rankarray)) {
+//                $model->addError("error", "the number of name and rank are different!");
+//                $valid = false;
+//            }
+            //test names
+            if ($valid) {
+                foreach ($namearray as $name) {
+                    if ($name == "") {
+                        $model->addError("error", "name can't be blank!");
+                        $valid = false;
+                        break;
+                    }
                 }
             }
+            //test ranks
             if ($valid) {
-                //store author dataset
-                $model->rank = $rank;
-                $model->author_name = $name;
-                $id = 0;
-                if ($this->storeAuthor($model, $id)) {
+                foreach ($rankarray as $rank) {
+//                    if ($rank == "") {
+//                        $model->addError("error", "rank can't be blank!");
+//                        $valid = false;
+//                        break;
+//                    }
+                    if (!is_numeric($rank)) {
+                        $model->addError("error", "rank should be an integer!");
+                        $valid = false;
+                        break;
+                    }
+                }
+            }
+//            var_dump(count($rankarray)." test");
+            if ($valid) {
 
-                    $newItem = array('rank' => $rank, 'id' => $id, 'name' => $name);
+                foreach ($namearray as $index => $name) {
+                    if ($index < count($rankarray)) {
+                        $rank = $rankarray[$index];
+                    } else {
+                        $rank = 1;
+                       
+                        while (true) {
+                             $found = true;
+                            //find the maximum one in the authors array
+                            foreach ($authors as $author) {
+                                if ($author['rank'] == $rank){
+                                   $found = false;
+                                   break;
+                                }
+                            }
+                            if($found)
+                                break;
+                            
+                            $rank++;
+                        }
 
-                    array_push($authors, $newItem);
+                      
+                    }
 
-                    $_SESSION['authors'] = $authors;
-                    $vars = array('authors');
-                    Dataset::storeSession($vars);
-                    $model = new DatasetAuthor;
+                    $valid = true;
+
+                    //check if there is duplicate input                 
+                    foreach ($authors as $key => $author) {
+                        if ($author['rank'] == $rank && $author['name'] == $name) {
+                            $model->addError("warning", "Duplicate input");
+                            $valid = false;
+                            break;
+                        }
+                    }
+
+                    if ($valid) {
+
+                        //store author dataset
+                        $model->rank = $rank;
+                        $model->author_name = $name;
+                        $id = 0;
+                        if ($this->storeAuthor($model, $id)) {
+
+                            $newItem = array('rank' => $rank, 'id' => $id, 'name' => $name);
+
+                            array_push($authors, $newItem);
+                            $_SESSION['authors'] = $authors;
+                            $vars = array('authors');
+                            Dataset::storeSession($vars);
+                        } else {
+                            $model->addError("error", "database operation failure, please log out first and log in again.");
+                        }
+                    }
                 }
             }
         }
-
-
-
-
+        //   $model = new DatasetAuthor;
         $author_model = new CArrayDataProvider($authors);
 
         $this->render('create1', array(

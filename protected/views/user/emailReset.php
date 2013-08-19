@@ -8,7 +8,7 @@
 							<td height="20" width="600"></td>
 						</tr>
 						<tr>
-							<td height="6" width="600">
+			 				<td height="6" width="600">
 								<img src="<?=$this->createAbsoluteUrl('/images/email/top.gif')?>" width="600" height="50" alt="Banner" border="0" valign="bottom" style="vertical-align:bottom;">
 							</td>
 						</tr>
@@ -33,7 +33,7 @@
 							<td height="20" width="600"></td>
 						</tr>
 					</table>
-				</td>
+				</td> 
 			</tr>
 		</table>
 	</body>

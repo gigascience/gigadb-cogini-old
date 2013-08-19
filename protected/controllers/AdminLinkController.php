@@ -57,15 +57,32 @@ class AdminLinkController extends Controller {
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
+        $link_database = array();
+        //retrieve the database
+        if (!isset($_SESSION['link_database'])) {
+            $models = Link::model()->findAll();
+            $database = array();
+            foreach ($models as $m) {
+                $value = $m->getDatabase();
+//                var_dump($value);
+                if ($value != "" && !in_array($value, $database))
+                    array_push($database, $value);
+            }
+            sort($database);
+            $_SESSION['link_database'] = $database;
+        }
+        $link_database = $_SESSION['link_database'];
 
         if (isset($_POST['Link'])) {
             $model->attributes = $_POST['Link'];
+            $model->link = $link_database[$_POST['Link']['database']] . ":" . $_POST['Link']['acc_num'];
+//            $model->link = $_POST['Link']['database'].$_POST['Link']['acc_num'];
             if ($model->save())
                 $this->redirect(array('view', 'id' => $model->id));
         }
 
         $this->render('create', array(
-            'model' => $model,
+            'model' => $model, 'link_database' => $link_database
         ));
     }
 
@@ -81,7 +98,7 @@ class AdminLinkController extends Controller {
                 $model->addError('keyword', 'Error: Link is not stored!');
                 return false;
             }
-        
+
             $id = $model->id;
             return true;
         }
@@ -102,12 +119,11 @@ class AdminLinkController extends Controller {
         $link_database = array();
         //retrieve the database
         if (!isset($_SESSION['link_database'])) {
-            $models = Link::model()->findAll();
+            $models = Prefix::model()->findAll();
             $database = array();
             foreach ($models as $m) {
-                $value = $m->getDatabase();
-                if (!in_array($value, $database))
-                    array_push($database, $value);
+                $value = $m->prefix;
+                array_push($database, $value);
             }
             sort($database);
             $_SESSION['link_database'] = $database;
@@ -125,7 +141,7 @@ class AdminLinkController extends Controller {
             $link = $link_database[$_POST['Link']['database']] . ":" . $_POST['Link']['acc_num'];
 
             $is_primary = 1;
-            
+
             $model->attributes = $_POST['Link'];
             $model->link = $link;
             $model->is_primary = $is_primary;
@@ -141,8 +157,8 @@ class AdminLinkController extends Controller {
                 array_push($links, $newItem);
 
                 $_SESSION['links'] = $links;
-                    $vars = array('links');
-                    Dataset::storeSession($vars);
+                $vars = array('links');
+                Dataset::storeSession($vars);
                 $model = new Link;
             }
         }
@@ -205,9 +221,9 @@ class AdminLinkController extends Controller {
                     $_SESSION['links'] = $info;
                     $vars = array('links');
                     Dataset::storeSession($vars);
-                    $condition = 'id='.$id;
+                    $condition = 'id=' . $id;
                     Link::model()->deleteAll($condition);
-                    
+
                     $this->redirect("/adminLink/create1");
                 }
             }

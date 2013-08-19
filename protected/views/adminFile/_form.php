@@ -5,10 +5,16 @@ $cs->registerCssFile($cssCoreUrl . '/jui/css/base/jquery-ui.css');
 Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js');
 ?>
 
+                    
+<input type="text" class='date'>
+
+
+</input>
+
 <div class="row">
 	<div class="span8 offset2 form well">
 		<div class="clear"></div>
-		<?  Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js'); ?>
+		
 		<div class="form">
 <div class="form">
 

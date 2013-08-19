@@ -19,7 +19,7 @@
 		<?php echo $form->label($model,'orcid'); ?>
 		<?php echo $form->textField($model,'orcid',array('size'=>60,'maxlength'=>128)); ?>
 	</div>
-
+ 
 	<div class="row">
 		<?php echo $form->label($model,'rank'); ?>
 		<?php echo $form->textField($model,'rank'); ?>

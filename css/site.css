@@ -186,6 +186,9 @@ a:hover {
 .span7 {
   width: 540px;
 }
+.span6_5{
+    width: 500px;
+}
 .span6 {
   width: 460px;
 }
@@ -201,9 +204,13 @@ a:hover {
 .span2 {
   width: 140px;
 }
+.span1_5{
+    width:100px;
+}
 .span1 {
   width: 60px;
 }
+
 .offset12 {
   margin-left: 980px;
 }
@@ -1271,7 +1278,7 @@ table {
 .table td {
   padding: 8px;
   line-height: 18px;
-  text-align: left;
+text-align: left;
   vertical-align: top;
   border-top: 1px solid #dddddd;
 }
@@ -2116,6 +2123,71 @@ button.close {
     margin-left: 0px;
     margin-right: -3px;
 }
+.btn-grey{
+    display: inline-block;
+  *display: inline;
+  /* IE7 inline-block hack */
+  *zoom: 1;
+  padding: 4px 10px 4px;
+  margin-bottom: 0;
+  font-size: 13px;
+  line-height: 18px;
+  *line-height: 20px;
+  color: #333333;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -ms-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
+  background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: linear-gradient(top, #ffffff, #e6e6e6);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+  border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+ 
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  border: 1px solid #cccccc;
+  *border: 0;
+  border-bottom-color: #b3b3b3;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  *margin-left: .3em;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+ 
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    
+  background: #f2f2f2;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, from(#f2f2f2), to(#dddddd));
+  background: -webkit-linear-gradient(#f2f2f2, #dddddd);
+  background: -moz-linear-gradient(#f2f2f2, #dddddd);
+  background: -ms-linear-gradient(#f2f2f2, #dddddd);
+  background: -o-linear-gradient(#f2f2f2, #dddddd);
+  background: linear-gradient(#f2f2f2, #dddddd);
+  -pie-background: linear-gradient(#f2f2f2, #dddddd);
+  behavior: url(/css/PIE.htc);
+  font-weight: bold;
+  border: 0;
+  text-shadow: none;
+  color: #666666;
+  text-decoration: none;
+  box-shadow: 0 0 0;
+  position: relative;
+  z-index: 1;
+
+}
+
+
+
 .btn {
   display: inline-block;
   *display: inline;
@@ -2159,7 +2231,7 @@ button.close {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
 }
 
-.btn1:hover{}
+.btn:hover{}
 
 
 .btn:hover,
@@ -4205,9 +4277,7 @@ a.badge:hover {
 
 
 .carousel-doi.right {
-
-  left: 865px;
- 
+  left: 880px;
 }
 .carousel-doi:hover {
   background: #5a9c7b;
@@ -4439,6 +4509,7 @@ footer .container .social-links #share_google {
   -pie-background: linear-gradient(#f2f2f2, #dddddd);
   behavior: url(/css/PIE.htc);
 }
+
 .btn {
   background: #f2f2f2;
   background: -webkit-gradient(linear, 0 0, 0 bottom, from(#f2f2f2), to(#dddddd));
@@ -4627,6 +4698,8 @@ footer .container .social-links #share_google {
   position: relative;
   z-index: 1;
 }
+
+
 
 .btn-green-active{
       display: inline-block;
@@ -4935,6 +5008,15 @@ a.myHint{
   height: 20px;
   width: 20px;
 }
+
+a.myHintLink{
+  display: inline-block;
+  float:left;
+  background-image: url(/images/hint-icon.png);
+  height: 20px;
+  width: 20px;
+}
+
 .com {
   color: #666666;
 }
@@ -5197,7 +5279,7 @@ h3 em {
 .filter .disabled input {
   color: #8a8a8a;
 }
-.filter button.btn {
+.filter button.btn{
   border-left: 1px solid #d0d0d0;
   border-right: 1px solid #d0d0d0;
   border-bottom: 0;
@@ -5511,8 +5593,8 @@ text-decoration: none;
   line-height: 14px;
 }
 .selectPageSize{
-    width:50px;
-    height:25px;
+    width:auto;
+    height:auto;
 }
 
 .left1{
@@ -5530,7 +5612,9 @@ text-decoration: none;
     position:absolute;
     left:380px;
 }
-
+.left4{
+    margin-left:40px;
+}
 
 table.table tr.selected td, table.table tr.selected:hover td {
     background: none repeat scroll 0 0 #BCE774;
@@ -5541,3 +5625,128 @@ table.admin{
      margin-top: 20px;
  
 }
+
+.height1{
+    height: 300px;
+}
+
+div.overflow {
+overflow: auto;
+height: 100%;
+z-index: 1;
+
+
+}
+
+table.border{
+
+  border: 2px solid #dddddd;
+}
+
+.myCenter{
+  
+  position:relative;
+  left: 0.5%;
+  top:-5px;
+  
+  display: inline-block;
+  *display: inline;
+  /* IE7 inline-block hack */
+
+  *zoom: 1;
+  padding: 2px 5px 2px;
+  margin-bottom: 0;
+  font-size: 11px;
+  line-height: 20px;
+  *line-height: 20px;
+  color: #333333;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -ms-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
+  background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: linear-gradient(top, #ffffff, #e6e6e6);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+  border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  *background-color: #e6e6e6;
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  border: 1px solid #cccccc;
+  *border: 0;
+  border-bottom-color: #b3b3b3;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  *margin-left: .3em;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+  border-color: #ccc;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  background: #f2f2f2;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, from(#f2f2f2), to(#dddddd));
+  background: -webkit-linear-gradient(#f2f2f2, #dddddd);
+  background: -moz-linear-gradient(#f2f2f2, #dddddd);
+  background: -ms-linear-gradient(#f2f2f2, #dddddd);
+  background: -o-linear-gradient(#f2f2f2, #dddddd);
+  background: linear-gradient(#f2f2f2, #dddddd);
+  -pie-background: linear-gradient(#f2f2f2, #dddddd);
+  behavior: url(/css/PIE.htc);
+  font-weight: bold;
+  border: 0;
+  text-shadow: none;
+  color: #666666;
+  text-decoration: none;
+  box-shadow: 0 0 0;
+  position: relative;
+  z-index: 1;
+  color: #ffffff;
+  border: 0;
+  background: #a5cc7e;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, from(#a5cc7e), to(#6ea23a));
+  background: -webkit-linear-gradient(#a5cc7e, #6ea23a);
+  background: -moz-linear-gradient(#a5cc7e, #6ea23a);
+  background: -ms-linear-gradient(#a5cc7e, #6ea23a);
+  background: -o-linear-gradient(#a5cc7e, #6ea23a);
+  background: linear-gradient(#a5cc7e, #6ea23a);
+  -pie-background: linear-gradient(#a5cc7e, #6ea23a);
+  behavior: url(/css/PIE.htc);
+  text-decoration: none;
+  text-shadow: none ! important;
+  box-shadow: 0 0 0;
+  position: relative;
+  z-index: 1;
+  
+}
+
+.myCenter:hover{
+      text-decoration: none;
+  color: #ffffff;
+  background: #5a9c7b;
+  background: -webkit-gradient(linear, 0 0, 0 bottom, from(#5a9c7b), to(#005b2d));
+  background: -webkit-linear-gradient(#5a9c7b, #005b2d);
+  background: -moz-linear-gradient(#5a9c7b, #005b2d);
+  background: -ms-linear-gradient(#5a9c7b, #005b2d);
+  background: -o-linear-gradient(#5a9c7b, #005b2d);
+  background: linear-gradient(#5a9c7b, #005b2d);
+  -pie-background: linear-gradient(#5a9c7b, #005b2d);
+  behavior: url(/css/PIE.htc);
+}
+.vertical-center{
+   
+/*    vertical-align: top;*/
+}
+
+.autowidth{
+    width:auto;
+}
+
+

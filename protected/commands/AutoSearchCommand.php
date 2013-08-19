@@ -10,7 +10,7 @@ class AutoSearchCommand extends CConsoleCommand {
         $searches = SearchRecord::model()->findAll();
         foreach ($searches as $key => $search) {
             $criteria=json_decode($search->query,true);
-            $oldResult=json_decode($search->result,true);
+            $oldResult=json_decode($search->result,true); 
             $newResult = Dataset::sphinxSearch($criteria);
             $this->compareResult($oldResult,$newResult,$search);
         }

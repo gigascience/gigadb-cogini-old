@@ -24,6 +24,7 @@ class DatasetSample extends CActiveRecord
         public $species; //common_name in species
         public $attribute;
         public $code;
+        public $tax_id;
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);

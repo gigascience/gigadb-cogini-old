@@ -56,10 +56,10 @@ $this->pageTitle = "GigaDB Dataset - DOI 10.5524/" . $model->identifier . " - " 
             <? } ?>
         <p><? echo $model->description; ?> </p>
         <div class="row">   
-<? if (Yii::app()->user->isGuest) { ?>
-            <? echo MyHtml::link("Contact Submitter", '', array('class' => 'span2 btn-green', 'title' => 'Please Login to contact submitter')) ?>         
+<? if (Yii::app()->user->isGuest) { ?>        
+            
+            <? echo MyHtml::link("Contact Submitter", "javascript: void(0)",array('class' => 'span2 btn-grey', 'title' => 'Please Login to contact submitter','disabled'=>'disabled')) ?>         
         <? } else { ?>
-
             <? echo MyHtml::link("Contact Submitter", 'mailto:' . $email, array('class' => 'span2 btn-green')) ?>  
         <? } ?>
         </div>
@@ -301,7 +301,7 @@ if ($model->ftp_site) {
         <h4><?= Yii::t('app', 'Files') ?> <?= MyHtml::link(Yii::t('app', '(FTP site)'), $model->ftp_site, array('target' => '_blank')) ?> <?= ($aspera) ? MyHtml::link(Yii::t('app', '(Aspera)'), $aspera, array('target' => '_blank')) : '' ?>:<span style='color:#666666;font-size:10px;font-weight:normal;margin-left:5px;'><?= Yii::t('app', 'Aspera user name: gigadb , password: gigadb') ?></span>
 
             <?php
-            echo CHtml::link('Display Settings', "", // the link for open the dialog
+            echo CHtml::link('Table Settings', "", // the link for open the dialog
                     array(
                 'style' => 'cursor: pointer; text-decoration: underline;',
                 'onclick' => "{ $('#dialogDisplay').dialog('open');}"));

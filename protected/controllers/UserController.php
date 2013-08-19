@@ -286,7 +286,11 @@ class UserController extends Controller {
         $this->render('lostpass', array('user'=>$user)) ;
     }
 
+    
+    
     public function actionView_Profile() {
+        
+        Dataset::clearDatasetSession();
         $model = new EditProfileForm();
         $model->user_id = Yii::app()->user->id;
 
@@ -306,6 +310,20 @@ class UserController extends Controller {
         $searchRecord = SearchRecord::model()->findAllByAttributes(array('user_id' => Yii::app()->user->id));
 
         $uploadedDatasets = Dataset::model()->findAllByAttributes(array('submitter_id'=> Yii::app()->user->id));
+//         $connection = Yii::app()->db;
+//        foreach($uploadedDatasets as $dataset){
+//            $filecount = 0;
+//          
+//
+//            $sql = " select count(1) from file where dataset_id = :name";
+//            $command = Yii::app()->db->createCommand($sql);
+//            $command->bindValue(":name", $dataset['id'], PDO::PARAM_STR);
+//            $res = $command->queryAll();
+//            if (!empty($res))
+//                $filecount = $res[0]['count'];
+//            $dataset['filecount'] = $filecount;
+//        }
+//        Yii::app()->end();
         $this->render('view_profile',array('model'=>$model,'searchRecord'=>$searchRecord,'uploadedDatasets'=>$uploadedDatasets));
     }
 

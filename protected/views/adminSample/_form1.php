@@ -15,7 +15,9 @@
 
 	<div class="control-group">
 		<?php echo $form->labelEx($model,'species_id',array('class'=>'control-label')); ?>
+
 				<div class="controls">
+                                    
         <?= CHtml::activeDropDownList($model,'species_id',CHtml::listData(Species::model()->findAll(),'id','common_name')); ?>
 		<?php echo $form->error($model,'species_id'); ?>
                 </div>
@@ -48,3 +50,5 @@
 </div><!-- form -->
     </div>
 </div>
+
+

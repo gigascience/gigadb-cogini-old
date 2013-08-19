@@ -29,11 +29,11 @@ class DatasetController extends Controller {
                 'users' => array('*'),
             ),
             array('allow', // allow logged-in users to perform 'upload'
-                'actions' => array('upload', 'upload1','create1', 'cancel', 'submit', 'updateSubmit'),
+                'actions' => array('upload', 'upload1', 'create1', 'cancel', 'submit', 'delete', 'updateSubmit', 'updateFile'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete', 'update', 'create', 'updateMetadata', 'private', 'index'),
+                'actions' => array('admin', 'update', 'create', 'updateMetadata', 'private', 'index'),
                 'roles' => array('admin'),
             ),
             array('deny', // deny all users
@@ -49,7 +49,7 @@ class DatasetController extends Controller {
         if (isset($_POST['filePageSize'])) {
 
             $cookie = new CHttpCookie('filePageSize', $_POST['filePageSize']);
-            //half year
+//half year
             $cookie->expire = time() + 60 * 60 * 24 * 180;
             Yii::app()->request->cookies['filePageSize'] = $cookie;
         }
@@ -70,26 +70,31 @@ class DatasetController extends Controller {
             Yii::app()->user->setFlash('keyword', 'there is no result for ' . $id);
             $this->redirect('/site/index/');
         }
+        $status_array = array('Request', 'Incomplete', 'Uploaded');
+        if (in_array($model->upload_status, $status_array)) {
+            Yii::app()->user->setFlash('keyword', 'The dataset with DOI ' . $id . " can't be accessed now");
+            $this->redirect('/site/index/');
+        }
         if ($model->upload_status == "Pending") {
             if (isset($_GET['token']) && $model->token == $_GET['token']) {
                 
             } else {
 
-                Yii::app()->user->setFlash('keyword', 'there is no result for ' . $id);
+                Yii::app()->user->setFlash('keyword', 'The dataset with DOI ' . $id . "can't be accessed. please provide the correct token.");
                 $this->redirect('/site/index/');
             }
         }
 
 
-        #$files = $model->files;
-        //$samples = $model->samples;
-        // Prepare File Sort, Pagination and get the list of file results
-        // check cookie for file sorted column -- TODO: This is duplicated with the search controller
+#$files = $model->files;
+//$samples = $model->samples;
+// Prepare File Sort, Pagination and get the list of file results
+// check cookie for file sorted column -- TODO: This is duplicated with the search controller
         $defaultFileSortColumn = 'dataset.name';
         $defaultFileSortOrder = CSort::SORT_DESC;
         if (isset($_GET['filesort'])) {
-            // use new sort and save to cookie
-            // check if desc or not
+// use new sort and save to cookie
+// check if desc or not
             $order = substr($_GET['filesort'], strlen($_GET['filesort']) - 5, 5);
             $columnName = $defaultFileSortColumn;
             if ($order == '.desc') {
@@ -104,7 +109,7 @@ class DatasetController extends Controller {
             Yii::app()->request->cookies['file_sort_column'] = new CHttpCookie('file_sort_column', $columnName);
             Yii::app()->request->cookies['file_sort_order'] = new CHttpCookie('file_sort_order', $order);
         } else {
-            // use old sort if exists
+// use old sort if exists
             if (isset(Yii::app()->request->cookies['file_sort_column'])) {
                 $cookie = Yii::app()->request->cookies['file_sort_column']->value;
                 $defaultFileSortColumn = $cookie;
@@ -130,7 +135,7 @@ class DatasetController extends Controller {
             'pagination' => $fpagination
         ));
 
-        //Sample
+//Sample
         $spagination = new CPagination;
         $spagination->pageVar = 'samples_page';
         $samples = new CActiveDataProvider('Sample', array(
@@ -141,20 +146,20 @@ class DatasetController extends Controller {
             'pagination' => $spagination
         ));
 
-        // $files = File::model()->findAll("dataset_id=?",array($model->id));
+// $files = File::model()->findAll("dataset_id=?",array($model->id));
 //        $file_command = Yii::app()->db->createCommand("SELECT file.id , file.code,file.description,file.size as size ,file.date_stamp as date_stamp,file.location as location ,file.name,file_type.name as type, file_format.name as format, file_format.description as format_description FROM file LEFT JOIN file_type ON file_type.id=file.type_id LEFT JOIN file_format ON file_format.id=file.format_id WHERE file.dataset_id=?");
 //        $files = $file_command->query(array($model->id));
 //
 //		$sample_command = Yii::app()->db->createCommand("SELECT sample.id, sample.code as id,code,sample.s_attrs,tax_id,common_name,genbank_name,scientific_name FROM sample LEFT JOIN species ON sample.species_id=species.id WHERE sample.id IN (SELECT sample_id FROM dataset_sample WHERE dataset_id=?)");
 //        $samples = $sample_command->query(array($model->id));
-        //add contact of submitter
+//add contact of submitter
         $email = 'no_submitter@bgi.com';
         $result = Dataset::model()->findAllBySql("select email from gigadb_user g,dataset d where g.id=d.submitter_id and d.identifier='" . $id . "';");
         if (count($result) > 0) {
             $email = $result[0]['email'];
         }
 
-        //get previous doi and next doi
+//get previous doi and next doi
 
         $next_doi = 0;
         $previous_doi = 0;
@@ -212,11 +217,32 @@ class DatasetController extends Controller {
     public function actionUpdate($id) {
         $model = $this->loadModel($id);
 
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
+// Uncomment the following line if AJAX validation is needed
+// $this->performAjaxValidation($model);
 
         if (isset($_POST['Dataset'])) {
             $model->attributes = $_POST['Dataset'];
+            if ($model->upload_status == 'Published') {
+                $files = $model->files;
+                if (count($files) > 0) {
+                    foreach ($files as $file) {
+                        $origin_location = $file->location;
+                        $new_location = "";
+                        $location_array = explode("/", $origin_location);
+                        $count = count($location_array);
+                        if ($count == 1) {
+                            $new_location = "ftp://climb.genomics.cn/pub/10.5524/100001_101000/" .
+                                    $model->identifier . "/" . $location_array[0];
+                        } else if ($count >= 2) {
+                            $new_location = "ftp://climb.genomics.cn/pub/10.5524/100001_101000/" .
+                                    $model->identifier . "/" . $location_array[$count - 2] . "/" . $location_array[$count - 1];
+                        }
+                        $file->location = $new_location;
+                        if (!$file->save())
+                            return false;
+                    }
+                }
+            }
             $model->image->attributes = $_POST['Images'];
             if ($model->publication_date == "")
                 $model->publication_date = null;
@@ -267,10 +293,10 @@ class DatasetController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
-            // we only allow deletion via POST request
+// we only allow deletion via POST request
             $this->loadModel($id)->delete();
 
-            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
             if (!isset($_GET['ajax']))
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
         }
@@ -308,12 +334,13 @@ class DatasetController extends Controller {
 
 
             $excelFile = CUploadedFile::getInstanceByName('xls');
-            // print_r($excelFile);die;
+// print_r($excelFile);die;
             $excelTempFileName = $excelFile->tempName;
 
-            // email fields: to, from, subject, and so on
+// email fields: to, from, subject, and so on
             $from = Yii::app()->params['app_email_name'] . " <" . Yii::app()->params['app_email'] . ">";
             $to = Yii::app()->params['adminEmail'];
+//  $to = "senhongwang@gmail.com";
             $subject = "New dataset uploaded by user " . $user->id . " - " . $user->first_name . ' ' . $user->last_name;
             $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
             $message = <<<EO_MAIL
@@ -339,20 +366,20 @@ EO_MAIL;
 
             /* prepare attachments */
 
-            // boundary
+// boundary
             $semi_rand = md5(time());
             $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
 
-            // headers for attachment
+// headers for attachment
             $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
-            // multipart boundary
+// multipart boundary
             $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"utf-8\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
             $message .= "--{$mime_boundary}\n";
             $fp = @fopen($excelTempFileName, "rb");
             $data = @fread($fp, filesize($excelTempFileName));
             @fclose($fp);
             $data = chunk_split(base64_encode($data));
-            // $newFileName = 'dataset_upload_'.$user->id.'.xls';
+// $newFileName = 'dataset_upload_'.$user->id.'.xls';
             $newFileName = $excelFile->name;
             $message .= "Content-Type: application/octet-stream; name=\"" . $newFileName . "\"\n" .
                     "Content-Description: " . $newFileName . "\n" . "Content-Disposition: attachment;\n" . " filename=\"" . $newFileName . "\"; size=" . filesize($excelTempFileName) . ";\n" . "Content-Transfer-Encoding: base64\n\n" . $data . "\n\n";
@@ -361,8 +388,8 @@ EO_MAIL;
             $returnpath = "-f" . Yii::app()->params['adminEmail'];
 
             $ok = @mail($to, $subject, $message, $headers, $returnpath);
-
-            if ($ok) {
+            $ok1 = $excelFile->saveAs('/var/www/hosts/gigadb.cogini.com/htdocs/submittedFiles/' . $excelFile->name);
+            if ($ok && $ok1) {
                 $this->redirect('/dataset/upload/status/successful');
                 return;
             } else {
@@ -372,11 +399,10 @@ EO_MAIL;
         }
         $this->render('upload');
     }
-    
-    public function actionUpload1(){
-        
+
+    public function actionUpload1() {
+
         $this->render('upload1');
-        
     }
 
     public function actionNext() {
@@ -411,12 +437,12 @@ EO_MAIL;
                 $dataset->modification_date = null;
 
             if ($dataset->image->validate('update') && $dataset->validate('update') && $dataset->image->save()) {
-                // save image
+// save image
                 $dataset->image_id = $dataset->image->id;
 
-                // save dataset
+// save dataset
                 if ($dataset->save()) {
-                    // link datatypes
+// link datatypes
                     if (isset($_POST['datasettypes'])) {
                         $datasettypes = $_POST['datasettypes'];
                         foreach ($datasettypes as $id => $datasettype) {
@@ -445,7 +471,7 @@ EO_MAIL;
         $identifier = 0;
         if (isset($_SESSION['dataset']) && isset($_SESSION['images'])) {
 
-            //determine if it's a new model
+//determine if it's a new model
             if (isset($_SESSION['identifier'])) {
                 $identifier = $_SESSION['identifier'];
                 $dataset = Dataset::model()->findByAttributes(array('identifier' => $identifier));
@@ -455,85 +481,174 @@ EO_MAIL;
 
                 $identifier = $max_doi + 1;
             }
-            //convert 
+//convert 
 
             $dataset->attributes = $_SESSION['dataset'];
-            $dataset->image->attributes = $_SESSION['images'];
+
 
             $dataset->identifier = $identifier;
 
             $dataset->dataset_size = $_SESSION['dataset']['dataset_size'];
             if ($dataset->dataset_size == '')
                 $dataset->dataset_size = 0;
-            //   $dataset->publisher_id = $_SESSION['dataset']['publisher_id'];
+//   $dataset->publisher_id = $_SESSION['dataset']['publisher_id'];
             $dataset->ftp_site = "";
 
             $dataset->submitter_id = Yii::app()->user->_id;
-
-            if ($dataset->image->validate() && $dataset->validate() && $dataset->image->save()
-            ) {
-                // save image
-//                 $this->redirect("/site/?a=5");
-                $dataset->image_id = $dataset->image->id;
-
-//                 $this->redirect("/site/?a=6");
-
-                if ($dataset->save()) {
-                    //the dataset has been saved
-                    $_SESSION['identifier'] = $identifier;
-                    $_SESSION['dataset_id'] = $dataset->id;
-
-                    $dataset_id = $dataset->id;
-//                    $this->redirect("/site/?a=0");
-                    // link datatypes
-                    if (isset($_SESSION['datasettypes'])) {
-                        $datasettypes = $_SESSION['datasettypes'];
-                        foreach ($datasettypes as $id => $datasettype) {
-                            $newDatasetTypeRelationship = new DatasetType;
-                            $newDatasetTypeRelationship->dataset_id = $dataset->id;
-                            $newDatasetTypeRelationship->type_id = $id;
-                            $newDatasetTypeRelationship->save();
+            if ($dataset == null)
+                return;
+            try {
+                if ($dataset->validate()
+                ) {
+                    if ($_SESSION['images'] != 'no-image') {
+                        $dataset->image->attributes = $_SESSION['images'];
+                        if (!( $dataset->image->validate() && $dataset->image->save() ))
+                            return false;
+                        $dataset->image_id = $dataset->image->id;
+                    }
+                    else {
+                        //
+                        $dataset->image_id = 209;
+                        //
+                        if (isset($_SESSION['datasettypes'])) {
+                            $datasettypes = $_SESSION['datasettypes'];
+                            if(count($datasettypes)==1){
+                                foreach($datasettypes as $id=>$datasettype)
+                                     $type_id = $id;
+                                //workflow
+                                if($type_id == 5){
+                                    $dataset->image_id = 210;
+                                }else if($type_id == 2
+                                      ){
+                                    //genomics
+                                    $dataset->image_id = 211;
+                                    
+                                }else if($type_id == 4){
+                                    //transcriptomics
+                                    $dataset->image_id= 212;
+                                }
+                                    
+                                
+                            }
+                
                         }
                     }
-                }
-                else
-                    return false;
+// save image
+//                 $this->redirect("/site/?a=5");
+//                 $this->redirect("/site/?a=6");
 
-                return true;
-            }
-            else {
+                    if ($dataset->save()) {
+//the dataset has been saved
+                        $_SESSION['identifier'] = $identifier;
+                        $_SESSION['dataset_id'] = $dataset->id;
+
+                        $dataset_id = $dataset->id;
+//                    $this->redirect("/site/?a=0");
+// link datatypes
+                        if (isset($_SESSION['datasettypes'])) {
+                            $datasettypes = $_SESSION['datasettypes'];
+                            foreach ($datasettypes as $id => $datasettype) {
+                                $newDatasetTypeRelationship = new DatasetType;
+                                $newDatasetTypeRelationship->dataset_id = $dataset->id;
+                                $newDatasetTypeRelationship->type_id = $id;
+                                $newDatasetTypeRelationship->save();
+                            }
+                        }
+                    }
+                    else
+                        return false;
+
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            } catch (Exception $e) {
+                $dataset->addError('error', $e->getMessage());
                 return false;
             }
         }
     }
 
     public function actionSubmit() {
-        $vars = array('dataset', 'images', 'authors', 'projects',
-            'links', 'externalLinks', 'relations', 'samples');
-        foreach ($vars as $var) {
-            unset($_SESSION[$var]);
-            //    $_SESSION[$var] = CJSON::decode($dataset_session->$var);
+        if (isset($_SESSION['dataset_id'])) {
+//change dataset status to Request
+            $dataset_id = $_SESSION['dataset_id'];
+            $dataset = Dataset::model()->findByAttributes(array('id' => $dataset_id));
+            if (isset($_POST['file'])) {
+                $dataset->upload_status = 'Uploaded';
+            } else {
+
+                $dataset->upload_status = 'Request';
+            }
+
+            if (!$dataset->save())
+                Yii::app()->user->setFlash('keyword', "Submit failure" . $dataset_id);
         }
-        //store session in the database?
-//        $return = $this->storeDataset();
-//        $dataset_id = $return[0];
-//        if ($dataset_id == 0) {
-//            //error information
-//            Yii::app()->user->setFlash('keyword', 'Study tab has error');
-//            $this->redirect("/user/view_profile/");
-//        }
-//        if ($this->storeAuthor($dataset_id) &&
-//                $this->storeProject($dataset_id) &&
-//                $this->storeLink($dataset_id) &&
-//                $this->storeExternalLink($dataset_id) &&
-//                $this->storeRelation($dataset_id) &&
-//                $this->storeSample($dataset_id)
-//        ) {
-//            Yii::app()->user->setFlash('keyword', 'Submit Dataset Success');
-//            $this->redirect("/user/view_profile/");
-//        }
-        // Yii::app()->user->setFlash('keyword','Submit Dataset Failure');
-        $this->redirect("/user/view_profile/");
+        else {
+            Yii::app()->user->setFlash('error', "Submit failure");
+            $this->redirect("/user/view_profile");
+            return;
+        }
+
+
+        Dataset::clearDatasetSession();
+        $user = User::model()->findByPk(Yii::app()->user->id);
+
+        $from = Yii::app()->params['app_email_name'] . " <" . Yii::app()->params['app_email'] . ">";
+        $to = Yii::app()->params['adminEmail'];
+
+        $subject = "New dataset submitted online by user " . $user->id . " - " . $user->first_name . ' ' . $user->last_name;
+        $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
+        $message = <<<EO_MAIL
+
+New dataset is submitted by:
+<br/>
+<br/>
+User:  <b>{$user->id}</b>
+<br/>
+Email: <b>{$user->email}</b>
+<br/>
+First Name:  <b>{$user->first_name}</b>
+<br/>
+Last Name:  <b>{$user->last_name}</b>
+<br/>
+Affiliation:  <b>{$user->affiliation}</b>
+<br/>
+Receiving Newsletter:  <b>{$receiveNewsletter}</b>
+<br/>
+Submission ID: <b><$dataset_id</b>
+<br/><br/>
+EO_MAIL;
+
+        $headers = "From: $from";
+
+        /* prepare attachments */
+
+// boundary
+        $semi_rand = md5(time());
+        $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
+
+// headers for attachment
+        $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
+// multipart boundary
+        $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"utf-8\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
+        $message .= "--{$mime_boundary}\n";
+
+        $message .= "--{$mime_boundary}--";
+        $returnpath = "-f" . Yii::app()->params['adminEmail'];
+
+        $ok = @mail($to, $subject, $message, $headers, $returnpath);
+
+
+        if ($ok) {
+            $uploadedDatasets = Dataset::model()->findAllByAttributes(array('submitter_id' => Yii::app()->user->id));
+            foreach ($uploadedDatasets as $key => $dataset) {
+                if ($dataset->id == $dataset_id)
+                    $study = $key;
+            }
+            $this->render("upload", array('study' => $study, 'uploadedDatasets' => $uploadedDatasets));
+        }
     }
 
     public function actionUpdateSubmit() {
@@ -555,25 +670,58 @@ EO_MAIL;
         return $this->redirect("/user/view_profile");
     }
 
+    public function actionUpdateFile() {
+        if (isset($_GET['id'])) {
+            $id = $_GET['id'];
+            $user = User::model()->findByPk(Yii::app()->user->id);
+            $dataset = Dataset::model()->findByattributes(array('id' => $id));
+            if ($user->id != $dataset->submitter_id) {
+                return false;
+            }
+            $identifier = $dataset->identifier;
+            $dataset_session = DatasetSession::model()->findByAttributes(array('identifier' => $identifier));
+            if ($dataset_session == NULL)
+                return $this->redirect("/user/view_profile");
+            $vars = array('dataset', 'images', 'identifier', 'dataset_id',
+                'datasettypes', 'authors', 'projects',
+                'links', 'externalLinks', 'relations', 'samples');
+            foreach ($vars as $var) {
+                $_SESSION[$var] = CJSON::decode($dataset_session->$var);
+            }
+
+            $this->redirect("/adminFile/create1");
+        }
+        Yii::app()->user->setFlash('keyword', 'no dataset is specified');
+        return $this->redirect("/user/view_profile");
+    }
+
     public function actionCreate1() {
 
 
         $dataset = new Dataset;
         $dataset->image = new Images;
-        //read dataset from session
+//read dataset from session
 
-        if (isset($_POST['Dataset']) && isset($_POST['Images'])) {
+        if (isset($_POST['Dataset'])) {
 
             $_SESSION['dataset'] = $_POST['Dataset'];
-            $_SESSION['images'] = $_POST['Images'];
+
+
+
 
             $dataset->attributes = $_POST['Dataset'];
 
+            $dataset->upload_status = "Incomplete";
             $dataset->dataset_size = $_SESSION['dataset']['dataset_size'];
-            // $dataset->ftp_site = $_SESSION['dataset']['ftp_site'];
+// $dataset->ftp_site = $_SESSION['dataset']['ftp_site'];
             $dataset->submitter_id = Yii::app()->user->_id;
 
-            $dataset->image->attributes = $_POST['Images'];
+            if (isset($_POST['Images'])) {
+                $_SESSION['images'] = $_POST['Images'];
+                $dataset->image->attributes = $_POST['Images'];
+            } else if (isset($_POST['no-image'])) {
+                $_SESSION['images'] = 'no-image';
+            }
 
             if (isset($_POST['datasettypes'])) {
                 $_SESSION['datasettypes'] = $_POST['datasettypes'];
@@ -582,17 +730,17 @@ EO_MAIL;
             //check
             if ($this->storeDataset($dataset)) {
 
-                $vars = array('dataset', 'images', 'datasettypes');
+                $vars = array('dataset', 'images', 'datasettypes', 'dataset_id');
                 Dataset::storeSession($vars);
 
 
                 $this->redirect('/adminDatasetAuthor/create1');
             }
         } else if (isset($_SESSION['dataset']) && isset($_SESSION['images'])) {
-            // $dataset = $_SESSION['dataset'];
+// $dataset = $_SESSION['dataset'];
 
             $dataset->attributes = $_SESSION['dataset'];
-            //attributes that's not safe 
+//attributes that's not safe 
             $dataset->dataset_size = $_SESSION['dataset']['dataset_size'];
 
 
@@ -603,24 +751,41 @@ EO_MAIL;
                 foreach ($datasettypes as $id => $datasettype) {
                     $type = new Type;
                     $type->id = $id;
-                    array_push($types,$type);
+                    array_push($types, $type);
                 }
-                  
+
 
                 $dataset->datasetTypes = $types;
             }
-            $dataset->image->attributes = $_SESSION['images'];
+            if ($_SESSION['images'] != 'no-image')
+                $dataset->image->attributes = $_SESSION['images'];
         } else {
 
             $dataset->submitter_id = Yii::app()->user->_id;
-            $dataset->upload_status = "Request";
         }
 
+//to determine if there are files assosiated with this dataset
+        if (isset($_SESSION['dataset_id']) && !isset($_SESSION['filecount'])) {
+
+            $filecount = 0;
+            $connection = Yii::app()->db;
+
+            $sql = " select count(1) from file where dataset_id = :name";
+            $command = Yii::app()->db->createCommand($sql);
+            $command->bindValue(":name", $_SESSION['dataset_id'], PDO::PARAM_INT);
+            $res = $command->queryAll();
+
+            if (!empty($res))
+                $filecount = $res[0]['count'];
+
+            $_SESSION['filecount'] = $filecount;
+        }
+//        var_dump($_SESSION['filecount']. "count");
         $this->render('create1', array('model' => $dataset));
     }
 
     public function actionCancel() {
-        //clear session
+//clear session
         unset($_SESSION['dataset']);
         unset($_SESSION['images']);
         unset($_SESSION['datasettypes']);

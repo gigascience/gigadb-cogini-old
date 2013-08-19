@@ -22,8 +22,8 @@
         <div class="module-box">
             <h2><?=Yii::t('app' , 'Datasets and tools') ?></h2>
             <?
-            echo CHtml::dropDownList('type', "",$type_info ,array('ajax'=>array('url'=>array('/site/ajaxLoadDataset'),'update'=>'#slider_partial','type'=>'POST','data'=>array('type'=>'js:$(this).val()','typeText'=>'js:$(this).find("option::selected").text()'))));
-           
+//            var_dump($type_info);
+            echo CHtml::dropDownList('type', "",$type_info ,array('ajax'=>array('url'=>array('/site/ajaxLoadDataset'),'update'=>'#slider_partial','type'=>'POST','data'=>array('type'=>'js:$(this).val()','typeText'=>'js:$(this).find("option::selected").text()'))));           
             ?>
          
                      
@@ -35,12 +35,11 @@
 
             ?>
 
-            <a class="hint" id="dataset-hint" data-content="<? echo $hint; ?>"></a>
-            
-
-            <div id="slider_partial" style="display:inline">                           
-            <? $typeText="10.5524"; $this->renderPartial('slider',array('datasets'=>$datasets,'typeText'=>$typeText)); ?>
-            </div>
+            <a class="hint vertical-center" id="dataset-hint" data-content="<? echo $hint; ?>"></a>
+                                 
+            <? $type="0"; $this->renderPartial('slider',array('datasets'=>$datasets,'type'=>$type)); ?>
+                 
+                 <!--</div>-->
         </div><!--module-box-->
     </div>
     

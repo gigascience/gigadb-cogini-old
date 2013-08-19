@@ -41,7 +41,7 @@ class Relation extends MyActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('dataset_id, related_doi, relationship', 'required'),
+			array('dataset_id', 'required'),
 			array('dataset_id', 'numerical', 'integerOnly'=>true),
 			array('related_doi', 'length', 'max'=>15),
 			array('relationship', 'length', 'max'=>30),

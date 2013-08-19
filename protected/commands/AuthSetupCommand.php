@@ -5,11 +5,11 @@ class AuthSetupCommand extends CConsoleCommand {
         return 'Usage: authsetup';
     }
 
-    public function run($args) {
+    public function run($args) { 
         Yii::log('Running command authsetup', 'debug');
 
         $connection = Yii::app()->db;
-
+ 
         Yii::log('Clearing out old auth data', 'debug');
         $query = <<<EO_SQL
 DELETE FROM AuthItem;
