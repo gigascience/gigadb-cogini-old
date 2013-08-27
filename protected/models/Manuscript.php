@@ -89,7 +89,7 @@ class Manuscript extends MyActiveRecord
 
         $criteria->with = array( 'dataset' );
 		$criteria->compare('t.id',$this->id);
-		$criteria->compare('identifier',$this->identifier,true);
+		$criteria->compare('LOWER(t.identifier)',strtolower($this->identifier),true);
 		$criteria->compare('pmid',$this->pmid);
 		$criteria->compare('dataset_id',$this->dataset_id);
 

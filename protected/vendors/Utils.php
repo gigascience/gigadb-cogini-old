@@ -56,8 +56,8 @@ class Utils {
     public static function newSphinxClient() {
         $s = new SphinxClient;
         $s->setServer(Yii::app()->params['sphinx_servername'], Yii::app()->params['sphinx_port']);
-        $s->setMaxQueryTime(5000);
-        $s->setLimits(0, 5000);
+        $s->setMaxQueryTime(10000);
+        $s->setLimits(0, 5000, 5000);
         $s->setMatchMode(SPH_MATCH_EXTENDED);
         return $s;
     }
