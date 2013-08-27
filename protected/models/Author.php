@@ -91,8 +91,8 @@ class Author extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('orcid',$this->orcid,true);
+		$criteria->compare('LOWER(name)', strtolower($this->name),true);
+		$criteria->compare('LOWER(orcid)',strtolower($this->orcid),true);
 		$criteria->compare('rank',$this->rank);
 		if ($this->dois_search) {
 			$matchedSql = 'SELECT dataset_id, author_id FROM dataset, dataset_author WHERE dataset.identifier LIKE \'%'.$this->dois_search.'%\' AND dataset.id = dataset_author.dataset_id';

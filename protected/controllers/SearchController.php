@@ -14,6 +14,7 @@ class SearchController extends Controller
     public function actionIndex($keyword=false)
     {
         if($keyword){
+
             $form = new SearchForm;
             $datasetTypes=Type::getListTypes();
 
@@ -25,7 +26,11 @@ class SearchController extends Controller
             $criteria=array();
             $criteria['keyword']=$keyword;
 
-            $params = array('dataset_type' , 'project' , 'file_type' , 'file_format' , 'pubdate_from' , 'pubdate_to' , 'moddate_from' , 'moddate_to' , 'common_name' , 'reldate_from' , 'reldate_to' , 'size_from' , 'size_to' , 'exclude' , 'external_link_type' , 'size_from_unit' , 'size_to_unit' );
+            $params = array('dataset_type' , 'project' , 'file_type' ,
+                'file_format' , 'pubdate_from' , 'pubdate_to' , 'moddate_from'
+                , 'moddate_to' , 'common_name' , 'reldate_from' , 'reldate_to'
+                , 'size_from' , 'size_to' , 'exclude' , 'external_link_type' ,
+                'size_from_unit' , 'size_to_unit');
 
             foreach($_GET as $key => $value){
                 if(in_array($key , $params)){
@@ -38,43 +43,14 @@ class SearchController extends Controller
                 $form->tab=$_GET['tab'];
             }
 
-            //$form->criteria=json_encode($criteria);
-            //$list_result_file=$this->searchFile($criteria);
             $list_result_dataset=$this->searchDataset($criteria);
 
-
-	    // clone searched dataset
+            // clone searched dataset
             $list_result_dataset_criteria = $list_result_dataset;
 
-	    // append with datasets that contain searched files
-	    /*
-            $datasetIdsBelongToFiles = File::getDatasetIdsByFileIds($list_result_file);
-            foreach ($datasetIdsBelongToFiles as $key => $value) {
-                array_push($list_result_dataset_criteria,$value);
-            }
-            $list_result_dataset_criteria = array_unique($list_result_dataset_criteria);
-	    */
-
-            // filter the new combined dataset again
-            // $list_result_dataset_criteria = $this->searchDataset($criteria,$list_result_dataset_criteria);
-	    /*if(!empty($criteria['exclude'])){
-              $list_result_dataset_criteria= array_diff($list_result_dataset_criteria, explode(",", $criteria['exclude']));
-            }LONG: Removing this line because exclude is now included in the dataset search already*/
-
-
-            // File Criteria
-            /*
-            $list_result_file_criteria = $list_result_file;
-            $fileIdsBelongToDatasets = Dataset::getFileIdsByDatasetIds($list_result_dataset);
-            foreach ($fileIdsBelongToDatasets as $key => $value) {
-                array_push($list_result_file_criteria,$value);
-            }
-            $list_result_file_criteria = array_unique($list_result_file_criteria);
-            */
             $list_result_file_criteria = Dataset::getFileIdsByDatasetIds($list_result_dataset);
             //important, filter again the file result
             list($list_result_file_criteria , $total_files_found )=$this->searchFile($criteria, $list_result_file_criteria);
-	        //,$list_result_file_criteria);
 
             //Now fetch files from Yii (we will put file size filter here)
             $file_criteria = new CDbCriteria();
@@ -90,9 +66,6 @@ class SearchController extends Controller
             }
 
             $file_criteria->with="dataset";
-            /*if (isset($criteria['exclude'])) {
-                $file_criteria->addInCondition("dataset.id",array_diff(CHtml::listData(Dataset::model()->findAll(),'id','id'), explode(",", $criteria['exclude']))); // this line of code is to also hide the files belong to hidden datasets
-            }LONG: Removing this line because exclude is now included in the dataset search already*/
 
             // Prepare File Sort, Pagination and get the list of file results
             // check cookie for file sorted column
@@ -126,6 +99,8 @@ class SearchController extends Controller
                     $defaultFileSortOrder = $cookie;
                 }
             }
+
+
             $fsort = new MySort;
             $fsort->sortVar="filesort";
             $fsort->tab="result_files";
@@ -137,11 +112,11 @@ class SearchController extends Controller
             $file_pagination->tab="result_files";
             $file_pagination->pageVar="file_page";
             $file_result=new CActiveDataProvider('File', array('criteria'=>$file_criteria,'sort'=>$fsort,'pagination'=>$file_pagination));
-            if($this->hasSizeFilter($criteria))
+            if ($this->hasSizeFilter($criteria)) {
                 $total_files_found = $file_result->totalItemCount;
+            }
 
             // Refine dataset search again, in order to make it linked with files result
-            //$datasetIdsBelongToFiles = File::getDatasetIdsByFileIds($list_result_file_criteria);
             $file_ids = CHtml::listData(File::model()->findAll($file_criteria) , 'id' , 'id');
             $datasetIdsBelongToFiles = File::getDatasetIdsByFileIds($file_ids);
             $list_result_dataset_criteria = array_intersect($list_result_dataset_criteria ,$datasetIdsBelongToFiles );
@@ -186,8 +161,6 @@ class SearchController extends Controller
                 }
             }
 
-
-
             // Prepare Dataset Sort, Pagination and get the list of file results
             $dsort = new MySort;
             $dsort->sortVar="datasetsort";
@@ -199,16 +172,21 @@ class SearchController extends Controller
             $dataset_pagination->pageVar="dataset_page";
             $dataset_result=new CActiveDataProvider('Dataset', array('criteria'=>$dataset_criteria,'sort'=>$dsort,'pagination'=>$dataset_pagination));
 
-
             $search_result=array('dataset_result'=>$dataset_result,'file_result'=>$file_result);
 
             $form->keyword=$criteria['keyword'];
             $form->criteria= json_encode($criteria);
 
+            //Yii::beginProfile('getFullDatasetResultbyKeyword');
+            //$full_dataset_result = $this->getFullDatasetResultByKeyword($keyword);
+            //Yii::endProfile('getFullDatasetResultbyKeyword');
+            //Yii::beginProfile('getFullFILE ResultbyKeyword');
+            //$full_file_result = $this->getFullFileResultByKeyword($list_result_file_criteria);
+            //Yii::endProfile('getFullFILE ResultbyKeyword');
             $this->render('index',array('model'=>$form,
                                     'search_result'=>$search_result,
-                                    'full_dataset_result'=>$this->getFullDatasetResultByKeyword($keyword),
-                                    'full_file_result'=>$this->getFullFileResultByKeyword($list_result_file_criteria),
+                                    #'full_dataset_result' => $full_dataset_result,
+                                    #'full_file_result' => $full_file_result,
                                     'datasetTypes'=>$datasetTypes,
                                     'file_types'=>$file_types,
                                     'file_formats'=>$file_formats,
@@ -219,7 +197,6 @@ class SearchController extends Controller
                                     'exclude' => (isset($_GET['exclude'])) ? 'True' : null ,
                                     'total_files_found'=>$total_files_found,
                                     ));
-
         }else {
             Yii::app()->user->setFlash('keyword','Keyword can not be blank');
             $this->redirect(array("/site/index"));

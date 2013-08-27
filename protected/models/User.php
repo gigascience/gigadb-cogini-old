@@ -179,11 +179,12 @@ class User extends CActiveRecord {
         $criteria=new CDbCriteria;
 
         $criteria->compare('id',$this->id);
-        $criteria->compare('email',$this->email,true);
-        $criteria->compare('first_name',$this->first_name,true);
-        $criteria->compare('last_name',$this->last_name,true);
-        $criteria->compare('affiliation',$this->affiliation,true);
-        $criteria->compare('newsletter',$this->newsletter);
+        $criteria->compare('LOWER(email)',strtolower($this->email),true);
+        $criteria->compare('LOWER(first_name)',strtolower($this->first_name),true);
+        $criteria->compare('LOWER(last_name)',strtolower($this->last_name),true);
+        $criteria->compare('LOWER(affiliation)',strtolower($this->affiliation),true);
+        $criteria->compare('newsletter',strtolower($this->newsletter));
+        $criteria->compare('is_activated',strtolower($this->is_activated));
 
         return new CActiveDataProvider($this, array(
             'criteria'=>$criteria,

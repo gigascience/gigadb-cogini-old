@@ -92,7 +92,7 @@ class Link extends MyActiveRecord
 		$criteria->compare('t.id',$this->id);
 		$criteria->compare('dataset_id',$this->dataset_id);
 		$criteria->compare('is_primary',$this->is_primary);
-		$criteria->compare('link',$this->link,true);
+		$criteria->compare('LOWER(link)',strtolower($this->link),true);
 		$criteria->compare('dataset.identifier',$this->doi_search,true);
 
 		return new CActiveDataProvider($this, array(

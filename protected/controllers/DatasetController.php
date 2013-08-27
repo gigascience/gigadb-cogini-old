@@ -203,7 +203,8 @@ class DatasetController extends Controller
 						}
 					}
 					if ($model->upload_status=='Pending') {
-					  $this->redirect('/dataset/private/identifier/'.$model->identifier);
+					  //$this->redirect('/dataset/private/identifier/'.$model->identifier);
+					    $this->redirect(array('/dataset/view/' , 'id' => $model->identifier , 'token' => $model->token));
 					} else {
 					  $this->redirect(array('/dataset/'.$model->identifier));
 					}
