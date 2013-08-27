@@ -92,7 +92,7 @@ class Relation extends MyActiveRecord
 		$criteria->compare('t.id',$this->id);
 		$criteria->compare('dataset_id',$this->dataset_id);
 		$criteria->compare('related_doi',$this->related_doi,true);
-		$criteria->compare('relationship',$this->relationship,true);
+		$criteria->compare('LOWER(relationship)',strtolower($this->relationship),true);
 
 		$criteria->compare('dataset.identifier',$this->doi_search,true);
 

@@ -5,8 +5,10 @@
     <div class="row" id="form_result">
     	<div class="span3" id="filter">
 	    	<? $this->renderPartial("_filter",array('model'=>$model,
-                                'dataset_data'=>$full_dataset_result,
-                                'file_data'=>$full_file_result,
+                                #'dataset_data'=>$full_dataset_result,
+                                #'file_data'=>$full_file_result,
+                                'dataset_data'=>$search_result['dataset_result']->getData(),
+                                'file_data'=>$search_result['file_result']->getData(),
                                 'datasetTypes'=>$datasetTypes,
                                 'list_file_types'=>$file_types,
                                 'list_file_formats'=>$file_formats,

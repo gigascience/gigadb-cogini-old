@@ -98,10 +98,10 @@ class Sample extends CActiveRecord
         $criteria->with = array('species','datasets');
 		$criteria->compare('t.id',$this->id);
 		$criteria->compare('species_id',$this->species_id);
-		$criteria->compare('s_attrs',$this->s_attrs,true);
-		$criteria->compare('code',$this->code,true);
+		$criteria->compare('LOWER(s_attrs)',strtolower($this->s_attrs),true);
+		$criteria->compare('LOWER(code)',strtolower($this->code),true);
 
-		$criteria->compare('species.common_name',$this->species_search,true);
+		$criteria->compare('LOWER(species.common_name)',strtolower($this->species_search),true);
 		if ($this->dois_search) {
 #			$matchedSql = 'SELECT dataset_id, sample_id FROM dataset, dataset_sample WHERE dataset.identifier LIKE \'%'.$this->dois_search.'%\' AND dataset.id = dataset_sample.dataset_id';
 #			$criteria->addInCondition('t.id',CHtml::listData(DatasetSample::model()->findAllBySql($matchedSql),'dataset_id','sample_id'));

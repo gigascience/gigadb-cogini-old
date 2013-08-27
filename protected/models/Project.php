@@ -88,9 +88,9 @@ class Project extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('url',$this->url,true);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('image_location',$this->image_location,true);
+		$criteria->compare('LOWER(url)',strtolower($this->url),true);
+		$criteria->compare('LOWER(name)',strtolower($this->name),true);
+		$criteria->compare('LOWER(image_location)',strtolower($this->image_location),true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

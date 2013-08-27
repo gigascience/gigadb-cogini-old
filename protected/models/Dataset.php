@@ -105,7 +105,7 @@ class Dataset extends MyActiveRecord
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
-                        'authors' => array(self::MANY_MANY, 'Author', 'dataset_author(dataset_id,author_id)', 'order'=>'authors_authors.rank DESC', ),
+                        'authors' => array(self::MANY_MANY, 'Author', 'dataset_author(dataset_id,author_id)', 'order'=>'authors.rank ASC', ),
             'projects' => array(self::MANY_MANY, 'Project', 'dataset_project(dataset_id,project_id)'),
             'submitter' => array(self::BELONGS_TO, 'GigadbUser', 'submitter_id'),
             'image' => array(self::BELONGS_TO, 'Images', 'image_id'),
@@ -324,16 +324,27 @@ class Dataset extends MyActiveRecord
     }
 
     public static function getFileIdsByDatasetIds($datasetIds) {
-            $criteria = new CDbCriteria();
-        $criteria->addInCondition('t.id', $datasetIds);
-        $criteria->distinct = true;
-        $datasets = Dataset::model()->query($criteria,true);
-        $result = array();
-        foreach ($datasets as $dataset) {
-            foreach ($dataset->files as $file) {
-                array_push($result, $file->id);
-            }
-        }
+        $datasetIds = implode(' , ' , $datasetIds);
+        if(!$datasetIds) return array();
+        $result = Yii::app()->db->createCommand()
+            ->selectDistinct('id')
+            ->from('file')
+            ->where("dataset_id in ($datasetIds)")
+            ->queryColumn();
+        #    $criteria = new CDbCriteria();
+        #$criteria->addInCondition('t.id', $datasetIds);
+        #$criteria->distinct = true;
+        #    Yii::beginProfile('yii query');
+        #$datasets = Dataset::model()->query($criteria,true);
+        #    Yii::endProfile('yii query');
+        #$result = array();
+        #    Yii::beginProfile('push back loop');
+        #foreach ($datasets as $dataset) {
+        #    foreach ($dataset->files as $file) {
+        #        array_push($result, $file->id);
+        #    }
+        #}
+        #    Yii::endProfile('push back loop');
         return $result;
       }
 }

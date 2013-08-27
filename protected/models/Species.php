@@ -90,9 +90,9 @@ class Species extends CActiveRecord
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('tax_id',$this->tax_id);
-		$criteria->compare('common_name',$this->common_name,true);
-		$criteria->compare('genbank_name',$this->genbank_name,true);
-		$criteria->compare('scientific_name',$this->scientific_name,true);
+		$criteria->compare('LOWER(common_name)',strtolower($this->common_name),true);
+		$criteria->compare('LOWER(genbank_name)',strtolower($this->genbank_name),true);
+		$criteria->compare('LOWER(scientific_name)',strtolower($this->scientific_name),true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -112,6 +112,6 @@ class Species extends CActiveRecord
     	return "http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=".$tax_id;
     }
 
-    
+
 
 }

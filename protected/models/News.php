@@ -84,8 +84,8 @@ class News extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('title',$this->title,true);
-		$criteria->compare('body',$this->body,true);
+		$criteria->compare('LOWER(title)',strtolower($this->title),true);
+		$criteria->compare('LOWER(body)', strtolower($this->body),true);
 		$criteria->compare('start_date',$this->start_date);
 		$criteria->compare('end_date',$this->end_date);
 
