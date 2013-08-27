@@ -4,6 +4,7 @@
 /images
 /protected/config/local.php
 /protected/config/data
+/protected/config/db.json
 /protected/data/data_fresh.sql
 /protected/runtime/
 /protected/scripts/data/dbchanges.txt
@@ -23,4 +24,3 @@ ehthumbs.db
 Thumbs.db
 *~
 .*.swp
-.DS_Store
