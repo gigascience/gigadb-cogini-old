@@ -67,21 +67,23 @@ class DatasetController extends Controller {
         $dataset = new Dataset; // Use for auto suggestion
         $model = Dataset::model()->find("identifier=?", array($id));
         if (!$model) {
-            Yii::app()->user->setFlash('keyword', 'there is no result for ' . $id);
-            $this->redirect('/site/index/');
+
+            $form = new SearchForm;
+            $keyword = $id;
+            $this->render('invalid', array('model' => $form, 'keyword' => $keyword, 'general_search' => 1));
+            return;
         }
         $status_array = array('Request', 'Incomplete', 'Uploaded');
-        if (in_array($model->upload_status, $status_array)) {
-            Yii::app()->user->setFlash('keyword', 'The dataset with DOI ' . $id . " can't be accessed now");
-            $this->redirect('/site/index/');
-        }
-        if ($model->upload_status == "Pending") {
+
+        if ($model->upload_status != "Published") {
             if (isset($_GET['token']) && $model->token == $_GET['token']) {
                 
             } else {
 
-                Yii::app()->user->setFlash('keyword', 'The dataset with DOI ' . $id . "can't be accessed. please provide the correct token.");
-                $this->redirect('/site/index/');
+                $form = new SearchForm;
+                $keyword = $id;
+                $this->render('invalid', array('model' => $form, 'keyword' => $keyword));
+                return;
             }
         }
 
@@ -198,8 +200,9 @@ class DatasetController extends Controller {
         $model = Dataset::model()->find("identifier=?", array($id));
         if (!$model) {
             $this->redirect('/site/index');
-        } else if ($model->upload_status != 'Pending') {
+        } else if ($model->upload_status == 'Published') {
             $this->redirect('/dataset/' . $model->identifier);
+            return;
         }
 
         $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -222,8 +225,12 @@ class DatasetController extends Controller {
 
         if (isset($_POST['Dataset'])) {
             $model->attributes = $_POST['Dataset'];
+            $date = new DateTime();
+            $date = $date->format('Y-m-d');
             if ($model->upload_status == 'Published') {
                 $files = $model->files;
+             
+                
                 if (count($files) > 0) {
                     foreach ($files as $file) {
                         $origin_location = $file->location;
@@ -238,11 +245,13 @@ class DatasetController extends Controller {
                                     $model->identifier . "/" . $location_array[$count - 2] . "/" . $location_array[$count - 1];
                         }
                         $file->location = $new_location;
+                        $file->date_stamp = $date;
                         if (!$file->save())
                             return false;
                     }
                 }
             }
+            $model->publication_date=$date;
             $model->image->attributes = $_POST['Images'];
             if ($model->publication_date == "")
                 $model->publication_date = null;
@@ -491,7 +500,6 @@ EO_MAIL;
             $dataset->dataset_size = $_SESSION['dataset']['dataset_size'];
             if ($dataset->dataset_size == '')
                 $dataset->dataset_size = 0;
-//   $dataset->publisher_id = $_SESSION['dataset']['publisher_id'];
             $dataset->ftp_site = "";
 
             $dataset->submitter_id = Yii::app()->user->_id;
@@ -508,29 +516,25 @@ EO_MAIL;
                     }
                     else {
                         //
-                        $dataset->image_id = 209;
+                        $dataset->image_id = 72;
                         //
                         if (isset($_SESSION['datasettypes'])) {
                             $datasettypes = $_SESSION['datasettypes'];
-                            if(count($datasettypes)==1){
-                                foreach($datasettypes as $id=>$datasettype)
-                                     $type_id = $id;
+                            if (count($datasettypes) == 1) {
+                                foreach ($datasettypes as $id => $datasettype)
+                                    $type_id = $id;
                                 //workflow
-                                if($type_id == 5){
-                                    $dataset->image_id = 210;
-                                }else if($type_id == 2
-                                      ){
+                                if ($type_id == 5) {
+                                    $dataset->image_id = 71;
+                                } else if ($type_id == 2
+                                ) {
                                     //genomics
-                                    $dataset->image_id = 211;
-                                    
-                                }else if($type_id == 4){
+                                    $dataset->image_id = 70;
+                                } else if ($type_id == 4) {
                                     //transcriptomics
-                                    $dataset->image_id= 212;
+                                    $dataset->image_id = 69;
                                 }
-                                    
-                                
                             }
-                
                         }
                     }
 // save image
@@ -575,32 +579,61 @@ EO_MAIL;
 //change dataset status to Request
             $dataset_id = $_SESSION['dataset_id'];
             $dataset = Dataset::model()->findByAttributes(array('id' => $dataset_id));
+            $samples = DatasetSample::model()->findAll("dataset_id=:dataset_id", array(':dataset_id' => $dataset_id));
+            $sampleLink = "";
+            if ($samples != null) {
+                $sampleLink .= "Samples:<br/>";
+                foreach ($samples as $sample) {
+                    $sampleLink = $sampleLink . Yii::app()->params['home_url'] . "/adminSample/view/id/" . $sample->sample_id . "<br/>";
+                }
+            }
+            $fileLink = "";
+            $isOld = 1;
+            //
+            if($dataset->upload_status == 'Incomplete')
+                $isOld = 0;
+            
+            //change the upload status
             if (isset($_POST['file'])) {
-                $dataset->upload_status = 'Uploaded';
-            } else {
-
+                $fileLink .= 'Files:<br/>';
+                $fileLink = $link = Yii::app()->params['home_url'] . "/dataset/updateFile/?id=" . $dataset_id;
+                  $dataset->upload_status = 'Pending';
+            } else {             
                 $dataset->upload_status = 'Request';
             }
-
-            if (!$dataset->save())
+ 
+            if (!$dataset->save()){
                 Yii::app()->user->setFlash('keyword', "Submit failure" . $dataset_id);
+                $this->redirect("/user/view_profile");
+                return;
+            }
         }
+        
         else {
-            Yii::app()->user->setFlash('error', "Submit failure");
+            Yii::app()->user->setFlash('error', "Submit failure,no dataset_id in session");
             $this->redirect("/user/view_profile");
             return;
         }
 
-
         Dataset::clearDatasetSession();
+
+        $link = Yii::app()->params['home_url'] . "/dataset/update/id/" . $dataset_id;
+        $linkFolder ="Link File Folder:<br/>";
+        $linkFolder .= (Yii::app()->params['home_url'] . "/adminFile/linkFolder/?id=".$dataset_id);
+//        var_dump($link);
         $user = User::model()->findByPk(Yii::app()->user->id);
 
         $from = Yii::app()->params['app_email_name'] . " <" . Yii::app()->params['app_email'] . ">";
-        $to = Yii::app()->params['adminEmail'];
+        $ok1 = false;
+        $ok2 = false;
+        if (!$isOld) {
+            $to = Yii::app()->params['adminEmail'];
 
-        $subject = "New dataset submitted online by user " . $user->id . " - " . $user->first_name . ' ' . $user->last_name;
-        $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
-        $message = <<<EO_MAIL
+            $subject = "New dataset " . $dataset_id . " submitted online by user " . $user->id . " - " . $user->first_name . ' ' . $user->last_name;
+            $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
+            $date = getdate();
+
+            $message = <<<EO_MAIL
 
 New dataset is submitted by:
 <br/>
@@ -617,31 +650,183 @@ Affiliation:  <b>{$user->affiliation}</b>
 <br/>
 Receiving Newsletter:  <b>{$receiveNewsletter}</b>
 <br/>
-Submission ID: <b><$dataset_id</b>
-<br/><br/>
+Submission ID: <b>$dataset_id</b><br/>
+$link      
+<br/>
+$sampleLink
+    <br/>
+$linkFolder
+        <br/>
+        
 EO_MAIL;
+            $headers = "Fcrrom: $from";
 
-        $headers = "From: $from";
-
-        /* prepare attachments */
+            /* prepare attachments */
 
 // boundary
-        $semi_rand = md5(time());
-        $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
+            $semi_rand = md5(time());
+            $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
 
 // headers for attachment
-        $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
+            $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
 // multipart boundary
-        $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"utf-8\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
-        $message .= "--{$mime_boundary}\n";
+            $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"utf-8\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
+            $message .= "--{$mime_boundary}\n";
 
-        $message .= "--{$mime_boundary}--";
-        $returnpath = "-f" . Yii::app()->params['adminEmail'];
+            $message .= "--{$mime_boundary}--";
+            $returnpath = "-f" . Yii::app()->params['adminEmail'];
 
-        $ok = @mail($to, $subject, $message, $headers, $returnpath);
+            $ok1 = @mail($to, $subject, $message, $headers, $returnpath);
 
+            //send email to user to 
 
-        if ($ok) {
+            $to = $user->email;
+
+            $subject = "GigaDB submission \"" . $dataset->title . '"';
+            $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
+            $timestamp = $date['mday'] . "-" . $date['mon'] . "-" . $date['year'];
+            $message = <<<EO_MAIL
+Dear $user->first_name $user->last_name,<br/>
+
+Thank you for submitting your dataset information to GigaDB.
+Our curation team will contact you shortly regarding your
+submission "$dataset->title".<br/>
+<br/>
+In the meantime, please contact us at <a href="mailto:database@gigasciencejournal.com">database@gigasciencejournal.com</a> with any questions.<br/>
+<br/>
+Best regards,<br/>
+<br/>
+The GigaDB team<br/>
+<br/>
+Submission date: $timestamp
+<br/>               
+EO_MAIL;
+
+            $headers = "From: $from";
+
+            /* prepare attachments */
+
+// boundary
+            $semi_rand = md5(time());
+            $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
+
+// headers for attachment
+            $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
+// multipart boundary
+            $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"utf-8\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
+            $message .= "--{$mime_boundary}\n";
+
+            $message .= "--{$mime_boundary}--";
+            $returnpath = "-f" . Yii::app()->params['adminEmail'];
+
+            $ok2 = @mail($to, $subject, $message, $headers, $returnpath);
+        } else {
+            $to = Yii::app()->params['adminEmail'];
+
+            $subject = "Dataset " . $dataset_id . " updated online by user " . $user->id . " - " . $user->first_name . ' ' . $user->last_name;
+            $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
+            $date = getdate();
+            $adminFileLink = Yii::app()->params['home_url'] . "/adminFile/admin";
+            $message = <<<EO_MAIL
+Dataset is updated by:
+<br/>
+<br/>
+User:  <b>{$user->id}</b>
+<br/>
+Email: <b>{$user->email}</b>
+<br/>
+First Name:  <b>{$user->first_name}</b>
+<br/>
+Last Name:  <b>{$user->last_name}</b>
+<br/>
+Affiliation:  <b>{$user->affiliation}</b>
+<br/>
+Receiving Newsletter:  <b>{$receiveNewsletter}</b>
+<br/>
+Submission ID: <b>$dataset_id</b><br/>
+$link      
+<br/>
+$adminFileLink
+    <br/>
+EO_MAIL;
+
+            $headers = "From: $from";
+
+            /* prepare attachments */
+
+// boundary
+            $semi_rand = md5(time());
+            $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
+
+// headers for attachment
+            $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
+// multipart boundary
+            $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"utf-8\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
+            $message .= "--{$mime_boundary}\n";
+
+            $message .= "--{$mime_boundary}--";
+            $returnpath = "-f" . Yii::app()->params['adminEmail'];
+
+            $ok1 = @mail($to, $subject, $message, $headers, $returnpath);
+
+            //send email to user to 
+
+            $to = $user->email;
+
+            $subject = "GigaDB update \"" . $dataset->title . '"';
+            $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
+            $timestamp = $date['mday'] . "-" . $date['mon'] . "-" . $date['year'];
+            $message = <<<EO_MAIL
+Dear $user->first_name $user->last_name,<br/>
+
+Thank you for updating your dataset information to GigaDB.
+Our curation team will contact you shortly regarding your
+updates "$dataset->title".<br/>
+<br/>
+In the meantime, please contact us at <a href="mailto:database@gigasciencejournal.com">database@gigasciencejournal.com</a> with any questions.<br/>
+<br/>
+Best regards,<br/>
+<br/>
+The GigaDB team<br/>
+<br/>
+Submission date: $timestamp
+<br/>               
+EO_MAIL;
+
+            $headers = "From: $from";
+
+            /* prepare attachments */
+
+// boundary
+            $semi_rand = md5(time());
+            $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
+
+// headers for attachment
+            $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
+// multipart boundary
+            $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"utf-8\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
+            $message .= "--{$mime_boundary}\n";
+
+            $message .= "--{$mime_boundary}--";
+            $returnpath = "-f" . Yii::app()->params['adminEmail'];
+
+            $ok2 = @mail($to, $subject, $message, $headers, $returnpath);
+        }
+
+        if ($ok1 && $ok2) {
+            $uploadedDatasets = Dataset::model()->findAllByAttributes(array('submitter_id' => Yii::app()->user->id));
+            
+            foreach ($uploadedDatasets as $key => $dataset) {
+                if ($dataset->id == $dataset_id)
+                    $study = $key;
+//                if($dataset->commonNames==""){
+//                    $dataset->commonNames=$dataset->scientific_name;
+//                }
+            }
+            $this->render("upload", array('study' => $study, 'uploadedDatasets' => $uploadedDatasets));
+        }
+        else {
+            //add something
             $uploadedDatasets = Dataset::model()->findAllByAttributes(array('submitter_id' => Yii::app()->user->id));
             foreach ($uploadedDatasets as $key => $dataset) {
                 if ($dataset->id == $dataset_id)
@@ -664,9 +849,12 @@ EO_MAIL;
             foreach ($vars as $var) {
                 $_SESSION[$var] = CJSON::decode($dataset_session->$var);
             }
+            //indicate that this is an old dataset
+            $_SESSION['isOld'] = 1;
 
             $this->redirect("/dataset/create1");
         }
+        Yii::app()->user->setFlash('keyword', 'no dataset is specified');
         return $this->redirect("/user/view_profile");
     }
 
@@ -687,8 +875,8 @@ EO_MAIL;
                 'links', 'externalLinks', 'relations', 'samples');
             foreach ($vars as $var) {
                 $_SESSION[$var] = CJSON::decode($dataset_session->$var);
-            }
-
+            }                 
+            $_SESSION['isOld'] = 1;
             $this->redirect("/adminFile/create1");
         }
         Yii::app()->user->setFlash('keyword', 'no dataset is specified');
@@ -706,30 +894,34 @@ EO_MAIL;
 
             $_SESSION['dataset'] = $_POST['Dataset'];
 
-
-
-
             $dataset->attributes = $_POST['Dataset'];
 
             $dataset->upload_status = "Incomplete";
             $dataset->dataset_size = $_SESSION['dataset']['dataset_size'];
 // $dataset->ftp_site = $_SESSION['dataset']['ftp_site'];
             $dataset->submitter_id = Yii::app()->user->_id;
-
+            
             if (isset($_POST['Images'])) {
                 $_SESSION['images'] = $_POST['Images'];
                 $dataset->image->attributes = $_POST['Images'];
             } else if (isset($_POST['no-image'])) {
                 $_SESSION['images'] = 'no-image';
             }
-
+            $checkedTypes= array();
             if (isset($_POST['datasettypes'])) {
                 $_SESSION['datasettypes'] = $_POST['datasettypes'];
+                
+                 $types = array();
+                foreach ($_SESSION['datasettypes'] as $id => $datasettype) {
+                    $type = new Type;
+                    $type->id = $id;
+                    array_push($types, $type);
+                }
+                $dataset->datasetTypes = $types;
             }
-
             //check
             if ($this->storeDataset($dataset)) {
-
+                
                 $vars = array('dataset', 'images', 'datasettypes', 'dataset_id');
                 Dataset::storeSession($vars);
 

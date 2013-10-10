@@ -44,7 +44,7 @@ $form = $this->beginWidget('CActiveForm', array(
                     <?
                     $datasetTypes = MyHtml::listData(Type::model()->findAll(), 'id', 'name');
                     $checkedTypes = MyHtml::listData($model->datasetTypes, 'id', 'id');
-//                    echo print_r($$model->datasetTypes);
+                   // echo print_r($$model->datasetTypes);
 //                    echo print_r($checkedTypes);
                     foreach ($datasetTypes as $id => $datasetType) {
                         $checkedHtml = in_array($id, $checkedTypes, true) ? 'checked="checked"' : '';

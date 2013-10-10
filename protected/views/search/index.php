@@ -7,7 +7,9 @@ $this->renderPartial('_search', array('model' => $model));
         <?
         $this->renderPartial("_filter", array('model' => $model,
             'dataset_data' => $full_dataset_result,
+//            'dataset_data'=>$search_result['dataset_result'],
             'file_data' => $full_file_result,
+//            'file_data'=>$search_result['file_result']
             'datasetTypes' => $datasetTypes,
             'list_file_types' => $file_types,
             'list_file_formats' => $file_formats,

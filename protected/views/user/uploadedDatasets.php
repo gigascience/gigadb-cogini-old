@@ -10,7 +10,7 @@
         <tr>
             <th class="span2"><?= Yii::t('app', 'DOI') ?></th>
             <th class="span6"><?= Yii::t('app', 'Title') ?></th>
-            <th class="span6"><?= Yii::t('app', 'Common Name') ?></th>
+            <th class="span6"><?= Yii::t('app', 'Subject') ?></th>
             <th class="span2"><?= Yii::t('app', 'Dataset Type') ?></th>
             <th class="span2"><?= Yii::t('app', 'Status') ?></th>
             <th class="span2"><?= Yii::t('app', 'Publication Date') ?></th>
@@ -25,11 +25,13 @@
             if(isset($selected) && $i==$selected)
                 $class = 'selected';
             $data = $uploadedDatasets;
+//            print_r($data[0]);
             ?>
+            
             <tr class="<?php echo $class; ?>">
                 <?
                 $upload_status = $data[$i]->upload_status;
-                if ( $upload_status == 'Request' || $upload_status == 'Incomplete' || $upload_status == 'Uploaded') { ?>
+                if ( $upload_status != 'Published' && $upload_status!='Private' ) { ?>
                     <td class="content-popup" data-content="<? echo MyHtml::encode($data[$i]->description); ?>">
                        unknown
                     </td>
@@ -51,7 +53,7 @@
                 <td><? echo MyHtml::encode($data[$i]->modification_date); ?> </td>
                 <td><? echo count($data[$i]->files); ?></td>
                 <td>
-                  <? if ($data[$i]->upload_status == 'Incomplete' || $data[$i]->upload_status == 'Request' ){ ?>
+                  <? if ($data[$i]->upload_status !='Published' && $data[$i]->upload_status!='Pending' && $data[$i]->upload_status!='Private'){ ?>
                     <a class="update" title="Update" href=<? echo "/dataset/updateSubmit/?id=" . $data[$i]->id ?> ><img src="/assets/34fb8a78/gridview/update.png" alt="Update" /></a>
                     <a class="delete" title="Delete" href=<? echo "/dataset/delete/id/" . $data[$i]->id; ?>><img src="/assets/34fb8a78/gridview/delete.png" alt="Delete" /></a>
                     

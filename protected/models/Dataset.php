@@ -87,7 +87,7 @@ class Dataset extends MyActiveRecord {
             array('upload_status', 'length', 'max' => 45),
             //  array('ftp_site', 'length', 'max'=>100),
             array('excelfile', 'length', 'max' => 50),
-            array('description, publication_date, modification_date, image_id', 'safe'),
+            array('description, publication_date, modification_date, image_id,datasetTypes', 'safe'),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
             array('id, submitter_id, image_id, identifier, title, description,
@@ -291,9 +291,15 @@ class Dataset extends MyActiveRecord {
         // Samples
         $samples = $this->samples;
         foreach ($samples as $key => $value) {
+           
             if (!stristr($this->commonNames, $value->species->common_name)) {
                 $this->commonNames = $this->commonNames . " " . $value->species->common_name;
             }
+            if($this->commonNames=="")
+                $this->commonNames=$value->species->scientific_name;
+            if($this->commonNames=="")
+                $this->commonNames=$value->species->genbank_name;
+            
         }
     }
 
@@ -327,7 +333,6 @@ class Dataset extends MyActiveRecord {
         $criteria->distinct = true;
         $datasets = Dataset::model()->query($criteria, true);
         $result = array();
-//        var_dump(count($datasets)." datasets model");
         foreach ($datasets as $dataset) {
             foreach ($dataset->files as $file) {
                 array_push($result, $file->id);
@@ -375,7 +380,7 @@ class Dataset extends MyActiveRecord {
        public static function clearDatasetSession(){
       $vars = array('dataset', 'images', 'authors', 'projects',
             'links', 'externalLinks', 'relations', 'samples','dataset_id','identifier','filecount',
-          'link_database');
+          'link_database','isOld');
         foreach ($vars as $var) {
             unset($_SESSION[$var]);
             //    $_SESSION[$var] = CJSON::decode($dataset_session->$var);

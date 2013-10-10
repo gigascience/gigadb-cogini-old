@@ -392,11 +392,11 @@ if ($model->ftp_site) {
 
             foreach ($files->getData() as $file) {
                 $samplelink = $samplecode = $file->code;
-                if (strstr($samplecode, 'SAMPLE:')) {
-                    $samplecode = explode(":", $samplecode);
-                    $samplelink = MyHtml::link($samplecode[1], "http://www.ncbi.nlm.nih.gov/biosample?term=" . $samplecode[1]);
-                    $samplelink = 'SAMPLE:' . $samplelink;
-                }
+//                if (strstr($samplecode, 'SAMPLE:')) {
+//                    $samplecode = explode(":", $samplecode);
+//                    $samplelink = MyHtml::link($samplecode[1], "http://www.ncbi.nlm.nih.gov/biosample?term=" . $samplecode[1]);
+//                    $samplelink = 'SAMPLE:' . $samplelink;
+//                }
                 ?>
                 <tr>
                     <!--td><?= MyHtml::link("10.5524/" . $model->identifier, "/dataset/" . $model->identifier); ?></td-->

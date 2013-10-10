@@ -84,10 +84,13 @@ class AdminAuthorController extends Controller
 		if(isset($_POST['Author']))
 		{
 			$model->attributes=$_POST['Author'];
-			if($model->save())
+			if($model->save()){
+                            
 				$this->redirect("/adminDatasetAuthor/create1");
+                                
+                        }
 		}
-
+                
 		$this->render('create1',array(
 			'model'=>$model,
 		));

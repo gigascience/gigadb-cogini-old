@@ -6,10 +6,10 @@ Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js
 ?>
 
                     
-<input type="text" class='date'>
+<!--<input type="text" class='date'>
 
 
-</input>
+</input>-->
 
 <div class="row">
 	<div class="span8 offset2 form well">

@@ -158,8 +158,8 @@ class AdminDatasetSampleController extends Controller {
             if (!$model->validate()) {
                 return false;
             }
-
-            if ($model->tax_id != 0) {
+            //-1 means it doesn't exit in our database
+            if ($model->tax_id != -1) {
                 
                 $species = Species::model()->findByAttributes(array('tax_id' => $tax_id));
                  $species_id = $species->id;
@@ -173,8 +173,10 @@ class AdminDatasetSampleController extends Controller {
                         $species_id = $species->id;
                     else {
                         //insert a new species record
-                        $model->addError('error', 'if you require a new species added please contact 
+                        $model->addError('comment', 'The species you input is not in our database, please
+                            input 0:new organism and contact 
                         <a href=&quot;mailto:database@gigasciencejournal.com&quot;>database@gigasciencejournal.com</a>.');
+                       //ac $model = new DatasetSample;
                         return false;
                     }
                 }
@@ -228,14 +230,14 @@ class AdminDatasetSampleController extends Controller {
             $model->attributes = $_POST['DatasetSample'];
 
             $name = $_POST['DatasetSample']['code'];
-            $tax_id = 0;
+            $tax_id = -1;
             $species = 0;
             if (strpos($_POST['DatasetSample']['species'], ":") !== false) {
                 $array = explode(":",$_POST['DatasetSample']['species']);
 //                var_dump($array);
                 $tax_id = $array[0];
                 $species = $_POST['DatasetSample']['species'];
-//                var_dump($tax_id);
+                var_dump($tax_id);
             } else {
                 $species = $_POST['DatasetSample']['species'];
             }
@@ -250,7 +252,6 @@ class AdminDatasetSampleController extends Controller {
 
             if ($this->storeSample($model, $id)) {
 
-
                 $newItem = array('id' => $id, 'name' => $name, 'species' => $species, 'attrs' => $attrs);
 
                 array_push($samples, $newItem);
@@ -258,6 +259,9 @@ class AdminDatasetSampleController extends Controller {
                 $vars = array('samples');
                 Dataset::storeSession($vars);
                 $model = new DatasetSample;
+            }
+            else{
+                $model->species="";
             }
         }
 

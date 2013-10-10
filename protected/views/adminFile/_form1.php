@@ -50,7 +50,6 @@ Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js
 
                 $files->getPagination()->pageSize = $pageSize;
 
-
                 $i = 0;
 
                 $form = $this->beginWidget('CActiveForm', array(
@@ -58,10 +57,11 @@ Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js
                     'enableAjaxValidation' => false,
                     'htmlOptions' => array('class' => 'form-horizontal')
                 ));
-
-//                echo CHtml::submitButton("Update All", array('class' => 'btn', 'name' => 'files'));
+                $page = $files->getPagination()->getCurrentPage() + 1;
+                $pageCount = (int) (($files->getTotalItemCount() + $pageSize - 1) / $pageSize);
                 ?>
-
+                <input type="hidden" name="page" value=<?= $page ?>>
+                <input type="hidden" name="pageCount" value=<?= $pageCount ?>>
                 <?
                 foreach ($files->getData() as $file) {
                     ?>
@@ -75,15 +75,14 @@ Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js
                         ?>
 
                         <td class="left"><?php echo $file->name ?></td>
-                        <td class="left"><?php echo $form->textField($file, '[' . $i . ']code', array('class' => 'span1_5')); ?></td>
+                        <td class="left"><?= CHtml::activeDropDownList($file, '[' . $i . ']code', $samples_data, array('class' => 'span2')); ?></td>
+
                         <td class="left"><?= CHtml::activeDropDownList($file, '[' . $i . ']type_id', CHtml::listData(FileType::model()->findAll(), 'id', 'name'), array('class' => 'span2')); ?></td>
 
                         <td> <?= CHtml::activeDropDownList($file, '[' . $i . ']format_id', CHtml::listData(FileFormat::model()->findAll(), 'id', 'name'), array('class' => 'autowidth')); ?></td>
                         <td><span style="display:none"><?= File::staticGetSizeType($file->size) . ' ' . strlen($file->size) . ' ' . $file->size ?></span><?= MyHtml::encode(File::staticBytesToSize($file->size)) ?></td>
 
                         <td><?php echo $form->textArea($file, '[' . $i . ']description', array('rows' => 3, 'cols' => 30, 'style' => 'resize:none')); ?></td>
-
-
 
                         <td> <?php echo CHtml::submitButton("Update", array('class' => 'update btn', 'name' => $i)); ?> </td>
                     </tr>
@@ -97,25 +96,37 @@ Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js
         </div>
         <div class="span12" style="text-align:center">
             <?php
-            echo CHtml::submitButton("Update All", array('class' => 'btn', 'name' => 'files'));
-            $this->endWidget();
             ?>
+            <?php
+//            echo $files->getPagination()->getCurrentPage()." eexx";
+////            echo $files->getPagination()->getItemCount()."x dd";
+//              $pageSize = isset(Yii::app()->request->cookies['filePageSize']) ?
+//                        Yii::app()->request->cookies['filePageSize']->value : 10;
+            $page = $files->getPagination()->getCurrentPage() + 1;
+            $pageCount = (int) (($files->getTotalItemCount() + $pageSize - 1) / $pageSize);
+//            echo $page." ".$pageCount;
+            if ($page == $pageCount) {
 
-            <a href="/adminDatasetSample/create1" class="btn-green">Previous</a>
- 
-
-            <form action="/dataset/submit" method="post" style="display:inline">
-                <input type="hidden" name="file" value="file">
-                <input type="submit" value="Submit" class="btn-green" title="Click submit to send information to a curator for review."/>
-            </form>
+                echo CHtml::submitButton("Save", array('class' => 'btn', 'name' => 'files', 'title' => 'Save the updates to these files'));
+                $this->endWidget();
+                ?>
+                <form action="/dataset/submit" method="post" style="display:inline">
+                    <input type="hidden" name="file" value="file">
+                    <input type="submit" value="Submit" class="btn-green" title="Submit changes to file details."/>
+                </form>
+<?
+} else {
+    echo CHtml::submitButton("Next", array('class' => 'btn', 'name' => 'files', 'title' => 'Save the updates to these 10 and show next 10 files'));
+    $this->endWidget();
+}
+?>
 
             <!--<a href="/dataset/submit" class="btn-green" title="Click submit to send information to a curator for review.">Submit</a>-->
-          
+
         </div>
 
-
         <?php
-//                     $pageSize = isset(Yii::app()->request->cookies['filePageSize']) ?
+//  $pageSize = isset(Yii::app()->request->cookies['filePageSize']) ?
 //  Yii::app()->request->cookies['filePageSize']->value : 10;
         $pagination = $files->getPagination();
         $pagination->pageSize = $pageSize;
@@ -126,8 +137,6 @@ Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js
             'cssFile' => false,
         ));
         ?>
-
-
 
     </div>
 </div>

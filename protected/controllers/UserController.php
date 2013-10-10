@@ -312,6 +312,10 @@ class UserController extends Controller {
         $uploadedDatasets = Dataset::model()->findAllByAttributes(array('submitter_id'=> Yii::app()->user->id));
 //         $connection = Yii::app()->db;
 //        foreach($uploadedDatasets as $dataset){
+//                   if($dataset->commonNames==""){
+//                    //$dataset->commonNames=$dataset->scientific_name;
+//                }
+//        }
 //            $filecount = 0;
 //          
 //

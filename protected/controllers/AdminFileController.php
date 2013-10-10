@@ -25,7 +25,7 @@ class AdminFileController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // admin only
-                'actions' => array('linkFolder', 'admin', 'delete', 'index', 'view', 'create', 'update','update1'),
+                'actions' => array('linkFolder', 'admin', 'delete', 'index', 'view', 'create', 'update', 'update1'),
                 'roles' => array('admin'),
             ),
             array('allow',
@@ -69,6 +69,68 @@ class AdminFileController extends Controller {
         ));
     }
 
+    function is_dir($conn_id, $dir) {
+        // get current directory
+        $original_directory = ftp_pwd($conn_id);
+        // test if you can change directory to $dir
+        // suppress errors in case $dir is not a file or not a directory
+        if (@ftp_chdir($conn_id, $dir)) {
+            // If it is a directory, then change the directory back to the original directory
+            ftp_chdir($conn_id, $original_directory);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getFilesInfo($conn_id, $ftp_dir, $ftp, &$model, &$count) {
+
+        $buff = ftp_rawlist($conn_id, $ftp_dir);
+        $file_count = count($buff);
+        $date = new DateTime("2050-01-01");
+        $date = $date->format("Y-m-d");
+        foreach ($buff as $key => $value) {
+            $info = preg_split("/\s+/", $value);
+            $name = $info[8];
+            $new_dir = $ftp_dir . "/" . $name;
+            if ($this->is_dir($conn_id, $new_dir)) {
+                $new_ftp = $ftp . "/" . $name;
+                if (!$this->getFilesInfo($conn_id, $new_dir, $new_ftp, $model, $count))
+                    return false;
+            } else {
+                $count++;
+                //var_dump($info);
+                $size = $info[4];
+                $stamp = date("F d Y", ftp_mdtm($conn_id, $name));
+                // var_dump($name);
+                $file = new File;
+                $file->dataset_id = $model->dataset_id;
+                $file->name = $name;
+                $file->size = $size;
+                $file->location = $ftp . "/" . $name;
+                $file->code = "None";
+                $file->date_stamp = $date;
+                $extension = "";
+                $format = "";
+                $this->getFileExtension($file->name, $extension, $format);
+                $file->extension = $extension;
+                $fileformat = FileFormat::model()->findByAttributes(array('name' => $format));
+                if ($fileformat != null)
+                    $file->format_id = $fileformat->id;
+                $file->type_id = 1;
+                $file->date_stamp = $stamp;
+                if (!$file->save()) {
+
+                    $model->addError('error', "Files are not saved correctly");
+                    return false;
+                    //how to 
+//                    var_dump($file->name);
+                }
+            }
+        }
+        return true;
+    }
+
     /**
      * Link files through a folder 
      */
@@ -77,7 +139,11 @@ class AdminFileController extends Controller {
         $buff = array();
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
-
+     
+         if(isset($_GET['id'])){
+            
+            $model->dataset_id=$_GET['id'];
+        }       
         if (isset($_POST['Folder'])) {
 
 
@@ -93,11 +159,11 @@ class AdminFileController extends Controller {
             $ftps = explode("/", $ftp, 2);
             $ftp_server = $ftps[0];
 //            var_dump($ftp_server);
-            if(isset($ftps[1]))
-              $ftp_dir = "/" . $ftps[1];
+            if (isset($ftps[1]))
+                $ftp_dir = "/" . $ftps[1];
             else
                 $ftp_dir = "/";
-            
+
 //            if($ftp_dir=="")
 //                $ftp_dir=
             $ftp_user_name = $_POST['Folder']['username'];
@@ -107,10 +173,11 @@ class AdminFileController extends Controller {
 
             $conn_id = @ftp_connect($ftp_server);
             if ($conn_id === false) {
-                $model->addError('error', 'Unable to connect');
+                $model->addError('error', 'Unable to connect to ' . $ftp_server);
                 $this->render('linkFolder', array(
                     'model' => $model, 'buff' => $buff
                 ));
+                return;
             }
             // login with username and password
             $login_result = @ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
@@ -121,56 +188,34 @@ class AdminFileController extends Controller {
                 ));
                 return;
             }
-            // get the file list for /
-            $buff = ftp_rawlist($conn_id, $ftp_dir);
+            $file_count = 0;
+            $transaction = Yii::app()->db->beginTransaction();
 
-//            var_dump($ftp_dir);
-//            var_dump($ftp_server);
-            // close the connection
-
-            $file_count = count($buff);
-            $ok = true;
-            foreach ($buff as $key => $value) {
-                $info = preg_split("/\s+/", $value);
-                //var_dump($info);
-                $size = $info[4];
-                $name = $info[8];
-                $stamp = date("F d Y", ftp_mdtm($conn_id, $name));
-                // var_dump($name);
-                $file = new File;
-                $file->dataset_id = $model->dataset_id;
-                $file->name = $name;
-                $file->size = $size;
-                $file->location = $ftp . "/" . $name;
-                $file->code = "None";
-                $extension = "";
-                $format = "";
-                $this->getFileExtension($file->name, $extension, $format);
-                $file->extension = $extension;
-                $fileformat = FileFormat::model()->findByAttributes(array('name' => $format));
-                if ($fileformat != null)
-                    $file->format_id = $fileformat->id;
-                $file->type_id = 1;
-                $file->date_stamp = $stamp;
-//                $file->format_id = 1;
-
-                if (!$file->save()) {
-                    $ok = false;
-                    var_dump($file->name);
-                }
-            }
+            $ok = $this->getFilesInfo($conn_id, $ftp_dir, $ftp, $model, $file_count);
 
             ftp_close($conn_id);
             //email 
-            if ($ok) {
+            if ($ok && $file_count>0) {
                 $user = User::model()->findByPk(Yii::app()->user->id);
 
                 $from = Yii::app()->params['app_email_name'] . " <" . Yii::app()->params['app_email'] . ">";
                 $dataset = Dataset::model()->findByattributes(array('id' => $model->dataset_id));
+                $dataset->upload_status = 'Uploaded';
+                if (!$dataset->save()) {
+                    $model->addError('error', "Failure: Dataset status is not updated successfully.");
+                    $this->render('linkFolder', array(
+                        'model' => $model, 'buff' => $buff
+                    ));
+                    return;
+                }
+                $transaction->commit();
+
                 $submitter = $dataset->submitter;
                 $to = $dataset->submitter->email;
+                
                 $subject = "Files are added to Your dataset: " . $model->dataset_id;
                 $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
+                $link = Yii::app()->params['home_url'] . "/dataset/updateFile/?id=" . $model->dataset_id;
                 $message = <<<EO_MAIL
 Dear $submitter->first_name,<br/><br/>
 
@@ -182,7 +227,7 @@ Please complete the submission by clicking the
             Once all file information has been added, click the “Complete submission” button
                 to let the curator know that you have completed the required information.<br/><br/>
 
-Please review the files here: http://192.168.171.46/dataset/updateFile/?id=$model->dataset_id<br/><br/>
+Please review the files here: $link<br/><br/>
 
 Kind regards<br/>
 GigaDB team
@@ -207,27 +252,71 @@ EO_MAIL;
                 $returnpath = "-f" . Yii::app()->params['adminEmail'];
 
                 $ok = @mail($to, $subject, $message, $headers, $returnpath);
-//                $dataset->upload_status = 'Uploaded';
-//                $dataset->save();             
+
+                //send to database@gigasciencejournal.com
+                $from = Yii::app()->params['app_email_name'] . " <" . Yii::app()->params['app_email'] . ">";
+
+                $to = Yii::app()->params['app_email'];
+                $subject = "Files are added to  dataset: " . $model->dataset_id;
+                $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
+                $link = Yii::app()->params['home_url'] . "/dataset/update/id/" . $model->dataset_id;
+                $message = <<<EO_MAIL
+Dear GigaDB,<br/><br/>
+
+Files have been updated by:<br/>
+User: $user->id<br/>
+Email: $user->email<br/>
+First Name: $user->first_name<br/>
+Last Name: $user->last_name<br/>
+Affiliation: $user->affiliation<br/>
+Submission ID: $model->dataset_id<br/>
+$link<br/><br/>                    
+EO_MAIL;
+
+                $headers = "From: $from";
+
+                /* prepare attachments */
+
+                // boundary
+                $semi_rand = md5(time());
+                $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
+
+                // headers for attachment
+                $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
+                // multipart boundary
+                $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"utf-8\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
+                $message .= "--{$mime_boundary}\n";
+
+                $message .= "--{$mime_boundary}--";
+                $returnpath = "-f" . Yii::app()->params['adminEmail'];
+
+                $ok = @mail($to, $subject, $message, $headers, $returnpath);
+
+                $this->redirect("/adminFile/update1/?id=" . $model->dataset_id);
+                return;
+            } else {
+                $transaction->rollback();
+                $model->addError('error', "Files are not saved!\n");
             }
-
-            $this->redirect("/adminFile/update1/?id=" . $model->dataset_id);
-            return;
         }
-
+        
         $this->render('linkFolder', array(
             'model' => $model, 'buff' => $buff
         ));
     }
 
     public function actionCreate1() {
-        if (isset($_SESSION['dataset_id']))
+        if (isset($_SESSION['dataset_id'])){
+            
             $dataset_id = $_SESSION['dataset_id'];
+            
+        }
         else {
             Yii::app()->user->setFlash('error', "Can't retrieve the files");
 //            var_dump("here");
             $this->redirect("/user/view_profile");
         }
+        
         $defaultFileSortColumn = 'dataset.name';
         $defaultFileSortOrder = CSort::SORT_DESC;
         if (isset($_GET['filesort'])) {
@@ -269,21 +358,30 @@ EO_MAIL;
             'criteria' => array(
                 'condition' => "dataset_id = " . $dataset_id,
                 'join' => 'JOIN dataset ON dataset.id = t.dataset_id',
+                'order'=> 't.id'
             ),
             'sort' => $fsort,
             'pagination' => $fpagination
         ));
         $updateAll = 0;
+
         if (isset($_POST['File'])) {
             if (isset($_POST['files']))
                 $updateAll = 1;
             $count = count($_POST['File']);
+            $page = $_POST['page'];
+            $pageCount = $_POST['pageCount'];
+            if ($page < $pageCount) {
+                $page++;
+                $files->getPagination()->setCurrentPage($page);
+            }
             for ($i = 0; $i < $count; $i++) {
                 if ($updateAll == 0 && !isset($_POST[$i])) {
 //                    var_dump($i." passed");
                     continue;
                 }
-                $model = $this->loadModel($_POST['File'][$i]['id']);
+
+               $model = $this->loadModel($_POST['File'][$i]['id']);
 //            $model->dataset_id = $dataset_id;
                 $model->attributes = $_POST['File'][$i];
                 if ($model->date_stamp == "")
@@ -294,10 +392,22 @@ EO_MAIL;
                 }
             }
         }
+        $dataset = Dataset::model()->findByAttributes(array('id' => $dataset_id));
+        $samples = $dataset->samples;
+        $samples_data = array();
+        foreach($samples as $sample){
+            $samples_data[$sample->code] = $sample->code;
+        }
+        //add none and All , Multiple
+        $samples_data['none']='none';
+        $samples_data['All']='All';
+        $samples_data['Multiple']='Multiple';
+        
+        $identifier = $dataset->identifier;
+        $action = 'create1';
 
-        $identifier = Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
-
-        $this->render('create1', array('files' => $files, 'identifier' => $identifier));
+        $this->render($action, array('files' => $files, 'identifier' => $identifier,
+            'samples_data'=>$samples_data));
     }
 
     public function actionUpdate1() {
@@ -306,8 +416,6 @@ EO_MAIL;
         else
             return false;
         //add privilidge
-       
-
 //        var_dump($dataset_id);
         $defaultFileSortColumn = 'dataset.name';
         $defaultFileSortOrder = CSort::SORT_DESC;

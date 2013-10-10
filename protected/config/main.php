@@ -9,6 +9,7 @@ Yii::setPathOfAlias('uploadURL', '/images/uploads/');
 
 return CMap::mergeArray(array(
     'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
+//    'domain'=>'http://192.168.171.46',
     'name'=>'GigaDB',
 
     'preload'=>array(

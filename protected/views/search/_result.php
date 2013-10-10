@@ -9,6 +9,8 @@
      </script>
      
 <?php
+
+
 $dataset_result=$search_result['dataset_result'];
 
 $file_result=$search_result['file_result'];
@@ -85,11 +87,17 @@ foreach ($dsort->directions as $key => $value) {
             <th class="sorted"><?=Yii::t('app' , 'Common Name')?></th>
             <th class="sorted"><?=Yii::t('app' , 'Dataset Type')?></th>
             <th class="<?= $dsort_map['publication_date'] ?>">
+                
                 <?= $dsort->link('publication_date'); ?>
             </th>
             <th class="<?= $dsort_map['modification_date'] ?>">
-                <?= $dsort->link('modification_date'); ?>
+                <?= 
+                        
+                        $dsort->link('modification_date'); 
+                
+                ?>
             </th>
+            <!--<th>Manuscript</th>-->
                 <th><?=Yii::t('app' , 'Hide Dataset')?></th>
         </tr>
 
@@ -107,7 +115,14 @@ foreach ($dsort->directions as $key => $value) {
                     <?}?>
                 </td>
 		    <td><? echo MyHtml::encode(strftime('%d-%m-%Y' , strtotime($data[$i]->publication_date))); ?></td>
-                <td><? echo MyHtml::encode(strftime('%d-%m-%Y' , strtotime($data[$i]->modification_date))); ?> </td>
+                <td><? 
+                
+                if($data[$i]->modification_date!=null){
+                echo MyHtml::encode(strftime('%d-%m-%Y' , strtotime($data[$i]->modification_date))); 
+                }
+                
+                ?> </td>
+           
                 <td><? echo MyHtml::link(Yii::t('app' , "Hide"), $model->getParams($data[$i]->id) ,array('class'=>'btn btn_hide')) ; ?></td>
             </tr>
        <? }

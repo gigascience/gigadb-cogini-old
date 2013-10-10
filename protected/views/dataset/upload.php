@@ -40,10 +40,10 @@ if (isset($_GET['status'])) {
                                     <div class="form well light-green">-->
                     <div class="span12" style="text-align:center">
                     <b>
-                    Thank you for submitting your study details to GigaDB. <br/>
-                    A curator will review 
-                    the information and contact you shortly with details of how and where to upload 
-                    your data files to.
+                   Congratulations, you have completed the submission of data to GigaDB.
+                    A curator will make a final review of the information and contact you 
+                    shortly with the DOI and citation details of your data.
+
                     </b>
                     </div>
                     <br/><br/>

@@ -31,7 +31,9 @@ $cs->registerCssFile($cssCoreUrl . '/jui/css/base/jquery-ui.css');
 			<div class="control-group">
 				<?php echo $form->labelEx($model,'upload_status',array('class'=>'control-label')); ?>
 				<div class="controls">
-					<?php echo $form->dropDownList($model,'upload_status',array('Pending'=>'Pending','Published'=>'Published')); ?>
+					<?php echo $form->dropDownList($model,'upload_status',array(
+                                            'Incomplete'=>'Incomplete','Request'=>'Request','Uploaded'=>'Uploaded',
+                                                'Pending'=>'Pending','Private'=>'Private','Published'=>'Published')); ?>
 					<?php echo $form->error($model,'upload_status'); ?>
 				</div>
 			</div>

@@ -33,6 +33,290 @@ class SearchController extends Controller {
             Yii::app()->user->setFlash('keyword', 'Keyword can not be blank');
             $this->redirect(array("/site/index"));
         } else {
+
+            $form = new SearchForm;
+            $datasetTypes = Type::getListTypes();
+
+            $file_types = FileType::getListTypes();
+            $file_formats = FileFormat::getListFormats();
+// $list_common_names=Species::getListCommonNames();
+            $list_external_link_types = ExternalLinkType::getListTypes();
+
+            $criteria = array();
+//pre-process the keyword to escape some cahracters if the keyword applies to pattern
+            $pattern = "/.*[0-9]{2}\.[0-9]{4}\/.*/";
+            $keyword_origin = $keyword;
+            if (preg_match($pattern, $keyword)) {
+                $keyword = str_replace("/", "\/", $keyword);
+            }
+
+
+            $criteria['keyword'] = $keyword;
+
+            $params = array('dataset_type', 'project', 'file_type',
+                'file_format', 'pubdate_from', 'pubdate_to', 'moddate_from'
+                , 'moddate_to', 'common_name', 'reldate_from', 'reldate_to'
+                , 'size_from', 'size_to', 'exclude', 'external_link_type',
+                'size_from_unit', 'size_to_unit');
+
+            foreach ($_GET as $key => $value) {
+                if (in_array($key, $params)) {
+                    $criteria[$key] = $value;
+                    $form->$key = $value;
+                }
+            }
+
+            if (isset($_GET['tab'])) {
+                $form->tab = $_GET['tab'];
+            }
+
+            $list_result_dataset = $this->searchDataset($criteria);
+//            var_dump(count($list_result_dataset));
+// clone searched dataset
+            $list_result_dataset_criteria = $list_result_dataset;
+
+            $list_result_file_criteria = Dataset::getFileIdsByDatasetIds($list_result_dataset);
+//            var_dump(count($list_result_file_criteria)." before searchfile");
+//important, filter again the file result
+//            $list_result_file
+            //if there is not conditon about file, we don't need to search files
+            $file_type = isset($criteria['file_type']) ? $criteria['file_type'] : "";
+            $file_format = isset($criteria['file_format']) ? $criteria['file_format'] : "";
+            $reldate_from = isset($criteria['reldate_from']) ? $criteria['reldate_from'] : "";
+            $reldate_to = isset($criteria['reldate_to']) ? $criteria['reldate_to'] : "";
+
+            $total_file_count = count($list_result_file_criteria);
+            $total_files_found = 0;
+            if ($file_type == "" && $file_format == "" && $reldate_from == "" && $reldate_to == "") {
+                
+            } else {
+                $criteria['keyword'] = '';
+
+                $limit = 5000;
+                if ($total_file_count <= $limit)
+                    list($list_result_file_criteria, $total_files_found ) = $this->searchFile($criteria, $list_result_file_criteria);
+                else {
+                    $total_files = 0;
+                    $loop = ($total_file_count + $limit - 1) / $limit;
+                    $list_result_file_temp = array();
+                    $found_temp = 0;
+                    $list_result_file = array();
+                    $end = $limit;
+                    for ($i = 0; $i < $loop; $i++) {
+                        $start = $i * $limit;
+                        if ($i == $loop - 1)
+                            $end = $total_file_count;
+                        else
+                            $end = ($i + 1) * $limit;
+                        for ($j = $start; $j < $end; $j++)
+                            $list_result_file_temp[] = $list_result_file_criteria[$j];
+
+                        list($list_result_file_temp, $found_temp ) = $this->searchFile($criteria, $list_result_file_temp);
+
+                        $total_files += $found_temp;
+                        $list_result_file = array_merge($list_result_file, $list_result_file_temp);
+                    }
+
+                    $total_files_found = $total_files;
+                    $list_result_file_criteria = $list_result_file;
+                }
+
+                $criteria['keyword'] = $keyword;
+            }
+
+
+//            var_dump(count($list_result_file_criteria)." after search file");
+//            var_dump($total_files_found." totals_files_found");
+//Now fetch files from Yii (we will put file size filter here)
+            $file_criteria = new CDbCriteria();
+            $file_criteria->addInCondition("t.id", $list_result_file_criteria);
+
+            if ($this->hasSizeFilter($criteria)) {
+                list($size_from, $size_to) = $this->getFileSizeFilter($criteria);
+                if ($size_from < $size_to) {
+//$file_criteria->condition = "size >= $size_from AND size <= $size_to";
+                    $file_criteria->compare('size', ">= $size_from");
+                    $file_criteria->compare('size', "<= $size_to");
+                }
+            }
+
+            $file_criteria->with = "dataset";
+
+// Prepare File Sort, Pagination and get the list of file results
+// check cookie for file sorted column
+            $defaultFileSortColumn = 'dataset.identifier';
+            $defaultFileSortOrder = CSort::SORT_DESC;
+            if (isset($_GET['filesort'])) {
+// use new sort and save to cookie
+// check if desc or not
+                $order = substr($_GET['filesort'], strlen($_GET['filesort']) - 5, 5);
+                $columnName = 'dataset.identifier';
+                if ($order == '.desc') {
+                    $columnName = substr($_GET['filesort'], 0, strlen($_GET['filesort']) - 5);
+                    $order = 1;
+                } else {
+                    $columnName = $_GET['filesort'];
+                    $order = 0;
+                }
+                $defaultFileSortColumn = $columnName;
+                $defaultFileSortOrder = $order;
+                Yii::app()->request->cookies['file_sort_column'] = new CHttpCookie('file_sort_column', $columnName);
+                Yii::app()->request->cookies['file_sort_order'] = new CHttpCookie('file_sort_order', $order);
+            } else {
+// use old sort if exists
+                if (isset(Yii::app()->request->cookies['file_sort_column'])) {
+                    $cookie = Yii::app()->request->cookies['file_sort_column']->value;
+                    $defaultFileSortColumn = $cookie;
+                }
+                if (isset(Yii::app()->request->cookies['file_sort_order'])) {
+                    $cookie = Yii::app()->request->cookies['file_sort_order']->value;
+                    $defaultFileSortOrder = $cookie;
+                }
+            }
+
+
+            $fsort = new MySort;
+            $fsort->sortVar = "filesort";
+            $fsort->tab = "result_files";
+            $fsort->attributes = array('*');
+            $fsort->attributes[] = "dataset.identifier";
+            $fsort->defaultOrder = array($defaultFileSortColumn => $defaultFileSortOrder);
+
+            $file_pagination = new MyPagination;
+            $file_pagination->tab = "result_files";
+            $file_pagination->pageVar = "file_page";
+            $file_result = new CActiveDataProvider('File', array('criteria' => $file_criteria, 'sort' => $fsort, 'pagination' => $file_pagination));
+            if ($this->hasSizeFilter($criteria)) {
+                $total_files_found = $file_result->totalItemCount;
+            }
+
+// Refine dataset search again, in order to make it linked with files result
+            $file_ids = CHtml::listData(File::model()->findAll($file_criteria), 'id', 'id');
+//            var_dump(count($file_ids)." file fileter again");
+            $datasetIdsBelongToFiles = File::getDatasetIdsByFileIds($file_ids);
+//            var_dump(count($datasetIdsBelongToFiles)." get dataset ids ");
+            $list_result_dataset_criteria = array_intersect($list_result_dataset_criteria, $datasetIdsBelongToFiles);
+// Some datasets may not have files, so we need to add them in again
+            foreach (array_diff($list_result_dataset, $datasetIdsBelongToFiles) as $d) {
+                if (!File::model()->findByAttributes(array('dataset_id' => $d)))
+                    $list_result_dataset_criteria[] = $d;
+            }
+
+
+//             var_dump(count($list_result_dataset_criteria)." empty files dataseta added after");
+// 
+// Dataset Criteria
+            $dataset_criteria = new CDbCriteria();
+            $dataset_criteria->addInCondition("id", $list_result_dataset_criteria);
+            $dataset_criteria->addCondition("upload_status='Published'");
+
+// check cookie for default dataset sorted column
+            $defaultDatasetSortColumn = 'identifier';
+            $defaultDatasetSortOrder = CSort::SORT_DESC;
+            if (isset($_GET['datasetsort'])) {
+// use new sort and save to cookie
+// check if desc or not
+                $order = substr($_GET['datasetsort'], strlen($_GET['datasetsort']) - 5, 5);
+                $columnName = 'identifier';
+                if ($order == '.desc') {
+                    $columnName = substr($_GET['datasetsort'], 0, strlen($_GET['datasetsort']) - 5);
+                    $order = 1;
+                } else {
+                    $columnName = $_GET['datasetsort'];
+                    $order = 0;
+                }
+                Yii::app()->request->cookies['dataset_sort_column'] = new CHttpCookie('dataset_sort_column', $columnName);
+                Yii::app()->request->cookies['dataset_sort_order'] = new CHttpCookie('dataset_sort_order', $order);
+            } else {
+// use old sort if exists
+                if (isset(Yii::app()->request->cookies['dataset_sort_column'])) {
+                    $cookie = Yii::app()->request->cookies['dataset_sort_column']->value;
+                    $defaultDatasetSortColumn = $cookie;
+                }
+                if (isset(Yii::app()->request->cookies['dataset_sort_order'])) {
+                    $cookie = Yii::app()->request->cookies['dataset_sort_order']->value;
+                    $defaultDatasetSortOrder = $cookie;
+                }
+            }
+
+// Prepare Dataset Sort, Pagination and get the list of file results
+            $dsort = new MySort;
+            $dsort->sortVar = "datasetsort";
+            $dsort->tab = "result_dataset";
+            $dsort->defaultOrder = array($defaultDatasetSortColumn => $defaultDatasetSortOrder);
+
+            $dataset_pagination = new MyPagination;
+            $dataset_pagination->tab = "result_dataset";
+            $dataset_pagination->pageVar = "dataset_page";
+            $dataset_result = new CActiveDataProvider('Dataset', array('criteria' => $dataset_criteria, 'sort' => $dsort, 'pagination' => $dataset_pagination));
+
+            if ($keyword) {
+                $result_count = count($dataset_result->getData());
+                if (is_numeric($keyword) && strlen($keyword) == 6) {
+
+                    $result = Dataset::model()->findByAttributes(array('identifier' => $keyword));
+                    if ($result != NULL && $result->upload_status != 'Published') {
+                        $this->render('invalid', array('model' => $form, 'keyword' => $keyword));
+                        return;
+                    }
+                }
+                if ($result_count == 0) {
+                    $form = new SearchForm;
+                    $this->render('invalid', array('model' => $form, 'keyword' => $keyword, 'general_search' => 1));
+                    return;
+                }
+            }
+
+
+//            var_dump($dataset_result);
+            $search_result = array('dataset_result' => $dataset_result, 'file_result' => $file_result);
+
+            $form->keyword = $keyword_origin;
+            $form->criteria = json_encode($criteria);
+
+//Yii::beginProfile('getFullDatasetResultbyKeyword');
+            $full_dataset_result = $this->getFullDatasetResultByKeyword($keyword);
+//Yii::endProfile('getFullDatasetResultbyKeyword');
+//Yii::beginProfile('getFullFILE ResultbyKeyword');
+            $full_file_result = $this->getFullFileResultByKeyword($list_result_file_criteria);
+//Yii::endProfile('getFullFILE ResultbyKeyword');
+//to avoid memory overflow
+
+            $list_common_names = array();
+            for ($i = 0; $i < count($full_dataset_result); $i++) {
+                $temp_dataset = $full_dataset_result[$i];
+                $samples = $temp_dataset->samples;
+                foreach ($samples as $key => $sample) {
+                    if (is_numeric($sample->species_id)) {
+                        $list_common_names[$sample->species_id] =
+                                Species::model()->findByAttributes(array('id' => $sample->species_id))->common_name;
+//                        $common_names[$sample->species_id] = $list_common_names[$sample->species_id];
+                    }
+                }
+            }
+
+            $this->render('index', array('model' => $form,
+                'search_result' => $search_result,
+                'full_dataset_result' => $full_dataset_result,
+                'full_file_result' => $full_file_result,
+                'datasetTypes' => $datasetTypes,
+                'file_types' => $file_types,
+                'file_formats' => $file_formats,
+                'list_common_names' => $list_common_names,
+                'list_external_link_types' => $list_external_link_types,
+                'filesort_column' => $defaultFileSortColumn,
+                'filesort_order' => $defaultFileSortOrder,
+                'exclude' => (isset($_GET['exclude'])) ? 'True' : null,
+                'total_files_found' => $total_files_found,
+            ));
+        }
+    }
+
+    public function actionIndex1($keyword = false) {
+        if (count($_GET) == 1 && isset($_GET['keyword']) && $_GET['keyword'] == "") {
+            Yii::app()->user->setFlash('keyword', 'Keyword can not be blank');
+            $this->redirect(array("/site/index"));
+        } else {
             $form = new SearchForm;
             $datasetTypes = Type::getListTypes();
 
@@ -53,12 +337,12 @@ class SearchController extends Controller {
                 'file_type', 'file_format', 'pubdate_from', 'pubdate_to',
                 'moddate_from', 'moddate_to', 'common_name', 'reldate_from',
                 'reldate_to', 'size_from', 'size_to', 'exclude', 'external_link_type',
-                'size_from_unit', 'size_to_unit','type');
+                'size_from_unit', 'size_to_unit',);
 
             foreach ($_GET as $key => $value) {
                 if (in_array($key, $params)) {
-                    if($key=='type')
-                        $key='dataset_type';
+//                    if($key=='type')
+//                        $key='dataset_type';
                     $criteria[$key] = $value;
                     $form->$key = $value;
                 }
@@ -125,33 +409,9 @@ class SearchController extends Controller {
 //            var_dump(count($list_result_dataset)." list_result_dataset");
             $list_result_dataset_criteria = $list_result_dataset;
 
-// append with datasets that contain searched files
-            /*
-              $datasetIdsBelongToFiles = File::getDatasetIdsByFileIds($list_result_file);
-              foreach ($datasetIdsBelongToFiles as $key => $value) {
-              array_push($list_result_dataset_criteria,$value);
-              }
-              $list_result_dataset_criteria = array_unique($list_result_dataset_criteria);
-             */
 
-// filter the new combined dataset again
-// $list_result_dataset_criteria = $this->searchDataset($criteria,$list_result_dataset_criteria);
-            /* if(!empty($criteria['exclude'])){
-              $list_result_dataset_criteria= array_diff($list_result_dataset_criteria, explode(",", $criteria['exclude']));
-              }LONG: Removing this line because exclude is now included in the dataset search already */
-
-
-// File Criteria
-            /*
-              $list_result_file_criteria = $list_result_file;
-              $fileIdsBelongToDatasets = Dataset::getFileIdsByDatasetIds($list_result_dataset);
-              foreach ($fileIdsBelongToDatasets as $key => $value) {
-              array_push($list_result_file_criteria,$value);
-              }
-              $list_result_file_criteria = array_unique($list_result_file_criteria);
-             */
             $list_result_file_criteria = Dataset::getFileIdsByDatasetIds($list_result_dataset);
-            
+
 //important, filter again the file result
             list($list_result_file_criteria, $total_files_found ) = $this->searchFile($criteria, $list_result_file_criteria);
 //,$list_result_file_criteria);
@@ -223,7 +483,7 @@ class SearchController extends Controller {
 //$datasetIdsBelongToFiles = File::getDatasetIdsByFileIds($list_result_file_criteria);
             $file_ids = CHtml::listData(File::model()->findAll($file_criteria), 'id', 'id');
             $datasetIdsBelongToFiles = File::getDatasetIdsByFileIds($file_ids);
-           
+
             $list_result_dataset_criteria = array_intersect($list_result_dataset_criteria, $datasetIdsBelongToFiles);
 
 // Some datasets may not have files, so we need to add them in again
@@ -235,7 +495,9 @@ class SearchController extends Controller {
 // Dataset Criteria
             $dataset_criteria = new CDbCriteria();
             $dataset_criteria->addInCondition("id", $list_result_dataset_criteria);
+//             $dataset_criteria->addCondition("upload_status!='Pending'");
             $dataset_criteria->addCondition("upload_status='Published'");
+
 
 // check cookie for default dataset sorted column
             $defaultDatasetSortColumn = 'identifier';
@@ -296,11 +558,9 @@ class SearchController extends Controller {
 //            var_dump(count($dataset_result));
 
             $search_result = array('dataset_result' => $dataset_result, 'file_result' => $file_result);
-
+//            var_dump($search_result);
             $form->keyword = $criteria['keyword'];
             $form->criteria = json_encode($criteria);
-
-
 
 
             $full_dataset_result = $this->getFullDatasetResultByKeyword($keyword);
@@ -388,6 +648,8 @@ class SearchController extends Controller {
         $file_format = isset($criteria['file_format']) ? $criteria['file_format'] : "";
         $reldate_from = isset($criteria['reldate_from']) ? $criteria['reldate_from'] : "";
         $reldate_to = isset($criteria['reldate_to']) ? $criteria['reldate_to'] : "";
+
+
         /* $size_from=isset($criteria['size_from'])?$criteria['size_from']:"";
           $size_to=isset($criteria['size_to'])?$criteria['size_to']:"";
           $size_from_unit=isset($criteria['size_from_unit'])?$criteria['size_from_unit']:"";
@@ -420,8 +682,6 @@ class SearchController extends Controller {
           }else {
           $size_to=0;
           } */
-
-
 
         $reldate_from_temp = Utils::convertDate($reldate_from);
         $reldate_to_temp = Utils::convertDate($reldate_to);

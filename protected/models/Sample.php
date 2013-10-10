@@ -97,7 +97,7 @@ class Sample extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-        $criteria->with = array('species','datasets');
+                $criteria->with = array('species','datasets');
 		$criteria->compare('t.id',$this->id);
 		$criteria->compare('species_id',$this->species_id);
 		$criteria->compare('s_attrs',$this->s_attrs,true);

@@ -57,8 +57,24 @@ class AdminSampleController extends Controller {
 
         if (isset($_POST['Sample'])) {
             $model->attributes = $_POST['Sample'];
-            if ($model->save())
-                $this->redirect(array('view', 'id' => $model->id));
+
+            if (strpos($_POST['Sample']['species_id'], ":") !== false) {
+                $array = explode(":", $_POST['Sample']['species_id']);
+//                var_dump($array);
+                $tax_id = $array[0];
+                if (is_numeric($tax_id)) {
+                    $species = Species::model()->findByAttributes(array('tax_id' => $tax_id));
+                    $model->species_id = $species->tax_id;
+//                var_dump($tax_id);
+                    if ($model->save())
+                        $this->redirect(array('view', 'id' => $model->id));
+                }
+                else {
+                    $model->addError("error", 'The species id should be numeric');
+                }
+            } else {
+                $model->addError("error", 'The input format is wrong, should be id:common_name');
+            }
         }
 
         $this->render('create', array(
@@ -93,11 +109,36 @@ class AdminSampleController extends Controller {
 
 // Uncomment the following line if AJAX validation is needed
 // $this->performAjaxValidation($model);
-
+        $species_id = $model->species_id;
+        $species = Species::model()->findByAttributes(array('id' => $species_id));
+        $name=$species->common_name;
+        if($name=="")
+            $name = $species->scientific_name;
+        if($name =="")
+            $name = $species->genbank_name;
+        
+        $model->species_id = $species->tax_id . ":" . $name;
+        //$model->species_id = 
         if (isset($_POST['Sample'])) {
             $model->attributes = $_POST['Sample'];
-            if ($model->save())
-                $this->redirect(array('view', 'id' => $model->id));
+
+            if (strpos($_POST['Sample']['species_id'], ":") !== false) {
+                $array = explode(":", $_POST['Sample']['species_id']);
+//                var_dump($array);
+                $tax_id = $array[0];
+                if (is_numeric($tax_id)) {
+                    $species = Species::model()->findByAttributes(array('tax_id' => $tax_id));
+                    $model->species_id = $species->tax_id;
+//                var_dump($tax_id);
+                    if ($model->save())
+                        $this->redirect(array('view', 'id' => $model->id));
+                }
+                else {
+                    $model->addError("error", 'The species id should be numeric');
+                }
+            } else {
+                $model->addError("error", 'The input format is wrong, should be id:common_name');
+            }
         }
 
         $this->render('update', array(

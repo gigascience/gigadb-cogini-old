@@ -71,6 +71,7 @@ $pageSize = isset(Yii::app()->request->cookies['filePageSize']) ?
 
 $files->getPagination()->pageSize = $pageSize;
 
+echo $pageSize." pagesize";
 
 $i = 0;
 
@@ -81,10 +82,6 @@ $form = $this->beginWidget('CActiveForm', array(
         ));
 
 ?>
-
-
-
-
                 <?
                 foreach ($files->getData() as $file) {
                     ?>

@@ -64,7 +64,7 @@ $form = $this->beginWidget('CActiveForm', array(
                         </div>-->
             <div class="control-group">
                 <div class="controls">
-<?php echo CHtml::submitButton('Add Externla Link', array('class' => 'btn')); ?>
+<?php echo CHtml::submitButton('Add External Link', array('class' => 'btn')); ?>
                 </div>
             </div>
 

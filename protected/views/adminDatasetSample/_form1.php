@@ -60,7 +60,7 @@
 
             <div class="control-group">
                 <?php echo $form->labelEx($model, 'species', array('class' => 'control-label')); ?>
-                <a class="myHint" data-content="Please provide the Species name of the organism sampled, if you are unable to find the organism in our database please use &quot;new organism&quot; and 
+                <a class="myHint" data-content="Please provide the Species name or taxonomy id of the organism sampled, if you are unable to find the organism in our database please use &quot;new organism&quot; and 
                    add the name in the attributes section, a curator will contact you."></a>
                 <div class="controls">
 
@@ -71,7 +71,7 @@
                         'attribute' => 'species',
                         'source' => $this->createUrl('/adminDatasetSample/autocomplete'),
                         'options' => array(
-                            'minLength' => '2',
+                            'minLength' => '4',
                         ),
                         'htmlOptions' => array(
                             'placeholder' => 'name',

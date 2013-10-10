@@ -220,20 +220,28 @@ class SiteController extends Controller {
     public function actionAjaxLoadDataset() {
         $type = 0;
         $typeText = '';
+//        $type_info = array();
+//        $hint ="";
         #$datasettypes_hints =Type::model()->findAll();
 
         if (isset($_POST['type']))
             $type = $_POST['type'];
+//        if (isset($_POST['type_info']))
+//            $type_info = $_POST['type_info'];
+//        if (isset($_POST['hint']))
+//            $hint = $_POST['hint'];
         if (isset($_POST['typeText'])) {
             $p = strpos($_POST['typeText'], " (");
             $typeText = substr($_POST['typeText'], 0, $p);
         }
 
+        
         $datasetModel = $this->getDatasetByType($type);
 
         # $type=$datasettypes_hints[$type];
         // $this->redirect(array('/site/index?type='.$type));
-        $this->renderPartial('slider', array('datasets' => $datasetModel, 'type'=>$type,'typeText' => $typeText));
+        $this->renderPartial('slider', array('datasets' => $datasetModel,
+            'type'=>$type,'typeText' => $typeText));
     }
 
     /**

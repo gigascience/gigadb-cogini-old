@@ -13,10 +13,10 @@
 <input type="submit" value="File" class="btn-green-active nomargin"></input>
 
 <?
-$count = count($files->getData());
-//        echo $count;
+$count = count($files);
 if($count>0)
-     echo $this->renderPartial('_form1', array('files'=>$files,'identifier'=>$identifier));
+     echo $this->renderPartial('_form1', array('files'=>$files,'identifier'=>$identifier,
+         'samples_data'=>$samples_data));
 else{
     
 ?>
@@ -25,8 +25,7 @@ else{
         <div class="form overflow">
              <p>You can update the files when the administrator upload your files.</p>
              
-               <div class="span12" style="text-align:center">
-                    <a href="/adminDatasetSample/create1" class="btn-green">Previous</a>
+               <div class="span12" style="text-align:center">                  
                 <a href="/dataset/submit" class="btn-green">Submit</a>
             </div>
         </div>
