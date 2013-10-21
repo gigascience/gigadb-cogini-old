@@ -25,7 +25,7 @@ class AdminFileController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // admin only
-                'actions' => array('linkFolder', 'admin', 'delete', 'index', 'view', 'create', 'update', 'update1'),
+                'actions' => array('linkFolder', 'admin', 'delete', 'index', 'view', 'create', 'update','update1'),
                 'roles' => array('admin'),
             ),
             array('allow',
@@ -391,6 +391,11 @@ EO_MAIL;
                     var_dump($_POST['File'][$i]);
                 }
             }
+            //determine if it want to submit
+//             if (isset($_POST['file'])) {
+//                 $this->redirect("/dataset/submit");
+//             }
+            
         }
         $dataset = Dataset::model()->findByAttributes(array('id' => $dataset_id));
         $samples = $dataset->samples;
@@ -489,8 +494,19 @@ EO_MAIL;
         $identifier = Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
 
         $model = new File;
+        
+        $dataset = Dataset::model()->findByAttributes(array('id' => $dataset_id));
+        $samples = $dataset->samples;
+        $samples_data = array();
+        foreach($samples as $sample){
+            $samples_data[$sample->code] = $sample->code;
+        }
+        //add none and All , Multiple
+        $samples_data['none']='none';
+        $samples_data['All']='All';
+        $samples_data['Multiple']='Multiple';
 
-        $this->render('update1', array('files' => $files, 'fileModels' => $fileModels, 'identifier' => $identifier, 'model' => $model));
+        $this->render('update1', array('files' => $files, 'fileModels' => $fileModels, 'identifier' => $identifier, 'model' => $model, 'samples_data'=>$samples_data));
     }
 
     public function getFileExtension($file_name, &$extension, &$format) {
