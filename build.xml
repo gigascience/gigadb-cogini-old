@@ -1,0 +1,210 @@
+<project name="gigadb-cogini" default="build" basedir=".">
+    <description>
+        Build file for GigaDB
+    </description>
+    <!-- Set global properties for build -->
+    <property file="build.properties"/>
+    <property name="css.dir" location="./css"/>
+    <property name="dataset.dir" location="./dataset"/>
+    <property name="files.dir" location="./files"/>
+    <property name="js.dir" location="./js"/>
+    <property name="less.dir" location="./less"/>
+    <property name="sphinx.dir" location="./sphinx"/>
+    <property name="TestGigaDB.dir" location="./TestGigaDB"/>
+    <property name="themes.dir" location="./themes"/>
+
+    <property name="protected.dir" location="./protected"/>
+    <property name="commands.dir" location="${protected.dir}/commands"/>
+    <property name="components.dir" location="${protected.dir}/components"/>
+    <property name="config.dir" location="${protected.dir}/config"/>
+    <property name="controllers.dir" location="${protected.dir}/controllers"/>
+    <property name="data.dir" location="${protected.dir}/data"/>
+    <property name="doc.dir" location="${protected.dir}/doc"/>
+    <property name="extensions.dir" location="${protected.dir}/extensions"/>
+    <property name="helpers.dir" location="${protected.dir}/helpers"/>
+    <property name="messages.dir" location="${protected.dir}/messages"/>
+    <property name="models.dir" location="${protected.dir}/models"/>
+    <property name="schema.dir" location="${protected.dir}/schema"/>
+    <property name="scripts.dir" location="${protected.dir}/scripts"/>
+    <property name="tests.dir" location="${protected.dir}/tests"/>
+    <property name="vendors.dir" location="${protected.dir}/vendors"/>
+    <property name="views.dir" location="${protected.dir}/views"/>
+
+    <property name="downloads.dir" location="./downloads"/>
+    <property name="conf.dir" location="./conf"/>
+
+    <!-- To be downloaded -->
+    <property name="assets.dir" location="./assets"/>
+    <property name="images.dir" location="./images"/>
+    <property name="runtime.dir" location="${protected.dir}/runtime"/>
+
+    <property name="build.dir" location="./build"/>
+
+    <target name="init">
+        <!-- Create time stamp -->
+        <tstamp/>
+
+        <!-- Check for assets.zip as test for downloads -->
+        <property name="assets.zip" value="${downloads.dir}/assets.zip"/>
+        <available file="${assets.zip}" property="assets.zip.present"/>
+
+        <!-- Check build dir -->
+        <available file="./${build.dir}" type="dir" property="build.found"/>
+    </target>
+
+    <target name="download" depends="init" unless="assets.zip.present">
+        <mkdir dir="${downloads.dir}"/>
+
+        <get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCakFMenU4aEVxS0U" dest="${downloads.dir}/assets.zip"/>
+
+        <get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCYlhuaFF0NHhxUkk" dest="${downloads.dir}/images.zip"/>
+
+        <!-- /protected/config/local.php -->
+        <get src="http://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCLVpqTklEYzhJRTQ" dest="${downloads.dir}/local.php"/>
+
+        <!-- protected/config/data -->
+        <get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCMWhoemxPMldPeTQ" dest="${downloads.dir}/protected-config-data.zip"/>
+
+        <!-- protected/data -->
+        <get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCVDBIdjRSU25ja1E" dest="${downloads.dir}/data_fresh.sql"/>
+
+        <!-- protected/runtime -->
+        <!-- Seems like a load of logs so probably don't need this -->
+        <get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCdUUxZV9FNzVkNkU" dest="${downloads.dir}/protected-runtime.php"/>
+
+    </target>
+
+    <target name="build" depends="download" unless="build.found">
+        <mkdir dir="${build.dir}"/>
+
+        <!-- Sort out folders first -->
+        <mkdir dir="${build.dir}/assets"/>
+        <unzip src="${downloads.dir}/assets.zip" dest="${build.dir}/assets"/>
+
+        <mkdir dir="${build.dir}/css"/>
+        <copy todir="${build.dir}/css">
+            <fileset dir="${css.dir}"/>
+        </copy>
+
+        <mkdir dir="${build.dir}/dataset"/>
+        <copy todir="${build.dir}/dataset">
+            <fileset dir="${dataset.dir}"/>
+        </copy>
+
+        <mkdir dir="${build.dir}/files"/>
+        <copy todir="${build.dir}/files">
+            <fileset dir="${files.dir}"/>
+        </copy>
+
+        <mkdir dir="${build.dir}/images"/>
+        <unzip src="${downloads.dir}/images.zip" dest="${build.dir}/images"/>
+
+        <mkdir dir="${build.dir}/js"/>
+        <copy todir="${build.dir}/js">
+            <fileset dir="${js.dir}"/>
+        </copy>
+
+        <mkdir dir="${build.dir}/less"/>
+        <copy todir="${build.dir}/less">
+            <fileset dir="${less.dir}"/>
+        </copy>
+
+        <mkdir dir="${build.dir}/protected"/>
+        <copy todir="${build.dir}/protected">
+            <fileset dir="${protected.dir}">
+                <exclude name="**/*db.json*"/>
+            </fileset>
+        </copy>
+        <!-- Copy db.json.sample into /protected/config and replace tokens-->
+        <copy file="${conf.dir}/db.json.sample" todir="${build.dir}/protected/config"/>
+        <move file="${build.dir}/protected/config/db.json.sample" tofile="${build.dir}/protected/config/db.json"
+              overwrite="true"/>
+
+        <replace file="${build.dir}/protected/config/db.json"
+                 propertyFile="./build.properties">
+            <replacefilter token="@db.name@" property="db.name"/>
+            <replacefilter token="@db.host@" property="db.host"/>
+            <replacefilter token="@db.user@" property="db.user"/>
+            <replacefilter token="@db.password@" property="db.password"/>
+        </replace>
+
+        <!-- Copy set_env.sh into /protected/scripts and replace tokens-->
+        <copy file="${conf.dir}/set_env.sh.sample" todir="${build.dir}/protected/scripts"/>
+        <move file="${build.dir}/protected/scripts/set_env.sh.sample" tofile="${build.dir}/protected/scripts/set_env.sh"
+              overwrite="true"/>
+
+        <replace file="${build.dir}/protected/scripts/set_env.sh"
+                 propertyFile="./build.properties">
+            <replacefilter token="@db.name@" property="db.name"/>
+            <replacefilter token="@db.host@" property="db.host"/>
+            <replacefilter token="@db.user@" property="db.user"/>
+            <replacefilter token="@db.password@" property="db.password"/>
+        </replace>
+
+        <mkdir dir="${build.dir}/TestGigaDB"/>
+        <copy todir="${build.dir}/TestGigaDB">
+            <fileset dir="${TestGigaDB.dir}"/>
+        </copy>
+
+        <mkdir dir="${build.dir}/themes"/>
+        <copy todir="${build.dir}/themes">
+            <fileset dir="${themes.dir}"/>
+        </copy>
+
+        <!-- Copy single files to build -->
+        <copy file="./crontab" todir="${build.dir}"/>
+        <copy file="./favicon.ico" todir="${build.dir}"/>
+        <copy file="./index.php" todir="${build.dir}"/>
+        <copy file="./sitemap.xml" todir="${build.dir}"/>
+        <copy file="./Vagrantfile" todir="${build.dir}"/>
+    </target>
+
+    <target name="install-local" depends="build"
+            description="Install gigadb on local filesystem">
+        <copy todir="${local.path}">
+            <fileset dir="${themes.dir}"/>
+        </copy>
+
+        <exec executable="ssh" failonerror="true">
+            <arg line="sudo webctl restart"/>
+        </exec>
+    </target>
+
+    <target name="install-dev" depends="build"
+            description="Install gigadb on development server">
+        <apply executable="scp" failonerror="true" parallel="true">
+            <fileset dir="${build.dir}" includes="**/*"/>
+            <srcfile/>
+            <arg line="${dev.server}:${dev.path}"/>
+        </apply>
+
+        <exec executable="ssh" failonerror="true">
+            <arg line="${dev.server}"/>
+            <arg line="sudo webctl restart"/>
+        </exec>
+    </target>
+
+    <target name="install-prod" depends="build"
+            description="Install gigadb on production server">
+        <apply executable="scp" failonerror="true" parallel="true">
+            <fileset dir="${build.dir}" includes="**/*"/>
+            <srcfile/>
+            <arg line="${prod.server}:${prod.path}"/>
+        </apply>
+
+        <exec executable="ssh" failonerror="true">
+            <arg line="${prod.server}"/>
+            <arg line="sudo webctl restart"/>
+        </exec>
+    </target>
+
+    <target name="clean" description="clean up">
+        <!-- Delete the GigaDB build directory -->
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="purge" depends="clean"
+            description="Removes build directory and downloads">
+        <delete dir="${downloads.dir}"/>
+    </target>
+</project>
