@@ -4,6 +4,9 @@
     </description>
     <!-- Set global properties for build -->
     <property file="build.properties"/>
+    <property name="lib.dir" location="./lib"/>
+    <property name="backups.dir" location="./backups"/>
+
     <property name="css.dir" location="./css"/>
     <property name="dataset.dir" location="./dataset"/>
     <property name="files.dir" location="./files"/>
@@ -252,5 +255,48 @@
     <target name="purge" depends="clean"
             description="Removes build directory and downloads">
         <delete dir="${downloads.dir}"/>
+    </target>
+
+    <target name="createdb" depends="dropdb" description="Create galaxydb">
+        <echo message="Creating new empty gigadb database"/>
+        <sql driver="org.postgresql.Driver"
+             classpath="${lib.dir}/postgresql-9.2-1002.jdbc4.jar"
+             url="${template1.dburl}"
+             userid="${db.user}"
+             password="${db.password}"
+             autocommit="true">
+            CREATE DATABASE gigadb;
+        </sql>
+    </target>
+
+    <target name="dropdb" description="Removes database files">
+        <echo message="Deleting gigadb database"/>
+        <sql driver="org.postgresql.Driver"
+             classpath="${lib.dir}/postgresql-9.2-1002.jdbc4.jar"
+             url="${template1.dburl}"
+             userid="${db.user}"
+             password="${db.password}"
+             autocommit="true">
+            DROP DATABASE gigadb;
+        </sql>
+    </target>
+
+    <target name="restoredb" depends="createdb"
+            description="Restores gigadb from backup files">
+        <echo message="Restoring gigadb database"/>
+        <echo message="This might take some time..."/>
+        <!-- Get SQL dump of galaxydb -->
+        <exec failifexecutionfails="true" failonerror="true"
+              executable="pg_restore">
+            <env key="PGPASSWORD" value="${db.password}"/>
+            <arg value="-i"/>
+            <arg value="-U"/>
+            <arg value="${db.user}"/>
+            <arg value="-h"/>
+            <arg value="${db.host}"/>
+            <arg value="-d"/>
+            <arg value="${db.name}"/>
+            <arg value="${backups.dir}/${backup.file}"/>
+        </exec>
     </target>
 </project>
