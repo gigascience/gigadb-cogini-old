@@ -1,6 +1,6 @@
 {
     "database": "@db.name@",
-    "host"    : "@db.host@",
+    "host"    : "localhost",
     "user"    : "@db.user@",
     "password": "@db.password@"
 }
