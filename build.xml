@@ -121,10 +121,10 @@
               overwrite="true"/>
         <replace file="${build.dir}/protected/config/db.json"
                  propertyFile="./build.properties">
-            <replacefilter token="@db.name@" property="db.name"/>
-            <replacefilter token="@db.host@" property="db.host"/>
-            <replacefilter token="@db.user@" property="db.user"/>
-            <replacefilter token="@db.password@" property="db.password"/>
+            <replacefilter token="@db.name@" property="dev.db.name"/>
+            <replacefilter token="@db.host@" property="dev.db.host"/>
+            <replacefilter token="@db.user@" property="dev.db.user"/>
+            <replacefilter token="@db.password@" property="dev.db.password"/>
         </replace>
 
         <!-- Copy local.php.sample into /protected/config and replace tokens-->
@@ -221,16 +221,16 @@
 
     <target name="install-dev" depends="build"
             description="Install gigadb on development server">
-        <apply executable="scp" failonerror="true" parallel="true">
-            <fileset dir="${build.dir}" includes="**/*"/>
-            <srcfile/>
-            <arg line="${dev.server}:${dev.path}"/>
-        </apply>
+        <scp todir="${dev.user}:${dev.password}@${dev.server}:${dev.path}" verbose="true" sftp="true">
+            <fileset dir="${build.dir}"/>
+        </scp>
 
-        <exec executable="ssh" failonerror="true">
-            <arg line="${dev.server}"/>
-            <arg line="sudo webctl restart"/>
-        </exec>
+        <!-- Need to create empty directories as scp task does not copy them over -->
+        <!-- Also need to make 2 folders writable by web process -->
+        <sshexec host="${dev.server}"
+                 username="${dev.user}"
+                 password="${dev.password}"
+                 commandResource="${conf.dir}/gigadb_config.sh"/>
     </target>
 
     <target name="install-prod" depends="build"
@@ -297,6 +297,50 @@
             <arg value="-d"/>
             <arg value="${db.name}"/>
             <arg value="${backups.dir}/${backup.file}"/>
+        </exec>
+    </target>
+
+    <!-- Dev database tasks -->
+    <target name="createdb-dev"  description="Create gigadb">
+        <echo message="Creating new empty gigadb database"/>
+        <sql driver="org.postgresql.Driver"
+             classpath="${lib.dir}/postgresql-9.2-1002.jdbc4.jar"
+             url="${dev.template1.dburl}"
+             userid="${dev.db.user}"
+             password="${dev.db.password}"
+             autocommit="true">
+            CREATE DATABASE gigadb_20130826_prod;
+        </sql>
+    </target>
+
+    <target name="dropdb-dev" description="Removes database files">
+        <echo message="Deleting gigadb database"/>
+        <sql driver="org.postgresql.Driver"
+             classpath="${lib.dir}/postgresql-9.2-1002.jdbc4.jar"
+             url="${dev.template1.dburl}"
+             userid="${dev.db.user}"
+             password="${dev.db.password}"
+             autocommit="true">
+            DROP DATABASE gigadb_20130826_prod;
+        </sql>
+    </target>
+
+    <target name="restoredb-dev"
+            description="Restores gigadb from backup files">
+        <echo message="Restoring gigadb database"/>
+        <echo message="This might take some time..."/>
+        <!-- Get SQL dump of gigadb -->
+        <exec failifexecutionfails="true" failonerror="true"
+              executable="pg_restore">
+            <env key="PGPASSWORD" value="${dev.pg.password}"/>
+            <arg value="-i"/>
+            <arg value="-U"/>
+            <arg value="${dev.db.user}"/>
+            <arg value="-h"/>
+            <arg value="${dev.db.host}"/>
+            <arg value="-d"/>
+            <arg value="${dev.db.name}"/>
+            <arg value="${backups.dir}/${dev.backup.file}"/>
         </exec>
     </target>
 </project>
