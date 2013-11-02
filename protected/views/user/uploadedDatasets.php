@@ -35,7 +35,7 @@
                 if ( $upload_status != 'Published' && $upload_status!='Private' ) { ?>
                     <td class="content-popup" data-content="<? echo MyHtml::encode($data[$i]->description); ?>">
                        unknown
-                       
+                        
                     </td>
                 <? } else { ?>
                     <td class="content-popup" data-content="<? echo MyHtml::encode($data[$i]->description); ?>">
