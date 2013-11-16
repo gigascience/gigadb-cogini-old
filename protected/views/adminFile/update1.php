@@ -94,7 +94,7 @@ $form = $this->beginWidget('CActiveForm', array(
                         echo $form->hiddenField($file, '[' . $i . ']extension');
                         ?>
       <td class="left"><?php echo $file->name ?></td>
-                        <td class="left"><?php echo $form->textField($file, '[' . $i . ']code', array('class' => 'span1_5')); ?></td>
+                        <td class="left"><?= CHtml::activeDropDownList($file, '[' . $i . ']code', $samples_data, array('class' => 'span2')); ?></td>
                         <td class="left"><?= CHtml::activeDropDownList($file, '[' . $i . ']type_id', CHtml::listData(FileType::model()->findAll(), 'id', 'name'),array('class'=>'span2')); ?></td>
 
                         <td> <?= CHtml::activeDropDownList($file, '[' . $i . ']format_id', CHtml::listData(FileFormat::model()->findAll(), 'id', 'name'),array('class'=>'autowidth')); ?></td>

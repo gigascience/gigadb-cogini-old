@@ -574,7 +574,26 @@ EO_MAIL;
         }
     }
 
-    public function actionSubmit() {
+    public function actionSubmit() { 
+           if (isset($_POST['File'])) {
+        
+            $count = count($_POST['File']);
+            var_dump('count'.$count);
+            for ($i = 0; $i < $count; $i++) {
+                $id=$_POST['File'][$i]['id'];
+                $model = File::model()->findByPk($id);
+                if ($model === null)
+                         continue;
+                $model->attributes = $_POST['File'][$i];
+                if ($model->date_stamp == "")
+                    $model->date_stamp = NULL;
+               // var_dump($model->description);
+                if (!$model->save()) {
+                    var_dump($_POST['File'][$i]);
+                }
+            }
+        }
+        
         if (isset($_SESSION['dataset_id'])) {
 //change dataset status to Request
             $dataset_id = $_SESSION['dataset_id'];
@@ -726,7 +745,7 @@ EO_MAIL;
             $subject = "Dataset " . $dataset_id . " updated online by user " . $user->id . " - " . $user->first_name . ' ' . $user->last_name;
             $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
             $date = getdate();
-            $adminFileLink = Yii::app()->params['home_url'] . "/adminFile/admin";
+            $adminFileLink = Yii::app()->params['home_url'] . "/adminFile/update1/?id=" .$dataset_id;
             $message = <<<EO_MAIL
 Dataset is updated by:
 <br/>
@@ -1171,6 +1190,8 @@ EO_MAIL;
     }
 
     /**
+     * 
+     * 
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
      * @param integer the ID of the model to be loaded

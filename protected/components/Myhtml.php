@@ -1,5 +1,5 @@
 <?php
-class Myhtml extends CHtml{
+class MyHtml extends CHtml{
 
 
 
