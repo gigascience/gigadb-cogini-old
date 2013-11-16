@@ -44,7 +44,7 @@ class Images extends ImageHaver
 		// will receive user inputs.
 		return array(
 			array('license, photographer, source,tag', 'required'),
-			array('tag', 'length', 'max'=>50),
+			array('tag', 'length', 'max'=>100),
 			array('url, source', 'length', 'max'=>256),
 			array('photographer', 'length', 'max'=>128),
 			// The following rule is used by search().

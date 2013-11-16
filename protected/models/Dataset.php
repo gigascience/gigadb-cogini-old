@@ -83,7 +83,7 @@ class Dataset extends MyActiveRecord {
             array('submitter_id, title', 'required'),
             array('submitter_id, image_id, publisher_id,dataset_size', 'numerical', 'integerOnly' => true),
             array('identifier, excelfile_md5', 'length', 'max' => 32),
-            array('title', 'length', 'max' => 30),
+            array('title', 'length', 'max' => 150),
             array('upload_status', 'length', 'max' => 45),
             //  array('ftp_site', 'length', 'max'=>100),
             array('excelfile', 'length', 'max' => 50),

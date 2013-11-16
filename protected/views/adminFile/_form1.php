@@ -51,10 +51,10 @@ Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js
                 $files->getPagination()->pageSize = $pageSize;
 
                 $i = 0;
-
                 $form = $this->beginWidget('CActiveForm', array(
                     'id' => 'file-forms',
-                    'enableAjaxValidation' => false,
+                    
+                    'enableAjaxValidation' => true,
                     'htmlOptions' => array('class' => 'form-horizontal')
                 ));
                 $page = $files->getPagination()->getCurrentPage() + 1;
@@ -107,13 +107,16 @@ Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js
 //            echo $page." ".$pageCount;
             if ($page == $pageCount) {
 
-                echo CHtml::submitButton("Save", array('class' => 'btn', 'name' => 'files', 'title' => 'Save the updates to these files'));
+                echo CHtml::submitButton("Save", array('onclick'=>"process('save')",'class' => 'btn', 'name' => 'files', 'title' => 'Save the updates to these files'));
+                ?>
+                  <input type="hidden" name="file" value="file">
+                  <input onclick="process('complete')" type="submit" value="Complete submission" class="btn-green" title="Submit changes to file details."/>
+                <?
                 $this->endWidget();
                 ?>
-                <form action="/dataset/submit" method="post" style="display:inline">
-                    <input type="hidden" name="file" value="file">
-                    <input type="submit" value="Submit" class="btn-green" title="Submit changes to file details."/>
-                </form>
+               
+                  
+               
 <?
 } else {
     echo CHtml::submitButton("Next", array('class' => 'btn', 'name' => 'files', 'title' => 'Save the updates to these 10 and show next 10 files'));
@@ -145,5 +148,14 @@ Yii::app()->clientScript->registerScriptFile('/js/jquery-ui-1.8.21.custom.min.js
         $(this).datepicker();
     }
     );
+        
+  function   process(v){  
+  if(v=="save"){  
+        document.getElementById('file-forms').action="/adminFile/create1";  
+  }else{  
+        document.getElementById('file-forms').action="/dataset/submit";  
+  }  
+     document.theForm.submit();  
+  }     
 
 </script>

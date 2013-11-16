@@ -10,7 +10,7 @@
 	'filter'=>$model,
 	'columns'=>array(
 		array('name'=> 'doi_search', 'value'=>'$data->dataset->identifier'),
-		'code',
+		array('name'=>'code','value'=>'$data->code'),
 		array(
             'name' => 'name',
             'value'=>'$data->name',

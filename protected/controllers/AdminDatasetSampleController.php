@@ -237,7 +237,7 @@ class AdminDatasetSampleController extends Controller {
 //                var_dump($array);
                 $tax_id = $array[0];
                 $species = $_POST['DatasetSample']['species'];
-                var_dump($tax_id);
+//                var_dump($tax_id);
             } else {
                 $species = $_POST['DatasetSample']['species'];
             }
