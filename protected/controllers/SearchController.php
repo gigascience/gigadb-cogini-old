@@ -412,8 +412,8 @@ class SearchController extends Controller {
 
             $list_result_file_criteria = Dataset::getFileIdsByDatasetIds($list_result_dataset);
 
-//important, filter again the file result
-            list($list_result_file_criteria, $total_files_found ) = $this->searchFile($criteria, $list_result_file_criteria);
+            //important, filter again the file result
+            list($list_result_file_criteria , $total_files_found )=$this->searchFile($criteria, $list_result_file_criteria);
 //,$list_result_file_criteria);
 //Now fetch files from Yii (we will put file size filter here)
             $file_criteria = new CDbCriteria();
