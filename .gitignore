@@ -1,5 +1,5 @@
 # GigaDB files #
-######################
+################
 /assets
 /images
 /protected/config/local.php
@@ -11,6 +11,10 @@
 /protected/scripts/data/lastIndexer.txt
 /protected/scripts/data/lastdataset.txt
 /protected/scripts/set_env.sh
+
+# Build files #
+###############
+build.properties
 
 # OS generated files #
 ######################
