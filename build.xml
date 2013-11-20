@@ -36,16 +36,6 @@
     <property name="downloads.dir" location="./downloads"/>
     <property name="conf.dir" location="./conf"/>
 
-    <!--<property name="server.build" value="${server.build}"/>-->
-    <!--<target name="check-server-build">-->
-        <!--<condition property="isLocal">-->
-            <!--<contains string="${server.build}" substring="local"/>-->
-        <!--</condition>-->
-    <!--</target>-->
-    <!--<target name="print" depends="check-server-build" if="isLocal">-->
-        <!--<echo message="is local build!"/>-->
-    <!--</target>-->
-
     <!-- To be downloaded -->
     <property name="images.dir" location="./images"/>
     <property name="runtime.dir" location="${protected.dir}/runtime"/>
