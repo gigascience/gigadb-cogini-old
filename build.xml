@@ -51,6 +51,7 @@
     <property name="runtime.dir" location="${protected.dir}/runtime"/>
 
     <property name="build.dir" location="./build"/>
+    <property name="dist.dir" location="./dist"/>
 
     <target name="init">
         <!-- Create time stamp -->
@@ -350,46 +351,98 @@
               overwrite="true"/>
         <replace file="${build.dir}/protected/scripts/set_env.sh"
                  propertyFile="./build.properties">
-            <replacefilter token="@db.name@" property="local.db.name"/>
-            <replacefilter token="@db.host@" property="local.db.host"/>
-            <replacefilter token="@db.user@" property="local.db.user"/>
-            <replacefilter token="@db.password@" property="local.db.password"/>
+            <replacefilter token="@db.name@" property="dev.db.name"/>
+            <replacefilter token="@db.host@" property="dev.db.host"/>
+            <replacefilter token="@db.user@" property="dev.db.user"/>
+            <replacefilter token="@db.password@" property="dev.db.password"/>
         </replace>
 
         <replace file="${build.dir}/protected/config/db.json"
                  propertyFile="./build.properties">
-            <replacefilter token="@db.name@" property="local.db.name"/>
-            <replacefilter token="@db.host@" property="local.db.host"/>
-            <replacefilter token="@db.user@" property="local.db.user"/>
-            <replacefilter token="@db.password@" property="local.db.password"/>
+            <replacefilter token="@db.name@" property="dev.db.name"/>
+            <replacefilter token="@db.host@" property="dev.db.host"/>
+            <replacefilter token="@db.user@" property="dev.db.user"/>
+            <replacefilter token="@db.password@" property="dev.db.password"/>
         </replace>
     </target>
 
-    <target name="install-dev" depends="build"
-            description="Install gigadb on development server">
-        <scp todir="${dev.user}:${dev.password}@${dev.server}:${dev.path}" verbose="true" sftp="true">
+    <target name="install-dev" depends="build-dev"
+            description="Install GigaDB on development server">
+
+        <!-- Zip up build folder -->
+        <!--<echo message="Creating zip file"/>-->
+        <!--<mkdir dir="${dist.dir}"/>-->
+        <!--<zip destfile="${dist.dir}/gigadb.zip"-->
+             <!--basedir="${build.dir}"/>-->
+
+        <!-- Delete contents of gigadb folder on development server -->
+        <sshexec host="${dev.unix.server}"
+                 username="${dev.unix.user}"
+                 password="${dev.unix.password}"
+                 command="rm -fr ${dev.install.path}"/>
+
+        <scp todir="${dev.unix.user}:${dev.unix.password}@${dev.unix.server}:${dev.install.path}" verbose="true" sftp="true">
             <fileset dir="${build.dir}"/>
         </scp>
 
+        <!-- Unzip contents -->
+        <!--<sshexec host="${dev.unix.server}"-->
+                 <!--username="${dev.unix.user}"-->
+                 <!--password="${dev.unix.password}"-->
+                 <!--command="unzip -q ${dev.install.path}/gigadb.zip"/>-->
+
         <!-- Need to create empty directories as scp task does not copy them over -->
         <!-- Also need to make 2 folders writable by web process -->
-        <sshexec host="${dev.server}"
-                 username="${dev.user}"
-                 password="${dev.password}"
+        <sshexec host="${dev.unix.server}"
+                 username="${dev.unix.user}"
+                 password="${dev.unix.password}"
                  commandResource="${conf.dir}/gigadb_config.sh"/>
     </target>
 
-    <target name="install-prod" depends="build"
-            description="Install gigadb on production server">
-        <apply executable="scp" failonerror="true" parallel="true">
-            <fileset dir="${build.dir}" includes="**/*"/>
-            <srcfile/>
-            <arg line="${prod.server}:${prod.path}"/>
-        </apply>
+    <!-- ################################# -->
+    <!-- Development server database tasks -->
+    <!-- ################################# -->
 
-        <exec executable="ssh" failonerror="true">
-            <arg line="${prod.server}"/>
-            <arg line="sudo webctl restart"/>
+    <target name="dropdb-dev" description="Removes database files">
+        <echo message="Deleting gigadb database"/>
+        <sql driver="org.postgresql.Driver"
+             classpath="${lib.dir}/postgresql-9.2-1002.jdbc4.jar"
+             url="${dev.template1.dburl}"
+             userid="${dev.db.user}"
+             password="${dev.db.password}"
+             autocommit="true">
+            DROP DATABASE ${dev.db.name};
+        </sql>
+    </target>
+
+    <target name="createdb-dev" depends="dropdb-dev" description="Create dev postgresql database">
+        <echo message="Creating new empty gigadb database"/>
+        <sql driver="org.postgresql.Driver"
+             classpath="${lib.dir}/postgresql-9.2-1002.jdbc4.jar"
+             url="${dev.template1.dburl}"
+             userid="${dev.db.user}"
+             password="${dev.db.password}"
+             autocommit="true">
+            CREATE DATABASE ${dev.db.name};
+        </sql>
+    </target>
+
+    <target name="restoredb-dev" depends="createdb-dev"
+            description="Restores gigadb from backup files">
+        <echo message="Restoring gigadb database"/>
+        <echo message="This might take some time..."/>
+        <!-- Get SQL dump of gigadb -->
+        <exec failifexecutionfails="true" failonerror="true"
+              executable="pg_restore">
+            <env key="PGPASSWORD" value="${dev.db.password}"/>
+            <arg value="-i"/>
+            <arg value="-U"/>
+            <arg value="${dev.db.user}"/>
+            <arg value="-h"/>
+            <arg value="${dev.db.host}"/>
+            <arg value="-d"/>
+            <arg value="${dev.db.name}"/>
+            <arg value="${backups.dir}/${dev.backup.file}"/>
         </exec>
     </target>
 
@@ -401,51 +454,5 @@
     <target name="purge" depends="clean"
             description="Removes build directory and downloads">
         <delete dir="${downloads.dir}"/>
-    </target>
-
-
-
-    <!-- Dev database tasks -->
-    <target name="createdb-dev"  description="Create gigadb">
-        <echo message="Creating new empty gigadb database"/>
-        <sql driver="org.postgresql.Driver"
-             classpath="${lib.dir}/postgresql-9.2-1002.jdbc4.jar"
-             url="${dev.template1.dburl}"
-             userid="${dev.db.user}"
-             password="${dev.db.password}"
-             autocommit="true">
-            CREATE DATABASE gigadb_20130826_prod;
-        </sql>
-    </target>
-
-    <target name="dropdb-dev" description="Removes database files">
-        <echo message="Deleting gigadb database"/>
-        <sql driver="org.postgresql.Driver"
-             classpath="${lib.dir}/postgresql-9.2-1002.jdbc4.jar"
-             url="${dev.template1.dburl}"
-             userid="${dev.db.user}"
-             password="${dev.db.password}"
-             autocommit="true">
-            DROP DATABASE gigadb_20130826_prod;
-        </sql>
-    </target>
-
-    <target name="restoredb-dev"
-            description="Restores gigadb from backup files">
-        <echo message="Restoring gigadb database"/>
-        <echo message="This might take some time..."/>
-        <!-- Get SQL dump of gigadb -->
-        <exec failifexecutionfails="true" failonerror="true"
-              executable="pg_restore">
-            <env key="PGPASSWORD" value="${dev.pg.password}"/>
-            <arg value="-i"/>
-            <arg value="-U"/>
-            <arg value="${dev.db.user}"/>
-            <arg value="-h"/>
-            <arg value="${dev.db.host}"/>
-            <arg value="-d"/>
-            <arg value="${dev.db.name}"/>
-            <arg value="${backups.dir}/${dev.backup.file}"/>
-        </exec>
     </target>
 </project>
