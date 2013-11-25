@@ -701,7 +701,7 @@ EO_MAIL;
 
             $to = $user->email;
 
-            $subject = "GigaDB submission \"" . $dataset->title . '"'.' ['.$datasetid.']';
+            $subject = "GigaDB submission \"" . $dataset->title . '"'.' ['.$dataset_id.']';
             $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
             $timestamp = $date['mday'] . "-" . $date['mon'] . "-" . $date['year'];
             $message = <<<EO_MAIL
@@ -793,7 +793,7 @@ EO_MAIL;
             $to = $user->email;
 
           //  $subject = "GigaDB update \"" . $dataset->title . '"';
-            $subject = "GigaDB submission \"" . $dataset->title . '"'.' ['.$datasetid.']';
+            $subject = "GigaDB submission \"" . $dataset->title . '"'.' ['.$dataset_id.']';
             $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
             $timestamp = $date['mday'] . "-" . $date['mon'] . "-" . $date['year'];
             $message = <<<EO_MAIL
