@@ -134,13 +134,16 @@ $this->pageTitle = "GigaDB Dataset - DOI 10.5524/" . $model->identifier . " - " 
             <?
             $primary_links = array();
             $secondary_links = array();
+            $third_links=array();
 
             foreach ($model->links as $key => $link) {
                 if ($link->is_primary) {
+                    $tokens = explode(':', $link->link);
+                    if($tokens[0]=='http')
+                    {
+                        $third_links[]=$link;
+                    }else
                     $primary_links[] = $link;
-                }
-                if (!$link->is_primary) {
-                    $secondary_links[] = $link;
                 }
             }
             ?>
@@ -183,6 +186,28 @@ $this->pageTitle = "GigaDB Dataset - DOI 10.5524/" . $model->identifier . " - " 
                     <? } ?>
                 </p>
                 <? } ?>
+                
+                 <? if (!empty($third_links)) { ?>
+                <h4><?= Yii::t('app', 'Related links :') ?></h4>
+                <p>
+                    <? foreach ($third_links as $link) { ?>
+                        <?
+                        $tokens = explode(':', $link->link);
+                        $name = $tokens[0];
+                        $code = $tokens[1];
+                       
+                        ?>
+                    <? if ($name != 'http') { ?>
+                        <?= $name ?>:
+                        <?= MyHtml::link($code, $link->getLink(), array('target' => '_blank')); ?>
+                    <? } else { ?>
+                <?= MyHtml::link($link->link, $link->link, array('target' => '_blank')); ?>
+                        <? } ?>
+                        <br/>
+                    <? } ?>
+                </p>
+                <? } ?>
+                
 
             <? } ?>
             <? if (count($model->projects) > 0) { ?>

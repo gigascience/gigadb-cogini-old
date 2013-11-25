@@ -1,0 +1,4 @@
+# m h dom mon dow command
+0 */12 * * * sh /home/gigadb/gigadb-website/protected/scripts/autoIndexer.sh
+0 */12 * * * sh /home/gigadb/gigadb-website/protected/scripts/createSiteMap.sh
+0 */12 * * * sh /home/gigadb/gigadb-website/protected/scripts/mcsync.sh

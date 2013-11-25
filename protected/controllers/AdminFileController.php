@@ -213,7 +213,9 @@ class AdminFileController extends Controller {
                 $submitter = $dataset->submitter;
                 $to = $dataset->submitter->email;
                 
-                $subject = "Files are added to Your dataset: " . $model->dataset_id;
+               // $subject = "Files are added to Your dataset: " . $model->dataset_id;
+                //$subject= 
+                $subject = "GigaDB submission \"" . $dataset->title . '"'.' ['.$datasetid.']';
                 $receiveNewsletter = $user->newsletter ? 'Yes' : 'No';
                 $link = Yii::app()->params['home_url'] . "/dataset/updateFile/?id=" . $model->dataset_id;
                 $message = <<<EO_MAIL

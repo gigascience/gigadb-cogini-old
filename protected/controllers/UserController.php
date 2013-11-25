@@ -371,6 +371,7 @@ class UserController extends Controller {
         $body = $this->renderPartial('emailWelcome',array('url'=>$url),true);
         mail($recipient, $subject, $body, $headers);
         Yii::log("Sent email to $recipient, $subject");
+        $this->sendNotificationEmail($user);
     }
 
     // Send password email
@@ -420,7 +421,10 @@ class UserController extends Controller {
         $body = <<<EO_MAIL
 New user registration
 Email: {$user->email}
-Name:  {$user->name}
+FirstName: {$user->first_name}
+LastName: {$user->last_name}
+
+
 
 $url
 
