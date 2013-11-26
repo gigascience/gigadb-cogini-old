@@ -1,7 +1,6 @@
 # GigaDB files #
 ######################
 /assets
-/images
 /protected/config/local.php
 /protected/config/data
 /protected/config/db.json
@@ -24,3 +23,8 @@ ehthumbs.db
 Thumbs.db
 *~
 .*.swp
+
+# Development environment files #
+#################################
+.idea
+gigadb-cogini.iml
