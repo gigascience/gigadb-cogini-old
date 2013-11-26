@@ -15,6 +15,12 @@ $this->menu=array(
 
 <h1>View Link #<?php echo $model->id; ?></h1>
 
+<? if (Yii::app()->user->checkAccess('admin')) { ?>
+<div class="actionBar">
+[<?= MyHtml::link('Manage Links', array('admin')) ?>]
+</div>
+<? } ?> 
+
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(

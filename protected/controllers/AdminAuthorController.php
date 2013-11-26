@@ -30,6 +30,10 @@ class AdminAuthorController extends Controller
 				'actions'=>array('admin','delete','index','view','create','update'),
 				'roles'=>array('admin'),
 			),
+                    array('allow',
+                        'actions' =>array('create1'),
+                        'users'=>array('@'),
+                        ),
 			array('deny',  // deny all users
 				'users'=>array('*'),
 			),
@@ -66,6 +70,28 @@ class AdminAuthorController extends Controller
 		}
 
 		$this->render('create',array(
+			'model'=>$model,
+		));
+	}
+        
+       public function actionCreate1()
+	{
+		$model=new Author;
+
+		// Uncomment the following line if AJAX validation is needed
+		// $this->performAjaxValidation($model);
+
+		if(isset($_POST['Author']))
+		{
+			$model->attributes=$_POST['Author'];
+			if($model->save()){
+                            
+				$this->redirect("/adminDatasetAuthor/create1");
+                                
+                        }
+		}
+                
+		$this->render('create1',array(
 			'model'=>$model,
 		));
 	}

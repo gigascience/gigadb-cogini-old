@@ -22,6 +22,7 @@ class Sample extends CActiveRecord
 	 */
     public $species_search;
     public $dois_search;
+    public $ids_search;
 
 	public static function model($className=__CLASS__)
 	{
@@ -50,7 +51,7 @@ class Sample extends CActiveRecord
 			array('code', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, species_id, s_attrs, code , species_search, dois_search', 'safe', 'on'=>'search'),
+			array('id, species_id, s_attrs, code , species_search, dois_search,ids_search','safe', 'on'=>'search'),
 		);
 	}
 
@@ -81,6 +82,7 @@ class Sample extends CActiveRecord
 			'code' => 'Sample ID',
             'species_search' => 'Species Name',
             'dois_search' => 'DOIs',
+             'ids_search' =>'ID search'
 		);
 	}
 
@@ -95,13 +97,13 @@ class Sample extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-        $criteria->with = array('species','datasets');
+                $criteria->with = array('species','datasets');
 		$criteria->compare('t.id',$this->id);
 		$criteria->compare('species_id',$this->species_id);
-		$criteria->compare('LOWER(s_attrs)',strtolower($this->s_attrs),true);
-		$criteria->compare('LOWER(code)',strtolower($this->code),true);
+		$criteria->compare('s_attrs',$this->s_attrs,true);
+		$criteria->compare('code',$this->code,true);
 
-		$criteria->compare('LOWER(species.common_name)',strtolower($this->species_search),true);
+		$criteria->compare('species.common_name',$this->species_search,true);
 		if ($this->dois_search) {
 #			$matchedSql = 'SELECT dataset_id, sample_id FROM dataset, dataset_sample WHERE dataset.identifier LIKE \'%'.$this->dois_search.'%\' AND dataset.id = dataset_sample.dataset_id';
 #			$criteria->addInCondition('t.id',CHtml::listData(DatasetSample::model()->findAllBySql($matchedSql),'dataset_id','sample_id'));
@@ -204,4 +206,9 @@ EO_SQL;
 			return $sampleAttributes;
 		}
 	}
+        
+     public function getFullSample(){
+        $species = Species::model()->findByAttributes(array('id'=>$this->species_id))->common_name;
+        return "Species Name: ".$species . ' Attributes:' . $this->s_attrs . ' Sample ID:' . $this->code;
+    }
 }

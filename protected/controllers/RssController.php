@@ -20,35 +20,8 @@ class RssController extends Controller {
     public function actionLatest(){
         $criteria=new CDbCriteria;
         $criteria->limit = $this->numberOfLatestDataset;
-        $criteria->condition = "upload_status = 'Published'";
-        $criteria->order = "id DESC";
         $datasets = Dataset::model()->findAll($criteria);
-
-        $criteria->condition = null;
-        $criteria->order = 'publication_date DESC';
-        $latest_messages = RssMessage::model()->findAll($criteria);
-
-        $rss_arr = array_merge($datasets , $latest_messages);
-
-        $this->sortRssArray($rss_arr);
-        $this->generateFeed($rss_arr);
-    }
-
-    private function sortRssArray(&$rss_arr){
-        //Using Bubble Sort
-        while(True){
-            $swapped = False ;
-            for($i = 0 ; $i < count($rss_arr) - 1 ; ++$i){
-                if($rss_arr[$i]->publication_date < $rss_arr[$i+1]->publication_date){
-                    $temp = $rss_arr[$i+1];
-                    $rss_arr[$i+1] = $rss_arr[$i];
-                    $rss_arr[$i] = $temp;
-                    $swapped = True;
-                }
-            }
-            if(!$swapped)
-                break;
-        }
+        $this->generateFeed($datasets);
     }
 
 
@@ -72,17 +45,13 @@ class RssController extends Controller {
 		$feed->RSS1ChannelAbout = $this->rssAbout;
 
 		foreach ($datasets as $key => $dataset) {
-            $title = $this->isDataset($dataset) ? $dataset->title : $dataset->message;
-            $link = $this->isDataset($dataset) ? Yii::app()->request->hostInfo."/dataset/".$dataset->identifier : Yii::app()->request->hostInfo;
-            $desc = $this->isDataset($dataset) ? $dataset->description : $dataset->message;
-
 			// create dataset item
 			$item = $feed->createNewItem();
-			$item->title = $title;
-			$item->link = $link;
+			$item->title = $dataset->title;
+			$item->link = Yii::app()->request->hostInfo."/dataset/".$dataset->identifier;
 			$item->date = $dataset->publication_date;
-			$item->description = $desc;
-			$item->addTag('dc:subject', $title);
+			$item->description = $dataset->description;
+			$item->addTag('dc:subject', $dataset->title);
 
 			$feed->addItem($item);
 		}
@@ -95,10 +64,6 @@ class RssController extends Controller {
 		}
 
 	}
-
-    private function isDataset($class){
-        return (get_class($class) == 'Dataset') ;
-    }
 
 
 	private function newSphinxClient() {

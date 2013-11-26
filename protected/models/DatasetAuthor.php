@@ -24,8 +24,10 @@ class DatasetAuthor extends CActiveRecord
 
     public $orcid_search;
     public $rank_search;
-
-	public static function model($className=__CLASS__)
+    public $author_name;
+    public $rank;
+    
+    public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
 	}
@@ -46,7 +48,7 @@ class DatasetAuthor extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('dataset_id, author_id', 'required'),
+			array('dataset_id ,rank,author_name', 'required'),
 			array('dataset_id, author_id, rank', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
@@ -78,9 +80,11 @@ class DatasetAuthor extends CActiveRecord
 			'author_id' => 'Author ID',
 			'doi_search' => 'DOI',
 			'author_name_search' => 'Author Name',
-			'rank'=>'Author Order',
+			'rank'=>'Order',
             'orcid_search' => 'ORCID' ,
-            'rank_search' => 'Rank',
+                'rank_search' => 'Rank',
+                    'aurhor_name' =>'Name',
+                  
 		);
 	}
 
@@ -101,9 +105,9 @@ class DatasetAuthor extends CActiveRecord
 		$criteria->compare('dataset_id',$this->dataset_id);
 		$criteria->compare('author_id',$this->author_id);
 		$criteria->compare('dataset.identifier',$this->doi_search,true);
-		$criteria->compare('LOWER(author.name)',strtolower($this->author_name_search),true);
+		$criteria->compare('author.name',$this->author_name_search,true);
 
-		$criteria->compare('LOWER(author.orcid)',strtolower($this->orcid_search),true);
+		$criteria->compare('author.orcid',$this->orcid_search,true);
 		$criteria->compare('author.rank',$this->rank_search,true);
 
         $sort = new CSort();

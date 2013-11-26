@@ -43,7 +43,7 @@ class ExternalLink extends MyActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('dataset_id, url, external_link_type_id', 'required'),
+			array('dataset_id, external_link_type_id', 'required'),
 			array('dataset_id, external_link_type_id', 'numerical', 'integerOnly'=>true),
 			array('url', 'length', 'max'=>128),
 			// The following rule is used by search().
@@ -95,11 +95,11 @@ class ExternalLink extends MyActiveRecord
         $criteria->with = array('dataset','external_link_type');
 		$criteria->compare('t.id',$this->id);
 		$criteria->compare('dataset_id',$this->dataset_id);
-		$criteria->compare('LOWER(url)',strtolower($this->url),true);
+		$criteria->compare('url',$this->url,true);
 		$criteria->compare('external_link_type_id',$this->external_link_type_id);
 
 		$criteria->compare('dataset.identifier',$this->doi_search,true);
-		$criteria->compare('LOWER(external_link_type.name)',strtolower($this->external_link_type_search),true);
+		$criteria->compare('external_link_type.name',$this->external_link_type_search,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

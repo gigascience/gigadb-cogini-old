@@ -114,7 +114,7 @@ class File extends MyActiveRecord
     $criteria->with = array( 'dataset' , 'format' , 'type' );
 		$criteria->compare('t.id',$this->id);
 
-		$criteria->compare('LOWER(t.name)',strtolower($this->name),true);
+		$criteria->compare('t.name',$this->name,true);
 		$criteria->compare('location',$this->location,true);
 		$criteria->compare('extension',$this->extension,true);
 		$criteria->compare('size',$this->size,true);
@@ -122,11 +122,11 @@ class File extends MyActiveRecord
 		$criteria->compare('date_stamp',$this->date_stamp,true);
 		//$criteria->compare('format_id',$this->format_id);
 		//$criteria->compare('type_id',$this->type_id);
-		$criteria->compare('LOWER(code)',strtolower($this->code),true);
+		$criteria->compare('code',$this->code,true);
 
-		$criteria->compare('LOWER(dataset.identifier)',strtolower($this->doi_search),true);
-		$criteria->compare('LOWER(format.name)',strtolower($this->format_search),true);
-		$criteria->compare('LOWER(type.name)',strtolower($this->type_search),true);
+		$criteria->compare('dataset.identifier',$this->doi_search,true);
+		$criteria->compare('format.name',$this->format_search,true);
+		$criteria->compare('type.name',$this->type_search,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -230,20 +230,19 @@ class File extends MyActiveRecord
 	}
 
 	public static function getDatasetIdsByFileIds($fileIds) {
-        $fileIds = implode(' , ' , $fileIds);
-        if(!$fileIds) return array();
-        $result = Yii::app()->db->createCommand()
-            ->selectDistinct('dataset_id')
-            ->from('file')
-            ->where("id in ($fileIds)")
-            ->queryColumn();
-	#	$criteria = new CDbCriteria();
-	#	$criteria->select='id, dataset_id';
-    #$criteria->addInCondition('id', $fileIds);
-    #$criteria->distinct = true;
-    #$criteria->group = 'id, dataset_id';
-  	#$files = File::model()->query($criteria,true);
-  	#$result = CHtml::listData($files,'id','dataset_id');
-        return $result;
-    }
+		$criteria = new CDbCriteria();
+		$criteria->select='id, dataset_id';
+                $criteria->addInCondition('id', $fileIds);
+//    $criteria->distinct = true;
+//    $criteria->group = 'dataset_id';
+                $files = File::model()->query($criteria,true);
+                $result = array();
+                foreach($files as $file){
+                    $dataset_id = $file->dataset_id;
+                    if(!in_array($dataset_id, $result))
+                         $result[]= $dataset_id;
+                }
+//  	$result = CHtml::listData($files,'id','dataset_id');
+  	return $result;
+  }
 }

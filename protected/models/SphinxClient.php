@@ -449,7 +449,7 @@ class SphinxClient
 		$this->_groupfunc	= SPH_GROUPBY_DAY;
 		$this->_groupsort	= "@group desc";
 		$this->_groupdistinct= "";
-		$this->_maxmatches	= 1000;
+		$this->_maxmatches	= 5000;
 		$this->_cutoff		= 0;
 		$this->_retrycount	= 0;
 		$this->_retrydelay	= 0;

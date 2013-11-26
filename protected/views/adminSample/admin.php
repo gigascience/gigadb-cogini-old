@@ -9,7 +9,7 @@
 	'itemsCssClass'=>'table table-bordered',
 	'filter'=>$model,
 	'columns'=>array(
-		array('name'=> 'species_search', 'value'=>'$data->species->common_name'),
+		array('name'=> 'species_search', 'value'=>'$data->species->scientific_name'),
 		array('name'=> 'dois_search', 'value'=>'implode(\', \',CHtml::listData($data->datasets,\'id\',\'identifier\'))'),
 		's_attrs',
 		'code',

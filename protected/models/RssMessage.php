@@ -79,7 +79,7 @@ class RssMessage extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('LOWER(message)',strtolower($this->message),true);
+		$criteria->compare('message',$this->message,true);
 		$criteria->compare('publication_date',$this->publication_date,true);
 
 		return new CActiveDataProvider($this, array(
