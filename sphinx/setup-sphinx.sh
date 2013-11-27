@@ -1,7 +1,5 @@
 #!/bin/bash
 
-pwd=PWD
-
 isInstalled() {
     if hash searchd 2>/dev/null; then
         echo "Sphinx installed"
@@ -33,7 +31,7 @@ if isRunning $1; then
 fi
 
 #Create Sphinx indices
-indexer --config $PWD/build/sphinx/sphinx.conf --all
+indexer --config /etc/sphinx/sphinx.conf --all
 
 #Restart Sphinx
-searchd --config $PWD/build/sphinx/sphinx.conf
+searchd --config /etc/sphinx/sphinx.conf
