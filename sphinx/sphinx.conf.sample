@@ -120,7 +120,7 @@ index dataset
 {
 
 	source			= gigadb_dataset
-	path			= @local.dataset.path@
+	path			= @dataset.path@
 	docinfo			= extern
 	mlock			= 0
 	morphology		= none
@@ -134,7 +134,7 @@ index file
 {
 
 	source			= gigadb_file
-	path			= @local.file.path@
+	path			= @file.path@
 	docinfo			= extern
 	mlock			= 0
 	morphology		= none
@@ -221,11 +221,11 @@ searchd
 
 	# log file, searchd run info is logged here
 	# optional, default is 'searchd.log'
-	log			= @local.log@
+	log			= @log@
 
 	# query log file, all search queries are logged here
 	# optional, default is empty (do not log queries)
-	query_log		= @local.query.log@
+	query_log		= @query.log@
 
 	# client read timeout, seconds
 	# optional, default is 5
@@ -241,7 +241,7 @@ searchd
 
 	# PID file, searchd process ID file name
 	# mandatory
-	pid_file		= @local.pid.file@
+	pid_file		= @pid.file@
 
 	# max amount of matches the daemon ever keeps in RAM, per-index
 	# WARNING, THERE'S ALSO PER-QUERY LIMIT, SEE SetLimits() API CALL
@@ -352,7 +352,7 @@ searchd
 	# optional, default is build-time configured data directory
 	#
 	# binlog_path		= # disable logging
-	binlog_path		= @local.binlog.path@
+	binlog_path		= @binlog.path@
 
 
 	# binlog flush/sync mode
