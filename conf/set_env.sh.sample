@@ -1,9 +1,9 @@
 #!/bin/sh
 
-export DB_HOST=@dev.db.host@
-export DB_NAME=@dev.db.name@
-export DB_USER=@dev.db.user@
-export DB_PASS=@dev.db.password@
+export DB_HOST=@db.host@
+export DB_NAME=@db.name@
+export DB_USER=@db.user@
+export DB_PASS=@db.password@
 
 export PGDATABASE=$DATABASE
 export PGHOST=$DB_HOST
