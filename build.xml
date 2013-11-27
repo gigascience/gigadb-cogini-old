@@ -165,30 +165,6 @@
         <copy file="./index.php" todir="${build.dir}"/>
         <copy file="./sitemap.xml" todir="${build.dir}"/>
         <copy file="./Vagrantfile" todir="${build.dir}"/>
-
-        <!-- For Sphinx -->
-        <mkdir dir="${build.dir}/sphinx"/>
-        <copy todir="${build.dir}/sphinx">
-            <fileset dir="./sphinx"/>
-        </copy>
-        <move file="${build.dir}/sphinx/sphinx.conf.sample" tofile="${build.dir}/sphinx/sphinx.conf"
-              overwrite="true"/>
-        <replace file="${build.dir}/sphinx/sphinx.conf" propertyFile="./build.properties">
-            <replacefilter token="@type@" property="type"/>
-            <replacefilter token="@sql_host@" property="sql_host"/>
-            <replacefilter token="@sql_user@" property="sql_user"/>
-            <replacefilter token="@sql_pass@" property="sql_pass"/>
-            <replacefilter token="@sql_db@" property="sql_db"/>
-            <replacefilter token="@sql_port@" property="sql_port"/>
-            <replacefilter token="@dataset.path@" property="dataset.path"/>
-            <replacefilter token="@file.path@" property="file.path"/>
-            <replacefilter token="@manuscript.path@" property="manuscript.path"/>
-            <replacefilter token="@log@" property="log"/>
-            <replacefilter token="@query_log@" property="query_log"/>
-            <replacefilter token="@pid_file@" property="pid_file"/>
-            <replacefilter token="@binlog_path@" property="binlog_path"/>
-        </replace>
-        <chmod file="${build.dir}/sphinx/setup-sphinx.sh" perm="ugo+x"/>
     </target>
 
     <!-- ######################### -->
@@ -215,6 +191,30 @@
             <replacefilter token="@db.user@" property="local.db.user"/>
             <replacefilter token="@db.password@" property="local.db.password"/>
         </replace>
+
+        <!-- For Sphinx -->
+        <mkdir dir="${build.dir}/sphinx"/>
+        <copy todir="${build.dir}/sphinx">
+            <fileset dir="./sphinx"/>
+        </copy>
+        <move file="${build.dir}/sphinx/sphinx.conf.sample" tofile="${build.dir}/sphinx/sphinx.conf"
+              overwrite="true"/>
+        <replace file="${build.dir}/sphinx/sphinx.conf" propertyFile="./build.properties">
+            <replacefilter token="@type@" property="local.type"/>
+            <replacefilter token="@sql_host@" property="local.sql.host"/>
+            <replacefilter token="@sql_user@" property="local.sql.user"/>
+            <replacefilter token="@sql_pass@" property="local.sql.pass"/>
+            <replacefilter token="@sql_db@" property="local.sql.db"/>
+            <replacefilter token="@sql_port@" property="local.sql.port"/>
+            <replacefilter token="@dataset.path@" property="local.dataset.path"/>
+            <replacefilter token="@file.path@" property="local.file.path"/>
+            <replacefilter token="@manuscript.path@" property="local.manuscript.path"/>
+            <replacefilter token="@log@" property="local.log"/>
+            <replacefilter token="@query_log@" property="local.query.log"/>
+            <replacefilter token="@pid_file@" property="local.pid.file"/>
+            <replacefilter token="@binlog_path@" property="local.binlog.path"/>
+        </replace>
+        <chmod file="${build.dir}/sphinx/setup-sphinx.sh" perm="ugo+x"/>
     </target>
 
     <target name="install-local" depends="build-local"
@@ -318,13 +318,14 @@
 
     <target name="sphinx-local" depends="check-index-install-path" unless="index_found_install_path"
             description="Set up Sphinx search engine on local machine">
-
         <!-- Check presence of indices at protected/config/data -->
         <!-- If present, do nothing -->
         <!-- If not present, check presence of indices in root folder -->
         <!-- If present, copy into protected/config/data -->
         <!-- If not present, execute setup-sphinx.sh and copy indices into root folder -->
         <echo message="This task might take over 20 mins to generate the Sphinx indices..."/>
+        <!-- Copy sphinx.conf to /etc/sphinx -->
+        <copy file="${build.dir}/sphinx/sphinx.conf" todir="/etc/sphinx"/>
         <exec executable="${build.dir}/sphinx/setup-sphinx.sh"
               failonerror="true"
               osfamily="unix"/>
@@ -354,6 +355,30 @@
             <replacefilter token="@db.user@" property="dev.db.user"/>
             <replacefilter token="@db.password@" property="dev.db.password"/>
         </replace>
+
+        <!-- For Sphinx -->
+        <mkdir dir="${build.dir}/sphinx"/>
+        <copy todir="${build.dir}/sphinx">
+            <fileset dir="./sphinx"/>
+        </copy>
+        <move file="${build.dir}/sphinx/sphinx.conf.sample" tofile="${build.dir}/sphinx/sphinx.conf"
+              overwrite="true"/>
+        <replace file="${build.dir}/sphinx/sphinx.conf" propertyFile="./build.properties">
+            <replacefilter token="@type@" property="dev.type"/>
+            <replacefilter token="@sql_host@" property="dev.sql.host"/>
+            <replacefilter token="@sql_user@" property="dev.sql.user"/>
+            <replacefilter token="@sql_pass@" property="dev.sql.pass"/>
+            <replacefilter token="@sql_db@" property="dev.sql.db"/>
+            <replacefilter token="@sql_port@" property="dev.sql.port"/>
+            <replacefilter token="@dataset.path@" property="dev.dataset.path"/>
+            <replacefilter token="@file.path@" property="dev.file.path"/>
+            <replacefilter token="@manuscript.path@" property="dev.manuscript.path"/>
+            <replacefilter token="@log@" property="dev.log"/>
+            <replacefilter token="@query_log@" property="dev.query.log"/>
+            <replacefilter token="@pid_file@" property="dev.pid.file"/>
+            <replacefilter token="@binlog_path@" property="dev.binlog.path"/>
+        </replace>
+        <chmod file="${build.dir}/sphinx/setup-sphinx.sh" perm="ugo+x"/>
     </target>
 
     <target name="install-dev" depends="build-dev"
