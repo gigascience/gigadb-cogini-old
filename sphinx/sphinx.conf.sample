@@ -241,7 +241,7 @@ searchd
 
 	# PID file, searchd process ID file name
 	# mandatory
-	pid_file		= @pid.file@
+	pid_file		= @pid_file@
 
 	# max amount of matches the daemon ever keeps in RAM, per-index
 	# WARNING, THERE'S ALSO PER-QUERY LIMIT, SEE SetLimits() API CALL
@@ -352,7 +352,7 @@ searchd
 	# optional, default is build-time configured data directory
 	#
 	# binlog_path		= # disable logging
-	binlog_path		= @binlog.path@
+	binlog_path		= @binlog_path@
 
 
 	# binlog flush/sync mode
