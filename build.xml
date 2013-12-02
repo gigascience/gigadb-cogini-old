@@ -231,26 +231,43 @@
         </fail>
         <echo message="Web server folder is writable"/>
 
-        <delete includeemptydirs="true">
-            <fileset dir="${local.install.path}" includes="**/*"/>
-        </delete>
+        <!--Delete old web site -->
+        <exec executable="sudo" failonerror="true">
+        <arg line="rm -fr /var/www/hosts/gigadb.cogini.com/htdocs"/>
+        </exec>
+        <exec executable="sudo" failonerror="true">
+            <arg line="rm -fr /var/www/hosts/gigadb.cogini.com/logs"/>
+        </exec>
+
+        <!--<delete includeemptydirs="true">-->
+            <!--<fileset dir="${local.install.path}" includes="**/*"/>-->
+        <!--</delete>-->
+        <!--&lt;!&ndash;Delete logs in old web site &ndash;&gt;-->
+        <!--<delete includeemptydirs="true">-->
+            <!--<fileset dir="${local.install.path.logs}" includes="**/*"/>-->
+        <!--</delete>-->
 
         <copy todir="${local.install.path}">
             <fileset dir="${build.dir}"/>
         </copy>
+        <mkdir dir="${local.install.path.logs}"/>
+        <mkdir dir="${local.install.path.logs}/binlog"/>
 
         <!-- Configure write permissions for runtime and assets folders -->
         <chmod dir="${local.install.path}/protected/runtime" perm="ugo+rw" type="dir"/>
         <chmod dir="${local.install.path}/assets" perm="ugo+rw" type="dir"/>
 
-        <!-- For Sphinx indices -->
-        <exec executable="mkdir" failonerror="true">
-            <arg line="${local.install.path}/protected/config/data"/>
-        </exec>
+        <!-- Sphinx stuff -->
+        <mkdir dir="${local.install.path}/protected/config/data"/>
+        <copy todir="${local.install.path}/protected/config/data">
+            <fileset dir="/home/peterli/gigadb/sphinx/indices/cogini/gigadb_20131127"/>
+        </copy>
+        <copy file="${build.dir}/sphinx/sphinx.conf" todir="/usr/local/sphinx/etc"/>
 
-        <exec executable="sudo" failonerror="true">
-            <arg line="apachectl restart"/>
-        </exec>
+        <!--<exec executable="sudo" failonerror="true">-->
+        <!--<arg line="apachectl restart"/>-->
+        <!--</exec>-->
+
     </target>
 
     <!-- #################### -->
