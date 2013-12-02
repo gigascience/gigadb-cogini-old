@@ -225,7 +225,7 @@ searchd
 
 	# query log file, all search queries are logged here
 	# optional, default is empty (do not log queries)
-	query_log		= @query.log@
+	query_log		= @query_log@
 
 	# client read timeout, seconds
 	# optional, default is 5
@@ -246,7 +246,7 @@ searchd
 	# max amount of matches the daemon ever keeps in RAM, per-index
 	# WARNING, THERE'S ALSO PER-QUERY LIMIT, SEE SetLimits() API CALL
 	# default is 1000 (just like Google)
-	max_matches		= 1000
+	max_matches		= 50000
 
 	# seamless rotate, prevents rotate stalls if precaching huge datasets
 	# optional, default is 1
