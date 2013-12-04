@@ -47,6 +47,11 @@
         <!-- Create time stamp -->
         <tstamp/>
 
+        <!-- Check OS -->
+        <condition property="isMac" value="true">
+            <os family="mac" />
+        </condition>
+
         <!-- Check for images.zip as test for downloads -->
         <property name="images.zip" value="${downloads.dir}/images.zip"/>
         <available file="${images.zip}" property="images.zip.present"/>
@@ -167,11 +172,18 @@
         <copy file="./Vagrantfile" todir="${build.dir}"/>
     </target>
 
+    <target name="if_mac" depends="build" if="isMac">
+        <!-- If using Mac, copy over Utils.php.mac -->
+        <echo message="We are on a Mac..."/>
+        <copy file="${conf.dir}/Utils.php.mac" tofile="${build.dir}/protected/vendors/Utils.php"
+              overwrite="true"/>
+    </target>
+
     <!-- ######################### -->
     <!-- Local server installation -->
     <!-- ######################### -->
 
-    <target name="build-local" depends="build">
+    <target name="build-local" depends="if_mac">
         <!-- Copy set_env.sh into /protected/scripts and replace tokens-->
         <copy file="${conf.dir}/set_env.sh.sample" todir="${build.dir}/protected/scripts"/>
         <move file="${build.dir}/protected/scripts/set_env.sh.sample" tofile="${build.dir}/protected/scripts/set_env.sh"
@@ -231,26 +243,43 @@
         </fail>
         <echo message="Web server folder is writable"/>
 
-        <delete includeemptydirs="true">
-            <fileset dir="${local.install.path}" includes="**/*"/>
-        </delete>
+        <!--Delete old web site -->
+        <exec executable="sudo" failonerror="true">
+        <arg line="rm -fr /var/www/hosts/gigadb.cogini.com/htdocs"/>
+        </exec>
+        <exec executable="sudo" failonerror="true">
+            <arg line="rm -fr /var/www/hosts/gigadb.cogini.com/logs"/>
+        </exec>
+
+        <!--<delete includeemptydirs="true">-->
+            <!--<fileset dir="${local.install.path}" includes="**/*"/>-->
+        <!--</delete>-->
+        <!--&lt;!&ndash;Delete logs in old web site &ndash;&gt;-->
+        <!--<delete includeemptydirs="true">-->
+            <!--<fileset dir="${local.install.path.logs}" includes="**/*"/>-->
+        <!--</delete>-->
 
         <copy todir="${local.install.path}">
             <fileset dir="${build.dir}"/>
         </copy>
+        <mkdir dir="${local.install.path.logs}"/>
+        <mkdir dir="${local.install.path.logs}/binlog"/>
 
         <!-- Configure write permissions for runtime and assets folders -->
         <chmod dir="${local.install.path}/protected/runtime" perm="ugo+rw" type="dir"/>
         <chmod dir="${local.install.path}/assets" perm="ugo+rw" type="dir"/>
 
-        <!-- For Sphinx indices -->
-        <exec executable="mkdir" failonerror="true">
-            <arg line="${local.install.path}/protected/config/data"/>
-        </exec>
+        <!-- Sphinx stuff -->
+        <mkdir dir="${local.install.path}/protected/config/data"/>
+        <copy todir="${local.install.path}/protected/config/data">
+            <fileset dir="/Users/peterli/Desktop/senhong_gigadb_20131127-indices"/>
+        </copy>
+        <copy file="${build.dir}/sphinx/sphinx.conf" todir="/usr/local/etc"/>
 
-        <exec executable="sudo" failonerror="true">
-            <arg line="apachectl restart"/>
-        </exec>
+        <!--<exec executable="sudo" failonerror="true">-->
+        <!--<arg line="apachectl restart"/>-->
+        <!--</exec>-->
+
     </target>
 
     <!-- #################### -->
