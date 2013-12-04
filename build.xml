@@ -62,9 +62,10 @@
 
     <target name="download" depends="init" unless="images.zip.present">
         <mkdir dir="${downloads.dir}"/>
-        <!--<get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCakFMenU4aEVxS0U" dest="${downloads.dir}/assets.zip"/>-->
-
-        <get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCYlhuaFF0NHhxUkk" dest="${downloads.dir}/images.zip"/>
+        <!--<get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCYlhuaFF0NHhxUkk" dest="${downloads.dir}/images.zip"/>-->
+        <!-- Sphinx indices -->
+        <mkdir dir="${downloads.dir}/sphinx"/>
+        <get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCVDRET2FsN2QzWDA" dest="${downloads.dir}/sphinx/sphinx_indices.zip"/>
 
         <!-- /protected/config/local.php -->
         <!--<get src="http://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCLVpqTklEYzhJRTQ" dest="${downloads.dir}/local.php"/>-->
@@ -227,6 +228,8 @@
             <replacefilter token="@binlog_path@" property="local.binlog.path"/>
         </replace>
         <chmod file="${build.dir}/sphinx/setup-sphinx.sh" perm="ugo+x"/>
+        <!-- Copy over index files -->
+        <unzip src="${downloads.dir}/sphinx/sphinx_indices.zip" dest="${build.dir}/protected/config/data"/>
     </target>
 
     <target name="install-local" depends="build-local"
@@ -270,10 +273,6 @@
         <chmod dir="${local.install.path}/assets" perm="ugo+rw" type="dir"/>
 
         <!-- Sphinx stuff -->
-        <mkdir dir="${local.install.path}/protected/config/data"/>
-        <copy todir="${local.install.path}/protected/config/data">
-            <fileset dir="/Users/peterli/Desktop/senhong_gigadb_20131127-indices"/>
-        </copy>
         <copy file="${build.dir}/sphinx/sphinx.conf" todir="/usr/local/etc"/>
 
         <!--<exec executable="sudo" failonerror="true">-->
