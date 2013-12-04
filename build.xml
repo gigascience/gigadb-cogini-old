@@ -47,6 +47,11 @@
         <!-- Create time stamp -->
         <tstamp/>
 
+        <!-- Check OS -->
+        <condition property="isMac" value="true">
+            <os family="mac" />
+        </condition>
+
         <!-- Check for images.zip as test for downloads -->
         <property name="images.zip" value="${downloads.dir}/images.zip"/>
         <available file="${images.zip}" property="images.zip.present"/>
@@ -167,11 +172,18 @@
         <copy file="./Vagrantfile" todir="${build.dir}"/>
     </target>
 
+    <target name="if_mac" depends="build" if="isMac">
+        <!-- If using Mac, copy over Utils.php.mac -->
+        <echo message="We are on a Mac..."/>
+        <copy file="${conf.dir}/Utils.php.mac" tofile="${build.dir}/protected/vendors/Utils.php"
+              overwrite="true"/>
+    </target>
+
     <!-- ######################### -->
     <!-- Local server installation -->
     <!-- ######################### -->
 
-    <target name="build-local" depends="build">
+    <target name="build-local" depends="if_mac">
         <!-- Copy set_env.sh into /protected/scripts and replace tokens-->
         <copy file="${conf.dir}/set_env.sh.sample" todir="${build.dir}/protected/scripts"/>
         <move file="${build.dir}/protected/scripts/set_env.sh.sample" tofile="${build.dir}/protected/scripts/set_env.sh"
@@ -260,9 +272,9 @@
         <!-- Sphinx stuff -->
         <mkdir dir="${local.install.path}/protected/config/data"/>
         <copy todir="${local.install.path}/protected/config/data">
-            <fileset dir="/home/peterli/gigadb/sphinx/indices/cogini/gigadb_20131127"/>
+            <fileset dir="/Users/peterli/Desktop/senhong_gigadb_20131127-indices"/>
         </copy>
-        <copy file="${build.dir}/sphinx/sphinx.conf" todir="/usr/local/sphinx/etc"/>
+        <copy file="${build.dir}/sphinx/sphinx.conf" todir="/usr/local/etc"/>
 
         <!--<exec executable="sudo" failonerror="true">-->
         <!--<arg line="apachectl restart"/>-->
