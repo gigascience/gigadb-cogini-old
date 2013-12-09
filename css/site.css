@@ -5094,3 +5094,11 @@ ul.yiiPager{
 .dataset-title{
     color:#336930;
 }
+.citation-button{
+    font-variant: small-caps;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    background-color: #0084B8;
+    padding: 3px 3px 0px 3px;
+}
