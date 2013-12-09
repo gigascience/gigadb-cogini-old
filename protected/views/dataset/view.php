@@ -37,6 +37,9 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
                 <? }
             ?>
             (<?=substr($model->publication_date,0,4)?>): <?echo $model->title.' '.$model->publisher->name.'. '; ?><a href="http://dx.doi.org/10.5524/<? echo $model->identifier; ?>">http://dx.doi.org/10.5524/<? echo $model->identifier; ?></a>
+             <a title="Export to Reference Manager/EndNote" href="http://data.datacite.org/application/x-research-info-systems/10.5524/<? echo $model->identifier; ?>"><span class="citation-button">RIS</span></a>
+                <a title="Export to BibTeX" href="http://data.datacite.org/application/x-bibtex/10.5524/<? echo $model->identifier; ?>"><span class="citation-button">BibTeX</span></a>   
+                <a title="Export to Text" href="http://data.datacite.org/application/x-datacite+text/10.5524/<? echo $model->identifier; ?>"><span class="citation-button">Text</span></a>
 
         </h4></p>
         <? } ?>
