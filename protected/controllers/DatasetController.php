@@ -27,7 +27,7 @@ class DatasetController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('view','checkDOIExist' , 'aSetSortCookies'),
+				'actions'=>array('view','checkDOIExist' , 'aSetSortCookies','ResetPageSize'),
 				'users'=>array('*'),
 			),
 			array('allow',  // allow logged-in users to perform 'upload'
@@ -43,6 +43,22 @@ class DatasetController extends Controller
 			),
 		);
 	}
+        
+            public function actionResetPageSize() {
+
+
+
+        if (isset($_POST['filePageSize'])) {
+
+            $cookie = new CHttpCookie('filePageSize', $_POST['filePageSize']);
+            //half year
+            $cookie->expire = time() + 60 * 60 * 24 * 180;
+            Yii::app()->request->cookies['filePageSize'] = $cookie;
+        }
+        if (isset($_POST['url'])) {
+            $this->redirect($_POST['url']);
+        }
+    }
 
 	/**
 	 * Displays a particular model.
