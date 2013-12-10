@@ -172,6 +172,22 @@ class SearchController extends Controller
             $dataset_pagination->pageVar="dataset_page";
             $dataset_result=new CActiveDataProvider('Dataset', array('criteria'=>$dataset_criteria,'sort'=>$dsort,'pagination'=>$dataset_pagination));
 
+            if ($keyword) {
+                $result_count = count($dataset_result->getData());
+                if (is_numeric($keyword) && strlen($keyword) == 6) {
+
+                    $result = Dataset::model()->findByAttributes(array('identifier' => $keyword));
+                    if ($result != NULL && $result->upload_status != 'Published') {
+                        $this->render('invalid', array('model' => $form, 'keyword' => $keyword));
+                        return;
+                    }
+                }
+                if ($result_count == 0) {
+                    $form = new SearchForm;
+                    $this->render('invalid', array('model' => $form, 'keyword' => $keyword, 'general_search' => 1));
+                    return;
+                }
+            }
             $search_result=array('dataset_result'=>$dataset_result,'file_result'=>$file_result);
 
             $form->keyword=$criteria['keyword'];
