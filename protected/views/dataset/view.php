@@ -4,7 +4,7 @@ Yii::app()->clientScript->registerScriptFile('/js/jquery.tablesorter.js');
 $title= strlen($model->title)>100?strip_tags(substr($model->title, 0,100))." ...":strip_tags($model->title);
 $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title;
 ?>
-<? $this->renderPartial('/search/_form',array('model'=>$form,'dataset'=>$dataset,'search_result'=>null)); ?>
+<? $this->renderPartial('/search/_form', array('model' => $form, 'dataset' => $dataset, 'previous_doi' => $previous_doi, 'next_doi' => $next_doi, 'search_result' => null)); ?>
 <div class="row">
     <div class="span12"><p><?= Yii::t('app' , 'Data released on')?> <?= strftime("%B %d, %Y",strtotime($model->publication_date)) ?></p></div>
 </div>
