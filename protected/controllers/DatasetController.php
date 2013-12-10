@@ -123,8 +123,14 @@ class DatasetController extends Controller
             ),
             'pagination' => $spagination
         ));
-
-       $result = Dataset::model()->findAllBySql("select identifier from dataset where identifier > '" . $id . "' and upload_status='Published' order by identifier asc limit 1;");
+        
+        $email = 'no_submitter@bgi.com';
+        $result = Dataset::model()->findAllBySql("select email from gigadb_user g,dataset d where g.id=d.submitter_id and d.identifier='" . $id . "';");
+        if (count($result) > 0) {
+            $email = $result[0]['email'];
+        }
+        
+        $result = Dataset::model()->findAllBySql("select identifier from dataset where identifier > '" . $id . "' and upload_status='Published' order by identifier asc limit 1;");
         if (count($result) == 0) {
             $result = Dataset::model()->findAllBySql("select identifier from dataset where upload_status='Published' order by identifier asc limit 1;");
             $next_doi = $result[0]->identifier;
@@ -154,12 +160,13 @@ class DatasetController extends Controller
 			'dataset'=>$dataset,
 			'files'=>$files,
 			'samples'=>$samples,
+                        'email' => $email,
                         'previous_doi' => $previous_doi,
                         'next_doi' => $next_doi,
 		));
 	}
 
-	
+
 	public function actionPrivate() {
           $id = $_GET['identifier'];
           $model= Dataset::model()->find("identifier=?",array($id));
