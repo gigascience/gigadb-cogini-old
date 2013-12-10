@@ -1,6 +1,7 @@
 <?php
 class WebUser extends CWebUser
 {
+    private $_model;
     /**
  *      * Overrides a Yii method that is used for roles in controllers (accessRules).
  *           *
@@ -21,5 +22,21 @@ class WebUser extends CWebUser
              // allow access if the operation request is the current user's role
         return ($operation === $role);
    }
+   
+   function getFirst_Name(){
+    $user = $this->loadUser(Yii::app()->user->id);
+    return $user->first_name;
+  }
+  
+  protected function loadUser($id=null)
+    {
+        if($this->_model===null)
+        {
+            if($id!==null)
+                $this->_model=User::model()->findByPk($id);
+        }
+        return $this->_model;
+    }
 }
+
 
