@@ -124,6 +124,23 @@ class DatasetController extends Controller
             'pagination' => $spagination
         ));
 
+       $result = Dataset::model()->findAllBySql("select identifier from dataset where identifier > '" . $id . "' and upload_status='Published' order by identifier asc limit 1;");
+        if (count($result) == 0) {
+            $result = Dataset::model()->findAllBySql("select identifier from dataset where upload_status='Published' order by identifier asc limit 1;");
+            $next_doi = $result[0]->identifier;
+        } else {
+            $next_doi = $result[0]->identifier;
+        }
+
+        $result = Dataset::model()->findAllBySql("select identifier from dataset where identifier < '" . $id . "' and upload_status='Published' order by identifier desc limit 1;");
+        if (count($result) == 0) {
+            $result = Dataset::model()->findAllBySql("select identifier from dataset where upload_status='Published' order by identifier desc limit 1;");
+            $previous_doi = $result[0]->identifier;
+        } else {
+            $previous_doi = $result[0]->identifier;
+        }
+        
+        
         // $files = File::model()->findAll("dataset_id=?",array($model->id));
 //        $file_command = Yii::app()->db->createCommand("SELECT file.id , file.code,file.description,file.size as size ,file.date_stamp as date_stamp,file.location as location ,file.name,file_type.name as type, file_format.name as format, file_format.description as format_description FROM file LEFT JOIN file_type ON file_type.id=file.type_id LEFT JOIN file_format ON file_format.id=file.format_id WHERE file.dataset_id=?");
 //        $files = $file_command->query(array($model->id));
@@ -137,10 +154,12 @@ class DatasetController extends Controller
 			'dataset'=>$dataset,
 			'files'=>$files,
 			'samples'=>$samples,
+                        'previous_doi' => $previous_doi,
+                        'next_doi' => $next_doi,
 		));
 	}
 
-
+	
 	public function actionPrivate() {
           $id = $_GET['identifier'];
           $model= Dataset::model()->find("identifier=?",array($id));
