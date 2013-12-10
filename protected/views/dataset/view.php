@@ -36,14 +36,23 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
                     ?>
                 <? }
             ?>
-            (<?=substr($model->publication_date,0,4)?>): <?echo $model->title.' '.$model->publisher->name.'. '; ?><a href="http://dx.doi.org/10.5524/<? echo $model->identifier; ?>">http://dx.doi.org/10.5524/<? echo $model->identifier; ?></a>
-             <a title="Export to Reference Manager/EndNote" href="http://data.datacite.org/application/x-research-info-systems/10.5524/<? echo $model->identifier; ?>"><span class="citation-button">RIS</span></a>
-                <a title="Export to BibTeX" href="http://data.datacite.org/application/x-bibtex/10.5524/<? echo $model->identifier; ?>"><span class="citation-button">BibTeX</span></a>   
-                <a title="Export to Text" href="http://data.datacite.org/application/x-datacite+text/10.5524/<? echo $model->identifier; ?>"><span class="citation-button">Text</span></a>
-
+            (<?=substr($model->publication_date,0,4)?>): <?echo $model->title.' '.$model->publisher->name.'. '; ?>
+             <a href="http://dx.doi.org/10.5524/<? echo $model->identifier; ?>">http://dx.doi.org/10.5524/<? echo $model->identifier; ?></a>
+             <a title="Export to Reference Manager/EndNote" href="http://data.datacite.org/application/x-research-info-systems/10.5524/<? echo $model->identifier; ?>"><span class="citation-button">RIS</span></a>              <a title="Export to BibTeX" href="http://data.datacite.org/application/x-bibtex/10.5524/<? echo $model->identifier; ?>"><span class="citation-button">BibTeX</span></a>   
+             <a title="Export to Text" href="http://data.datacite.org/application/x-datacite+text/10.5524/<? echo $model->identifier; ?>"><span class="citation-button">Text</span></a>
         </h4></p>
         <? } ?>
         <p><?echo $model->description; ?> </p>
+        
+                <div class="row">   
+<? if (Yii::app()->user->isGuest) { ?>        
+            
+            <? echo MyHtml::link("Contact Submitter", "javascript: void(0)",array('class' => 'span2 btn-grey', 'title' => 'Please Login to contact submitter','disabled'=>'disabled')) ?>         
+        <? } else { ?>
+            <? echo MyHtml::link("Contact Submitter", 'mailto:' . $email, array('class' => 'span2 btn-green')) ?>  
+        <? } ?>
+        </div>
+        <div class="clear"></div>
 <?/*h4>In accordance with our <a href="/site/term">terms of use</a>, please cite this dataset as:</h4>
         <? if (count($model->authors) > 0) { ?>
         <p>
