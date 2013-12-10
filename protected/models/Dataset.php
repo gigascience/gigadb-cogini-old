@@ -43,7 +43,7 @@ class Dataset extends MyActiveRecord
 
     public $dTypes="";
     public $commonNames="";
-
+    public $email;
     /*
      * List of Many To Many RelationShip
      */
@@ -142,6 +142,7 @@ class Dataset extends MyActiveRecord
             'modification_date' => Yii::t('app' , 'Modification Date'),
             'new_image_url' => 'Image URL',
             'new_image_location' => 'Image Location',
+            'email' => 'email',
         );
     }
 
