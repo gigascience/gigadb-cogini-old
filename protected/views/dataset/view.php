@@ -282,8 +282,53 @@ function setCookie(column){
                 }
 
 ?>
-    <h4><?=Yii::t('app' , 'Files')?> <?= MyHtml::link(Yii::t('app','(FTP site)'),$model->ftp_site,array('target'=>'_blank'))?> <?=($aspera) ? MyHtml::link(Yii::t('app' ,'(Aspera)') , $aspera , array('target'=>'_blank')) : ''?>:<span style='color:#666666;font-size:10px;font-weight:normal;margin-left:5px;'><?=Yii::t('app' , 'Aspera user name: gigadb , password: gigadb')?></span></h4>
-        <table class="table table-bordered tablesorter" id="file-table">
+    <h4><?=Yii::t('app' , 'Files')?> <?= MyHtml::link(Yii::t('app','(FTP site)'),$model->ftp_site,array('target'=>'_blank'))?> <?=($aspera) ? MyHtml::link(Yii::t('app' ,'(Aspera)') , $aspera , array('target'=>'_blank')) : ''?>:<span style='color:#666666;font-size:10px;font-weight:normal;margin-left:5px;'><?=Yii::t('app' , 'Aspera user name: gigadb , password: gigadb')?></span>
+    
+      <?php
+            echo CHtml::link('Table Settings', "", // the link for open the dialog
+                    array(
+                'style' => 'cursor: pointer; text-decoration: underline;',
+                'onclick' => "{ $('#dialogDisplay').dialog('open');}"));
+            ?>
+
+            <?php
+            $this->beginWidget('zii.widgets.jui.CJuiDialog', array(// the dialog
+                'id' => 'dialogDisplay',
+                'options' => array(
+                    'title' => 'Display Setting',
+                    'autoOpen' => false,
+                    'modal' => true,
+                    'width' => 300,
+                    'height' => 200,
+                    'buttons' => array(
+                        array('text' => 'Submit', 'click' => 'js:function(){ document.myform.submit();}'),
+                        array('text' => 'Cancel', 'click' => 'js:function(){$(this).dialog("close");}')),
+                ),
+            ));
+            ?>
+            <div class="divForForm">
+                <form name="myform" action="/dataset/resetPageSize" method="post">  
+                    Items per page:
+                    <select name="filePageSize" class="selectPageSize">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>                 
+                    </select>
+                    <input type="hidden" name="url" value="<? echo Yii::app()->request->requestUri; ?>" />
+
+                </form>
+
+            </div>    
+
+                <?php $this->endWidget(); ?>
+
+    </h4>
+        
+    
+    <table class="table table-bordered tablesorter" id="file-table">
             <!--tr-->
             <thead>
                 <!--th class="span2"><a href='#' onClick="setCookie('dataset.identifier')">DOI</a></th-->
