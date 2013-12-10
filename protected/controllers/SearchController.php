@@ -24,6 +24,13 @@ class SearchController extends Controller
             $list_external_link_types=ExternalLinkType::getListTypes();
 
             $criteria=array();
+            //pre-process the keyword to escape some cahracters if the keyword applies to pattern
+            $pattern = "/.*[0-9]{2}\.[0-9]{4}\/.*/";
+            $keyword_origin = $keyword;
+            if (preg_match($pattern, $keyword)) {
+                $keyword = str_replace("/", "\/", $keyword);
+            }
+            
             $criteria['keyword']=$keyword;
 
             $params = array('dataset_type' , 'project' , 'file_type' ,
