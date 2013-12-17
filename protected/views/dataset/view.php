@@ -366,6 +366,10 @@ function setCookie(column){
             </thead>
             <!--/tr-->
             <?
+            $pageSize = isset(Yii::app()->request->cookies['filePageSize']) ?
+                    Yii::app()->request->cookies['filePageSize']->value : 10;
+
+            $files->getPagination()->pageSize = $pageSize;
 
             foreach ($files->getData() as $file) {
                 $samplelink = $samplecode = $file->code;
