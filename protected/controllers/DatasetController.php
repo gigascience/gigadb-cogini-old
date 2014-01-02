@@ -418,6 +418,102 @@ EO_MAIL;
 		}
 		$this->render('create', array('model'=>$dataset)) ;
 	}
+	
+	
+	
+	public function actionCreate1() {
+
+
+        $dataset = new Dataset;
+        $dataset->image = new Images;
+//read dataset from session
+
+        if (isset($_POST['Dataset'])) {
+
+            $_SESSION['dataset'] = $_POST['Dataset'];
+
+            $dataset->attributes = $_POST['Dataset'];
+
+            $dataset->upload_status = "Incomplete";
+            $dataset->dataset_size = $_SESSION['dataset']['dataset_size'];
+// $dataset->ftp_site = $_SESSION['dataset']['ftp_site'];
+            $dataset->submitter_id = Yii::app()->user->_id;
+            
+            if (isset($_POST['Images'])) {
+                $_SESSION['images'] = $_POST['Images'];
+                $dataset->image->attributes = $_POST['Images'];
+            } else if (isset($_POST['no-image'])) {
+                $_SESSION['images'] = 'no-image';
+            }
+            $checkedTypes= array();
+            if (isset($_POST['datasettypes'])) {
+                $_SESSION['datasettypes'] = $_POST['datasettypes'];
+                
+                 $types = array();
+                foreach ($_SESSION['datasettypes'] as $id => $datasettype) {
+                    $type = new Type;
+                    $type->id = $id;
+                    array_push($types, $type);
+                }
+                $dataset->datasetTypes = $types;
+            }
+            //check
+            if ($this->storeDataset($dataset)) {
+                
+                $vars = array('dataset', 'images', 'datasettypes', 'dataset_id');
+                Dataset::storeSession($vars);
+
+
+                $this->redirect('/adminDatasetAuthor/create1');
+            }
+        } else if (isset($_SESSION['dataset']) && isset($_SESSION['images'])) {
+// $dataset = $_SESSION['dataset'];
+
+            $dataset->attributes = $_SESSION['dataset'];
+//attributes that's not safe 
+            $dataset->dataset_size = $_SESSION['dataset']['dataset_size'];
+
+
+            if (isset($_SESSION['datasettypes'])) {
+
+                $datasettypes = $_SESSION['datasettypes'];
+                $types = array();
+                foreach ($datasettypes as $id => $datasettype) {
+                    $type = new Type;
+                    $type->id = $id;
+                    array_push($types, $type);
+                }
+
+
+                $dataset->datasetTypes = $types;
+            }
+            if ($_SESSION['images'] != 'no-image')
+                $dataset->image->attributes = $_SESSION['images'];
+        } else {
+
+            $dataset->submitter_id = Yii::app()->user->_id;
+        }
+
+//to determine if there are files assosiated with this dataset
+        if (isset($_SESSION['dataset_id']) && !isset($_SESSION['filecount'])) {
+
+            $filecount = 0;
+            $connection = Yii::app()->db;
+
+            $sql = " select count(1) from file where dataset_id = :name";
+            $command = Yii::app()->db->createCommand($sql);
+            $command->bindValue(":name", $_SESSION['dataset_id'], PDO::PARAM_INT);
+            $res = $command->queryAll();
+
+            if (!empty($res))
+                $filecount = $res[0]['count'];
+
+            $_SESSION['filecount'] = $filecount;
+        }
+//        var_dump($_SESSION['filecount']. "count");
+        $this->render('create1', array('model' => $dataset));
+    }
+	
 
 	private function createManuScript($dataset_id , $doi , $pmid){
 
