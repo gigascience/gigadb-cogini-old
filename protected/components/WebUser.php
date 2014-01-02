@@ -28,6 +28,11 @@ class WebUser extends CWebUser
     return $user->first_name;
   }
   
+   function getEmail(){
+    $user = $this->loadUser(Yii::app()->user->id);
+    return $user->email;
+  }
+  
   protected function loadUser($id=null)
     {
         if($this->_model===null)
