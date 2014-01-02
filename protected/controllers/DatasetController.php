@@ -31,7 +31,7 @@ class DatasetController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow',  // allow logged-in users to perform 'upload'
-				'actions'=>array('upload'),
+				'actions'=>array('upload','create1'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
