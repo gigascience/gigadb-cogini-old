@@ -60,26 +60,15 @@
         <available file="./${build.dir}" type="dir" property="build.found"/>
     </target>
 
-    <target name="download" depends="init" unless="images.zip.present">
+    <!--<target name="download" depends="init" unless="images.zip.present">-->
+    <target name="download" depends="init">
         <mkdir dir="${downloads.dir}"/>
-        <get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCYlhuaFF0NHhxUkk" dest="${downloads.dir}/images.zip"/>
+        <!--<get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCYlhuaFF0NHhxUkk" dest="${downloads.dir}/images.zip"/>-->
+        <get src="https://docs.google.com/uc?id=0BwkLeOIewSZCbGdYY1h5aHdmVmM" dest="${downloads.dir}/images.tar.gz"/>
+
         <!-- Sphinx indices -->
         <mkdir dir="${downloads.dir}/sphinx"/>
         <get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCVDRET2FsN2QzWDA" dest="${downloads.dir}/sphinx/sphinx_indices.zip"/>
-
-        <!-- /protected/config/local.php -->
-        <!--<get src="http://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCLVpqTklEYzhJRTQ" dest="${downloads.dir}/local.php"/>-->
-
-        <!-- protected/config/data -->
-        <!--<get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCMWhoemxPMldPeTQ" dest="${downloads.dir}/protected-config-data.zip"/>-->
-
-        <!-- protected/data -->
-        <!--<get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCVDBIdjRSU25ja1E" dest="${downloads.dir}/data_fresh.sql"/>-->
-
-        <!-- protected/runtime -->
-        <!-- Seems like a load of logs so probably don't need this -->
-        <!--<get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCdUUxZV9FNzVkNkU" dest="${downloads.dir}/protected-runtime.zip"/>-->
-
     </target>
 
     <target name="build" depends="download" unless="build.found">
@@ -102,7 +91,8 @@
         </copy>
 
         <mkdir dir="${build.dir}/images"/>
-        <unzip src="${downloads.dir}/images.zip" dest="${build.dir}/images"/>
+        <gunzip src="${downloads.dir}/images.tar.gz"/>
+        <untar src="${downloads.dir}/images.tar" dest="${build.dir}"/>
 
         <mkdir dir="${build.dir}/js"/>
         <copy todir="${build.dir}/js">
@@ -155,22 +145,22 @@
         <mkdir dir="${build.dir}/protected/runtime"/>
         <mkdir dir="${build.dir}/assets"/>
 
-        <mkdir dir="${build.dir}/TestGigaDB"/>
-        <copy todir="${build.dir}/TestGigaDB">
-            <fileset dir="${TestGigaDB.dir}"/>
-        </copy>
+        <!--<mkdir dir="${build.dir}/TestGigaDB"/>-->
+        <!--<copy todir="${build.dir}/TestGigaDB">-->
+            <!--<fileset dir="${TestGigaDB.dir}"/>-->
+        <!--</copy>-->
 
-        <mkdir dir="${build.dir}/themes"/>
-        <copy todir="${build.dir}/themes">
-            <fileset dir="${themes.dir}"/>
-        </copy>
+        <!--<mkdir dir="${build.dir}/themes"/>-->
+        <!--<copy todir="${build.dir}/themes">-->
+            <!--<fileset dir="${themes.dir}"/>-->
+        <!--</copy>-->
 
         <!-- Copy single files to build -->
         <copy file="./crontab" todir="${build.dir}"/>
         <copy file="./favicon.ico" todir="${build.dir}"/>
         <copy file="./index.php" todir="${build.dir}"/>
         <copy file="./sitemap.xml" todir="${build.dir}"/>
-        <copy file="./Vagrantfile" todir="${build.dir}"/>
+        <!--<copy file="./Vagrantfile" todir="${build.dir}"/>-->
     </target>
 
     <target name="if_mac" depends="build" if="isMac">
