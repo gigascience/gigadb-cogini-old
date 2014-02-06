@@ -13,8 +13,6 @@
     <property name="js.dir" location="./js"/>
     <property name="less.dir" location="./less"/>
     <property name="sphinx.dir" location="./sphinx"/>
-    <property name="TestGigaDB.dir" location="./TestGigaDB"/>
-    <property name="themes.dir" location="./themes"/>
 
     <property name="protected.dir" location="./protected"/>
     <property name="commands.dir" location="${protected.dir}/commands"/>
@@ -60,10 +58,8 @@
         <available file="./${build.dir}" type="dir" property="build.found"/>
     </target>
 
-    <!--<target name="download" depends="init" unless="images.zip.present">-->
-    <target name="download" depends="init">
+    <target name="download" depends="init" unless="images.zip.present">
         <mkdir dir="${downloads.dir}"/>
-        <!--<get src="https://drive.google.com/a/gigasciencejournal.com/uc?id=0BwkLeOIewSZCYlhuaFF0NHhxUkk" dest="${downloads.dir}/images.zip"/>-->
         <get src="https://docs.google.com/uc?id=0BwkLeOIewSZCbGdYY1h5aHdmVmM" dest="${downloads.dir}/images.tar.gz"/>
 
         <!-- Sphinx indices -->
@@ -145,22 +141,11 @@
         <mkdir dir="${build.dir}/protected/runtime"/>
         <mkdir dir="${build.dir}/assets"/>
 
-        <!--<mkdir dir="${build.dir}/TestGigaDB"/>-->
-        <!--<copy todir="${build.dir}/TestGigaDB">-->
-            <!--<fileset dir="${TestGigaDB.dir}"/>-->
-        <!--</copy>-->
-
-        <!--<mkdir dir="${build.dir}/themes"/>-->
-        <!--<copy todir="${build.dir}/themes">-->
-            <!--<fileset dir="${themes.dir}"/>-->
-        <!--</copy>-->
-
         <!-- Copy single files to build -->
-        <copy file="./crontab" todir="${build.dir}"/>
+        <copy file="conf/crontab" todir="${build.dir}"/>
         <copy file="./favicon.ico" todir="${build.dir}"/>
         <copy file="./index.php" todir="${build.dir}"/>
         <copy file="./sitemap.xml" todir="${build.dir}"/>
-        <!--<copy file="./Vagrantfile" todir="${build.dir}"/>-->
     </target>
 
     <target name="if_mac" depends="build" if="isMac">
