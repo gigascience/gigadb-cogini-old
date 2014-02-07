@@ -1,0 +1,155 @@
+System requirements
+===================
+
+Linux and MacOS X can be used to successfully deploy GigaDB. It is developed
+using Yii (http://www.yiiframework.com) and so a copy of this PHP framework
+is required on your server. GigaDB also relies on an installation of
+PostgreSQL (http://www.postgresql.org) which is used as a database for
+storing information about the datasets it hosts. An installation of Sphinx
+(http://sphinxsearch.com) is required for the text searching functionality
+within GigaDB. A web server is, of course, required to host the GigaDB web
+site. The production service of GigaDb uses Apache.
+
+
+Installing GigaDB dependencies
+==============================
+
+Yii PHP Framework
+
+Yii can be downloaded from http://www.yiiframework.com. The production
+version of GigaDB is currently using Yii version 1.1.10. The path to Yii
+should be declared in the index.php file.
+
+PostgreSQL
+
+GigaDB requires a database hosted by the PostgreSQL relational database
+management system. The database should be initialised with the schema
+available in the gigadb-cogini.schema.sql file from the protected/data folder
+. Provide the username and password for accessing this database in the build
+.properties file.
+
+Sphinx
+
+Installation and set up instructions for Sphinx is available from
+http://sphinxsearch.com/docs/current.html. The text searching functionality
+provided by Sphinx requires a set of index files. These files can be created
+using the sphinx.conf file.
+
+Apache
+
+For linux systems, Apache can be installed using a package manager on the
+command line, e.g. sudo apt-get install apache2 on Ubuntu. A directory where
+the source files for GigaDB will be located has to be configured so that it is
+accessible by Apache. This can be achieved by providing Apache with a gigadb
+.conf file with the following example contents configured to your platform:
+
+ <VirtualHost *:80>
+     ServerAdmin joebloggs@here.com
+     DocumentRoot /var/www/hosts/gigadb.cogini.com/htdocs
+     ServerName gigadb-staging.cogini.com
+     ErrorLog /var/www/hosts/gigadb.cogini.com/logs/error.log
+     CustomLog /var/www/hosts/gigadb.cogini.com/logs/access.log combined
+
+      <Directory "/var/www/hosts/gigadb.cogini.com/htdocs">
+
+         Options MultiViews FollowSymLinks -Indexes
+         Order allow,deny
+         Allow from all
+
+         RewriteEngine on
+         RewriteBase /
+
+         # Use a common favicon for everything
+         RewriteCond %{REQUEST_URI} !^/favicon\.ico$
+         RewriteRule favicon /favicon.ico [L,R=301]
+
+         # If a directory or a file exists, use it directly
+         RewriteCond %{REQUEST_FILENAME} -s [OR]
+         RewriteCond %{REQUEST_FILENAME} -l [OR]
+         RewriteCond %{REQUEST_FILENAME} -d
+         RewriteRule ^.*$ - [NC,L]
+
+         # Otherwise forward it to index.php
+         RewriteRule ^.*$ index.php [NC,L]
+
+     </Directory>
+ </VirtualHost>
+
+This file should be located in the /etc/apache2/conf.d folder.
+
+
+GigaDB source
+=============
+
+The source distribution of GigaDB has the following directory layout:
+
+gigadb-cogini
+   |
+   +--- README.md, INSTALL.txt, LICENSE //basic information
+   |
+   +--- build.xml, build.properties // Build file for Ant and configuration info
+   |
+   +--- index.php, favicon.ico, sitemap.xml // GigaDB web application files
+   |
+   +--- conf // contains scripts to be configured to access database, sphinx
+   |
+   +--- css // contains css files required for the GigaDB website
+   |
+   +--- files // contains static files served by GigaDB
+   |
+   +--- js // contains javascript file required by GigaDB
+   |
+   +--- less // contains leaner CSS files
+   |
+   +--- lib // contains jar files required for building GigaDB by Apache Ant
+   |
+   +--- protected // contains GigaDB application files
+   |    |
+   |    +--- commands  // contains customized 'yiic' commands
+   |    |
+   |    +--- components  // contains reusable user components
+   |    |
+   |    +--- config // contains configuration files
+   |    |
+   |    +--- controllers // contains controller class files
+   |    |
+   |    +--- data // contains schemas for setting up the Postgresql database
+   |    |
+   |    +--- doc // contains information for installing GigaDB dependencies
+   |    |
+   |    +--- extensions // contains third-party Yii extensions
+   |    |
+   |    +--- helpers //  can delete this?
+   |    |
+   |    +--- messages // contains Chinese translations of GigaDB text
+   |    |
+   |    +--- models // contains PHP classes representing database tables
+   |    |
+   |    +--- schema // can delete this?
+   |    |
+   |    +--- scripts // contains executables for maintaining GigaDB
+   |    |
+   |    +--- tests // can delete this?
+   |    |
+   |    +--- vendors // not sure what these files do
+   |    |
+   |    +--- views // contains controller view and layout files
+   |
+   +--- sphinx // contains configuration files for Sphinx
+   |
+   +--- themes // can delete this
+
+
+Building and starting GigaDB
+============================
+
+Apache Ant (http://ant.apache.org) is required to build GigaDB. The file,
+build.properties, should be edited according to your configuration details
+for your platform.
+
+Once Ant is installed, typing "ant build-local" on the command line prompt
+should activate the building process for GigaDB. This build of GigaDB is
+located in the build folder, the contents of which should be copied into the
+web server directory you have configured above. Once these files are in place
+then GigaDB should be visible on your web browser after Apache is restarted.
+
