@@ -31,7 +31,9 @@ $cs->registerCssFile($cssCoreUrl . '/jui/css/base/jquery-ui.css');
 			<div class="control-group">
 				<?php echo $form->labelEx($model,'upload_status',array('class'=>'control-label')); ?>
 				<div class="controls">
-					<?php echo $form->dropDownList($model,'upload_status',array('Pending'=>'Pending','Request'=>'Request','Uploaded'=>'Uploaded','Published'=>'Published')); ?>
+					<?php echo $form->dropDownList($model,'upload_status',array(
+                                            'Incomplete'=>'Incomplete','Request'=>'Request','Uploaded'=>'Uploaded',
+                                                'Pending'=>'Pending','Private'=>'Private','Published'=>'Published')); ?>
 					<?php echo $form->error($model,'upload_status'); ?>
 				</div>
 			</div>
@@ -195,7 +197,7 @@ $cs->registerCssFile($cssCoreUrl . '/jui/css/base/jquery-ui.css');
         <? if (!$model->isNewRecord && ($model->upload_status != 'Published')) { ?>
 	<a href="<?=Yii::app()->createUrl('/dataset/private/identifier/'.$model->identifier)?>" class="btn-green"/>Create/Reset Private URL</a>
         <?if($model->token){?>
-        <a href="<?= Yii::app()->createUrl('/dataset/view/id/'.$model->identifier.'/token/'.$model->token) ?>" class="btn-green">Open Private URL</a>
+        <a href="<?= Yii::app()->createUrl('/dataset/view/id/'.$model->identifier.'/token/'.$model->token) ?>">Open Private URL</a>
         <?}?>
         <? } ?>
 </div>
