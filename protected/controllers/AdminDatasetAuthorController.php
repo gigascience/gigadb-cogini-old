@@ -195,7 +195,7 @@ class AdminDatasetAuthorController extends Controller
         }
         //   $model = new DatasetAuthor;
         $author_model = new CArrayDataProvider($authors);
-        $model = new DatasetAuthor;
+       // $model = new DatasetAuthor;
         $this->render('create1', array(
             'model' => $model,
             'author_model' => $author_model,
