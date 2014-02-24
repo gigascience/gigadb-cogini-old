@@ -47,7 +47,7 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
                 <div class="row">   
 <? if (Yii::app()->user->isGuest) { ?>        
             
-            <? echo MyHtml::link("Contact Submitter", "javascript: void(0)",array('class' => 'span2 btn-grey', 'title' => 'Please Login to contact submitter','disabled'=>'disabled')) ?>         
+            <span class='content-popup' data-content='Please Login to contact submitter'> <? echo MyHtml::link("Contact Submitter", "javascript: void(0)",array('class' => 'span2 btn-grey')) ?></span>    
         <? } else { ?>
             <? echo MyHtml::link("Contact Submitter", 'mailto:' . $email, array('class' => 'span2 btn-green')) ?>  
         <? } ?>
