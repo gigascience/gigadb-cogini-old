@@ -116,32 +116,56 @@
 
 <h2><a name="submission">Submission guidelines</a></h2>
 	<p><a href="http://gigadb.org/"><em>Giga</em>DB</a> is an open-access database. As such, all data submitted to <em>Giga</em>DB must be fully consented for public release (for more information about our data policies, please see our <a href="http://gigadb.org/site/term/">Terms of use page</a>).</p>
-	<p>All sequence, assembly, variation, and microarray data must be deposited in a public database at <a href="http://www.ncbi.nlm.nih.gov/">NCBI</a>, <a href="http://www.ebi.ac.uk/">EBI</a>, or <a href="http://www.ddbj.nig.ac.jp/">DDBJ</a> before you submit them to <a href="http://gigadb.org/"><em>Giga</em>DB</a>. In the cases where you would like <em>Giga</em>DB to host files associated with genomic data not fully consented for public release, you must first submit the non-public data to <a href="http://www.ncbi.nlm.nih.gov/gap/">dbGaP</a> or <a href="http://www.ebi.ac.uk/ega/ ">EGA</a>.</p>
-	<p><strong>Step 1</strong> - <a href="http://gigadb.org/user/create">Create an account</a> or <a href="http://gigadb.org/site/login">log in</a> to <a href="http://gigadb.org/"><em>Giga</em>DB</a></p>
-	<p><strong>Step 2</strong> - Download and complete the <a href="http://gigadb.org/files/GigaDBUploadForm.xls">Excel template file</a>. Completed example files for the E. coli (<a href="http://gigadb.org/dataset/100001">10.5524/100001</a>) and Sorghum (<a href="http://gigadb.org/dataset/100012">10.5524/100012</a>) datasets are available.</p>
-
-	<p>The template file contains:</p>
+	<p>All sequence, assembly, variation, and microarray data must be deposited in a public database at <a href="http://www.ncbi.nlm.nih.gov/">NCBI</a>, <a href="http://www.ebi.ac.uk/">EBI</a>, or <a href="http://www.ddbj.nig.ac.jp/">DDBJ</a> before you submit them to <a href="http://gigadb.org/"><em>Giga</em>DB</a>. In the cases where you would like <em>Giga</em>DB to host files associated with genomic data not fully consented for public release, you must first submit the non-public data to <a href="http://www.ncbi.nlm.nih.gov/gap/">dbGaP</a> or <a href="http://www.ebi.ac.uk/ega/">EGA</a>.</p>
+	<p>You have three options for submission of metadata about your data:</p>
+        <ul>
+<li><a href="#onlinewizard">On-line Wizard</a></li>
+<li><a href="#excelupload">Excel spreadsheet upload</a></li>
+<li><a href="#isatab">ISATAB upload</a></li>
+</ul>
+     <p>All data will need to be uploaded to our ftp server after the completion of the metadata submission.:</p>   
+     <h3><a name="onlinewizard">On-line Wizard</a></h3>
+     <p>Register and log in to <a href="http://gigadb.org/"><em>Giga</em>DB</a></p>
+     <p>Click “Submit new dataset” button on your profile page</p>
+     <p>Choose “Online submission” and agree to the <a href="http://gigadb.org/site/term">terms and conditions</a>, click “Submission wizard” button.
+Fill in as much of the information about your data as possible. Hover over the information icon <img src="/images/hint-icon.png"/> by each field for details of what is expected.
+</p>
+     <p>Navigate through the 7 pages using the next or back buttons at the bottom of each page, please do not use the browsers back button as this may not save the information you have input.</p>
+     <p>On the last tab (Sample) you will be able to click the “Submit” button to push this information to our curators. 
+You will see the submission with status “request” in your profile page, and you will receive an email confirmation.
+</p>
+     <p>One of our curators will then contact you with any questions we may have, and to provide you with the details of the secure ftp upload area for you to transfer your files to us.</p>
+     <p>Once the files are all with us you will be sent a link to review the file names, descriptions and sample associations and complete the submission to GigaDB.</p>
+     <br/>
+     <h3><a name="excelupload">Excel spreadsheet upload</a></h3>
+     <p>Register and log in to <a href="http://gigadb.org/"><em>Giga</em>DB</a></p>
+     <p>Download and complete the Excel submission form</p>
+	<p>The submission form contains:</p>
 <ul>
 <li>3 tabs which must all be completed [Study, Samples, Files]</li>
-<li>4 informational tabs [Samples (info), Files (info), CV, Links]</li>
+<li>various informational tabs [Steps1-3, Info-keys, Info-Links]</li>
 </ul>
-	<p>Mandatory fields are highlighted in yellow.</p>
-
+        <p>If Macro’s are enabled in Excel the arrow buttons should navigate you through the tabs in order to complete the forms.</p>
 <h5>Study</h5>
-	<p>Required information includes submitter name, email and affiliation, upload status [can we publish this dataset immediately after review (Publish) or should it be held until publication (HUP)], author list, <a href="#datasettype">dataset type(s)</a> (selected from a controlled vocabulary list), dataset title and description, estimated total size of the files that will be submitted and dataset image information.</p>
-	<p>Optional information includes links to additional resources and related manuscripts, accessions for data in other databases (prefixes are found in the Links tab), and <a href="#relation">relationship</a> (if any) to a previously published <em>Giga</em>DB dataset (selected from a controlled vocabulary list).</p>
+	<p>Required information includes an author list, title, dataset description, image information, tag as to whether we can publish this dataset immediately after review or if it should be held until publication (HUP), <a href="#datasettype">dataset type(s)</a> (selected from a controlled vocabulary list), and estimated total size of the files that will be submitted.</p>
+	<p>Additional information includes links to additional resources and related manuscripts, accessions for data in other databases (prefixes are found in the Info-Links tab), and  <a href="#relation">relationship</a> (if any) to a previously published GigaDB dataset.</p>
 
 <h5>Samples</h5>
 	<p>Required information includes a sample ID or name (please use an <a href="http://www.ncbi.nlm.nih.gov/biosample">NCBI BioSample ID</a> when possible), species <a href="http://www.ncbi.nlm.nih.gov/Taxonomy">NCBI taxonomy ID</a>, and species common name.</p>
-	<p>Optional information includes sample attributes (these are automatically populated in <em>Giga</em>DB if an <a href="http://www.ncbi.nlm.nih.gov/biosample">NCBI BioSample ID</a> is provided).</p>
+	<p>Additional information includes attributes that are automatically populated in <em>Giga</em>DB if an <a href="http://www.ncbi.nlm.nih.gov/biosample">NCBI BioSample ID</a> is provided (and you have submitted the metadata to the BioSamples database).</p>
 
 <h5>Files</h5>
-	<p>Required information includes a file name or path relative to your home directory and <a href="#filetype">file type</a> (selected from a controlled vocabulary list). A readme file must be provided.</p>
-	<p>Optional information includes a file description and a sample ID or name.</p>
-	<p><strong>Step 3</strong> - confirm you have read our <a href="http://gigadb.org/site/term/">Terms of use</a> page and upload the completed Excel template file.</p>
-	<p>You can expect a response from the <a href="http://gigadb.org/"><em>Giga</em>DB</a> team within 5 days to verify the information in your submission and to arrange upload of your files to our FTP site.</p>
+	<p>Required information includes a file name or path relative to your home directory and <a href="#filetype">file type</a> (selected from a controlled vocabulary list). A readme file must be provided, which should outline the contents of all files to be submitted.</p>
+	<p>Additional information includes a file description and a sample ID (from which the data was generated).</p>
+        <br/>
+	<p>To upload the dataset, go to the “Submit new dataset” button on your profile page</p>
+	<p>Choose “Dataset Upload” and agree to the <a href="http://gigadb.org/site/term">terms and conditions</a>, add the Excel file you wish to upload by clicking the “Choose File” button. Then click “Upload New Dataset” button.</p>
+        <p>You can expect a response from the GigaDB team within 5 days to verify the information in your submission and to arrange upload of your files to our FTP site.</p>
 	<p>If you have any questions, please contact us at <a href="mailto:database@gigasciencejournal.com">database@gigasciencejournal.com</a>.</p>
 <br/>
+ <h3><a name="isatab">ISA-Tab submission</a></h3>
+ <p>We can accept investigation information in the <a ref="http://isatab.sourceforge.net/">ISA-Tab format</a>, simply send the isatab files by email to <a href="mailto:database@gigasciencejournal.com">database@gigasciencejournal.com</a> (together with the ISATAB configuration file if you have used anything other than the default configuration).</p>
+ <br/>
 
 <h2><a name="vocabulary">Controlled vocabulary</a></h2>
 <h3><a name="datasettype">Dataset types</a></h3>
