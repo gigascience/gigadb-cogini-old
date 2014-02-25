@@ -8,7 +8,6 @@
     <property name="backups.dir" location="./db"/>
 
     <property name="css.dir" location="./css"/>
-    <property name="dataset.dir" location="./dataset"/>
     <property name="files.dir" location="./files"/>
     <property name="js.dir" location="./js"/>
     <property name="less.dir" location="./less"/>
@@ -51,8 +50,9 @@
         </condition>
 
         <!-- Check for images.zip as test for downloads -->
-        <property name="images.zip" value="${downloads.dir}/images.zip"/>
-        <available file="${images.zip}" property="images.zip.present"/>
+        <property name="images.tar.gz" value="${downloads.dir}/images.tar.gz"/>
+        <available file="${downloads.dir}/images.tar.gz"
+                   property="images.tar.gz.present"/>
 
         <!-- Check build dir -->
         <available file="./${build.dir}" type="dir" property="build.found"/>
@@ -74,11 +74,6 @@
         <mkdir dir="${build.dir}/css"/>
         <copy todir="${build.dir}/css">
             <fileset dir="${css.dir}"/>
-        </copy>
-
-        <mkdir dir="${build.dir}/dataset"/>
-        <copy todir="${build.dir}/dataset">
-            <fileset dir="${dataset.dir}"/>
         </copy>
 
         <mkdir dir="${build.dir}/files"/>
