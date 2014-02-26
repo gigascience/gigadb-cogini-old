@@ -170,19 +170,18 @@ class SiteController extends Controller {
 		$this->render('privacy');
 	}
 
-	public function getDatasetByType($type){
+	 public function getDatasetByType($type) {
 
-		//$criteria=new CDbCriteria;
-		//$criteria->limit=10;
-		if($type>0){
-			$models = Dataset::model()->findAllBySql("SELECT * FROM dataset JOIN dataset_type ON dataset.id=dataset_type.dataset_id WHERE dataset_type.type_id=:type_id AND dataset.upload_status != 'Pending'",array(':type_id'=>$type));
-		}else {
-			$models = Dataset::model()->findAllBySql("SELECT * FROM dataset WHERE dataset.upload_status != 'Pending'");
-		}
+        //$criteria=new CDbCriteria;
+        //$criteria->limit=10;
+        if ($type > 0) {
+            $models = Dataset::model()->findAllBySql("SELECT * FROM dataset JOIN dataset_type ON dataset.id=dataset_type.dataset_id WHERE dataset_type.type_id=:type_id AND dataset.upload_status = 'Published'", array(':type_id' => $type));
+        } else {
+            $models = Dataset::model()->findAllBySql("SELECT * FROM dataset WHERE dataset.upload_status = 'Published'");
+        }
 
-		return $models;
-	}
-
+        return $models;
+    }
 	public function actionAjaxLoadDataset(){
 		 $type=0;
 
