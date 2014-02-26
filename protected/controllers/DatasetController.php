@@ -65,17 +65,28 @@ class DatasetController extends Controller
 	 * @param integer $id the ID of the model to be displayed
 	 */
 	public function actionView($id)	{
-		$form=new SearchForm;  // Use for Form
+        $form = new SearchForm;  // Use for Form
         $dataset = new Dataset; // Use for auto suggestion
-        $model= Dataset::model()->find("identifier=?",array($id));
+        $model = Dataset::model()->find("identifier=?", array($id));
         if (!$model) {
-          $this->redirect('/site/index');
-	}
-        if ($model->upload_status == "Pending") {
-          if (isset($_GET['token']) && $model->token == $_GET['token']) {
-          } else {
-            $this->redirect('/site/index');
-          }
+
+            $form = new SearchForm;
+            $keyword = $id;
+            $this->render('invalid', array('model' => $form, 'keyword' => $keyword, 'general_search' => 1));
+            return;
+        }
+        $status_array = array('Request', 'Incomplete', 'Uploaded');
+
+        if ($model->upload_status != "Published") {
+            if (isset($_GET['token']) && $model->token == $_GET['token']) {
+                
+            } else {
+
+                $form = new SearchForm;
+                $keyword = $id;
+                $this->render('invalid', array('model' => $form, 'keyword' => $keyword));
+                return;
+            }
         }
 
         #$files = $model->files;
