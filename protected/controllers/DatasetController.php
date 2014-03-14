@@ -281,11 +281,21 @@ class DatasetController extends Controller
                         }
                     }
                 }
-                if ($model->upload_status == 'Pending') {
-                    $this->redirect('/dataset/private/identifier/' . $model->identifier);
-                } else {
-                    $this->redirect(array('/dataset/' . $model->identifier));
+                
+                
+                
+                if ($model->upload_status == 'Published') {
+                    $this->redirect('/dataset/' . $model->identifier);
+                } else if($model->token != null) {
+                    $this->redirect(array('/dataset/view/id/' . $model->identifier.'/token/'.$model->token));
                 }
+                else
+                    $this->redirect('/dataset/private/identifier/' . $model->identifier);
+                
+                
+                
+                
+                
             }
         }
 
