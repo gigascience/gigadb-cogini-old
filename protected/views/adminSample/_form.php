@@ -16,8 +16,34 @@
 	<div class="control-group">
 		<?php echo $form->labelEx($model,'species_id',array('class'=>'control-label')); ?>
 				<div class="controls">
-        <?= CHtml::activeDropDownList($model,'species_id',CHtml::listData(Species::model()->findAll(),'id','common_name')); ?>
-		<?php echo $form->error($model,'species_id'); ?>
+        <?php
+                    $criteria = new CDbCriteria;
+                    $criteria->select = 't.id, t.common_name'; // select fields which you want in output
+                    $criteria->limit = 100;
+//                    $criteria->condition = 't.status = 1';
+                    ?>
+
+                    <?php
+                    $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
+                        'name' => 'name',
+                        'model' => $model,
+                        'attribute' => 'species_id',
+                        'source' => $this->createUrl('/adminDatasetSample/autocomplete'),
+                        'options' => array(
+                            'minLength' => '2',
+                        ),
+                        'htmlOptions' => array(
+                            'placeholder' => 'name',
+                            'size' => 'auto'
+                        ),
+                    ));
+                    ?>
+                    <?php
+//                    CHtml::activeDropDownList($model, 'species_id', CHtml::listData(Species::model()->findAll($criteria), 'id', 'common_name'));
+                    ?>
+
+
+                    <?php echo $form->error($model, 'species_id'); ?>
                 </div>
 	</div>
 
