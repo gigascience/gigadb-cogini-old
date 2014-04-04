@@ -189,9 +189,25 @@ class AdminSampleController extends Controller
 
 		if(isset($_POST['Sample']))
 		{
-			$model->attributes=$_POST['Sample'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+		   $model->attributes = $_POST['Sample'];
+
+            if (strpos($_POST['Sample']['species_id'], ":") !== false) {
+                $array = explode(":", $_POST['Sample']['species_id']);
+//                var_dump($array);
+                $tax_id = $array[0];
+                if (is_numeric($tax_id)) {
+                    $species = Species::model()->findByAttributes(array('tax_id' => $tax_id));
+                    $model->species_id = $species->id;
+//                var_dump($tax_id);
+                    if ($model->save())
+                        $this->redirect(array('view', 'id' => $model->id));
+                }
+                else {
+                    $model->addError("error", 'The species id should be numeric');
+                }
+            	} else {
+                $model->addError("error", 'The input format is wrong, should be id:common_name');
+        	}
 		}
 
 		$this->render('update',array(
