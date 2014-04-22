@@ -907,10 +907,16 @@ EO_MAIL;
                 $identifier = $_SESSION['identifier'];
                 $dataset = Dataset::model()->findByAttributes(array('identifier' => $identifier));
             } else {
-                $result = Dataset::model()->findAllBySql("select identifier from dataset order by identifier desc limit 1;");
-                $max_doi = $result[0]->identifier;
-
-                $identifier = $max_doi + 1;
+            	
+               $file = fopen(Yii::app()->basePath."/scripts/data/lastdoi.txt", 'r');
+               $test=fread($file, filesize(Yii::app()->basePath."/scripts/data/lastdoi.txt"));
+               $file1 = fopen(Yii::app()->basePath."/scripts/data/lastdoi.txt", 'w');
+               fwrite($file1, $test+1);
+               fclose($file);
+               fclose($file1);
+               
+               $identifier=$test;
+              
             }
 //convert 
 
