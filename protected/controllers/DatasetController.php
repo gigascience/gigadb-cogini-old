@@ -256,6 +256,7 @@ class DatasetController extends Controller
                 $model->publication_date = null;
             if ($model->modification_date == "")
                 $model->modification_date = null;
+            try{
             if ($model->save() && $model->image->save()) {
                 if (isset($_POST['datasettypes'])) {
                     $datasettypes = $_POST['datasettypes'];
@@ -296,6 +297,9 @@ class DatasetController extends Controller
                 
                 
                 
+            }
+            }catch (Exception $e) {
+                $model->addError('error', $e->getMessage());
             }
         }
 
