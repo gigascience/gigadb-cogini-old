@@ -949,7 +949,12 @@ EO_MAIL;
                     }
                     else {
                         //
-                        $dataset->image_id = 72;
+                                    $dataset->image->url="http://gigadb.org/images/data/cropped/no_image.png";
+                                    $dataset->image->location="no_image.jpg";
+                                    $dataset->image->tag="no image icon";
+                                    $dataset->image->license="Public domain";
+                                    $dataset->image->photographer="GigaDB";
+                                    $dataset->image->source="GigaDB";
                         //
                         if (isset($_SESSION['datasettypes'])) {
                             $datasettypes = $_SESSION['datasettypes'];
@@ -958,17 +963,38 @@ EO_MAIL;
                                     $type_id = $id;
                                 //workflow
                                 if ($type_id == 5) {
-                                    $dataset->image_id = 71;
+                                    $dataset->image->url="http://gigadb.org/images/data/cropped/workflow.jpg";
+                                    $dataset->image->location="workflow.jpg";
+                                    $dataset->image->tag="workflow icon";
+                                    $dataset->image->license="Public domain";
+                                    $dataset->image->photographer="GigaDB";
+                                    $dataset->image->source="GigaDB";
                                 } else if ($type_id == 2
                                 ) {
                                     //genomics
-                                    $dataset->image_id = 70;
+                                   $dataset->image->url="http://gigadb.org/images/data/cropped/genomics.jpg";
+                                    $dataset->image->location="genomics.jpg";
+                                    $dataset->image->tag="genomic icon";
+                                    $dataset->image->license="Public domain";
+                                    $dataset->image->photographer="GigaDB";
+                                    $dataset->image->source="GigaDB";
                                 } else if ($type_id == 4) {
                                     //transcriptomics
-                                    $dataset->image_id = 69;
+                                    $dataset->image->url="http://gigadb.org/images/data/cropped/transcriptomics.jpg";
+                                    $dataset->image->location="transcriptomics.jpg";
+                                    $dataset->image->tag="transcriptomics icon";
+                                    $dataset->image->license="Public domain";
+                                    $dataset->image->photographer="GigaDB";
+                                    $dataset->image->source="GigaDB";
                                 }
                             }
                         }
+                        
+                        $dataset->image->validate();
+                        $dataset->image->save();
+                        
+                         $dataset->image_id = $dataset->image->id;
+                        
                     }
 // save image
 //                 $this->redirect("/site/?a=5");
