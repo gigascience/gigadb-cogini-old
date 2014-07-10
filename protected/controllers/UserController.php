@@ -221,7 +221,7 @@ class UserController extends Controller {
 		User::model()->updateAll(array('is_activated'=>1),'id=:unique_id', array(':unique_id'=>$key));
 
         $user = User::model()->findByAttributes(array('id' => $key));
-        if (!$user->is_activated) {
+        if ($user->is_activated) {
             $this->sendNotificationEmail($user);
         }
 
@@ -398,7 +398,7 @@ class UserController extends Controller {
         $body = <<<EO_MAIL
 New user registration
 Email: {$user->email}
-Name:  {$user->name}
+Name:  {$user->first_name} {$user->last_name}
 
 $url
 
