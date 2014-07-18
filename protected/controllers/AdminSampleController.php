@@ -183,6 +183,7 @@ class AdminSampleController extends Controller
 	public function actionUpdate($id)
 	{
 		$model=$this->loadModel($id);
+		$old_code= $model->code;
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -200,7 +201,18 @@ class AdminSampleController extends Controller
                     $model->species_id = $species->id;
 //                var_dump($tax_id);
                     if ($model->save())
+                    {
+                    	$dataset_id= DatasetSample::model()->findByAttributes(array('sample_id'=>$model->id))->dataset_id;
+                            $files= File::model()->findAllByAttributes(array('code'=>$old_code,'dataset_id'=>$dataset_id));
+                            foreach($files as $file)
+                            {
+                                $file->code=$model->code;
+                                $file->save();
+                                //echo $model->code;
+                            }
                         $this->redirect(array('view', 'id' => $model->id));
+                    
+                    }
                 }
                 else {
                     $model->addError("error", 'The species id should be numeric');
