@@ -24,7 +24,7 @@ $cs->registerCssFile($cssCoreUrl . '/jui/css/base/jquery-ui.css');
 			<div class="control-group">
 				<?php echo $form->labelEx($model,'submitter_id',array('class'=>'control-label')); ?>
 				<div class="controls">
-					<?php echo $form->dropDownList($model,'submitter_id',MyHtml::listData(User::model()->findAll(),'id','email')); ?>
+					<?php echo $form->dropDownList($model,'submitter_id',MyHtml::listData(User::model()->findAll(array('order'=>'email ASC')),'id','email')); ?>
 					<?php echo $form->error($model,'submitter_id'); ?>
 				</div>
 			</div>

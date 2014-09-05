@@ -1,6 +1,7 @@
 <?
 Yii::app()->clientScript->registerScriptFile('/js/jquery.tablesorter.js');
 
+
 $title= strlen($model->title)>100?strip_tags(substr($model->title, 0,100))." ...":strip_tags($model->title);
 $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title;
 ?>
@@ -47,8 +48,8 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
                 <div class="row">   
 <? if (Yii::app()->user->isGuest) { ?>        
             
-            <span class='content-popup' data-content='Please Login to contact submitter'> <? echo MyHtml::link("Contact Submitter", "javascript: void(0)",array('class' => 'span2 btn-grey')) ?></span>    
-        <? } else { ?>
+           <span class='content-popup' data-content='Please Login to contact submitter'> <? echo MyHtml::link("Contact Submitter", "javascript: void(0)",array('class' => 'span2 btn-grey')) ?></span>         
+        <? } else if($model->identifier == '200001') {} else { ?>
             <? echo MyHtml::link("Contact Submitter", 'mailto:' . $email, array('class' => 'span2 btn-green')) ?>  
         <? } ?>
         </div>
@@ -85,13 +86,59 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
         <? if (count($model->relations) > 0) { ?>
         <h4><?= Yii::t('app' , 'Related datasets:')?></h4>
         <p>
-            <? foreach ($model->relations as $key=>$relation){
+              <?php foreach ($model->relations as $key=>$relation){
+                if($relation->relationship == "IsPreviousVersionOf")
+                {
+                echo "doi:" . MyHtml::link("10.5524/". $model->identifier, '/dataset/'.$model->identifier) ." " . $relation->relationship . " " .'doi:' . MyHtml::link("10.5524/".$relation->related_doi, '/dataset/'.$relation->related_doi)."<b> (It is a more recent version of this dataset) </b>";
+                echo "<br/>";
+                ?>
+            
+                   <?php
+            $target = 'window.location='."'".$this->createUrl('dataset/'.$relation->related_doi)."'";
+            $this->beginWidget('zii.widgets.jui.CJuiDialog', array(// the dialog
+                'id' => 'dialogDisplay1',
+                'options' => array(
+                    'title' => 'New Version Alert',
+                    'autoOpen' => true,
+                    'modal' => true,
+                    'width' => 400,
+                    'height' => 300,
+                    'buttons' => array(
+                        array('text' => 'Continue to view old version', 'click' => 'js:function(){$(this).dialog("close");}'),
+                        array('text' => 'View new version', 'click' => 'js:function(){'.$target.'}'),
+                        ),
+                ),
+            ));
+            ?>
+            <div class="divForForm">
+                <br>
+                
+                    There is a new version of this dataset available at: DOI: 10.5524/<?php echo $relation->related_doi ?>
+                   
+
+            </div>    
+
+                <?php $this->endWidget(); ?>
+
+           
+            
+               <?php } 
+               
+                else
+                {
                 echo "doi:" . MyHtml::link("10.5524/". $model->identifier, '/dataset/'.$model->identifier) ." " . $relation->relationship . " " .'doi:' . MyHtml::link("10.5524/".$relation->related_doi, '/dataset/'.$relation->related_doi);
                 echo "<br/>";
-            }
+                }
+             }
             ?>
+             
+            
         </p>
         <? } ?>
+        
+       
+        
+
         <? if (count($model->externalLinks) > 0) { ?>
         <p>
             <?  $types = array();
@@ -453,6 +500,9 @@ function setCookie(column){
     </div>
 
 </div>
+
+
+
 <!-- Place this tag in your head or just before your close body tag. -->
 <script>
 $(".hint").tooltip({'placement':'right'});

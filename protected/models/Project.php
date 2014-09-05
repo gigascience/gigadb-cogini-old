@@ -42,6 +42,7 @@ class Project extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('url', 'required'),
+                        array('url', 'url','message'=>'Please check the URL format'),
 			array('url', 'length', 'max'=>128),
 			array('name', 'length', 'max'=>255),
 			array('image_location', 'length', 'max'=>100),

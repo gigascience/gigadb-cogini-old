@@ -48,9 +48,9 @@ class DatasetAuthor extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('dataset_id ,rank,author_name', 'required'),
+			array('dataset_id ,rank', 'required'),
 			array('dataset_id, author_id, rank', 'numerical', 'integerOnly'=>true),
-			// The following rule is used by search().
+                       	// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, dataset_id, author_id, doi_search, author_name_search , orcid_search , rank_search', 'safe', 'on'=>'search'),
 		);

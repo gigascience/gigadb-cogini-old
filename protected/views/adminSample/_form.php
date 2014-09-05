@@ -16,7 +16,7 @@
 	<div class="control-group">
 		<?php echo $form->labelEx($model,'species_id',array('class'=>'control-label')); ?>
 				<div class="controls">
-        <?php
+          <?php
                     $criteria = new CDbCriteria;
                     $criteria->select = 't.id, t.common_name'; // select fields which you want in output
                     $criteria->limit = 100;

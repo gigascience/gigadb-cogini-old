@@ -69,9 +69,9 @@ class SiteController extends Controller {
         $dataset = new Dataset; // Use for auto suggestion
 
 	    $datasetModel=$this->getDatasetByType(0);  // Use for image slider content
+            $count = count($datasetModel);
 
-
-	    $datasettypes_hints = Type::model()->findAll();
+	    $datasettypes_hints = Type::model()->findAll(array('order'=>'name ASC'));
 
 
 
@@ -81,7 +81,8 @@ class SiteController extends Controller {
         $criteria=new CDbCriteria;
         $criteria->limit = 10;
         $criteria->condition = "upload_status = 'Published'";
-        $criteria->order = "id DESC";
+        #$criteria->order = "id DESC";
+        $criteria->order = 'publication_date DESC';
         $latest_datasets = Dataset::model()->findAll($criteria);
 
         $criteria->condition = null;
@@ -97,6 +98,7 @@ class SiteController extends Controller {
 					        	'news'=>$news,
 					        	'dataset_hint'=>$datasettypes_hints ,
                                 'rss_arr' => $rss_arr ,
+                                'count' => $count,
                                 'latest_datasets'=>$latest_datasets));
 	}
 
@@ -170,7 +172,7 @@ class SiteController extends Controller {
 		$this->render('privacy');
 	}
 
-	 public function getDatasetByType($type) {
+    public function getDatasetByType($type) {
 
         //$criteria=new CDbCriteria;
         //$criteria->limit=10;
@@ -182,6 +184,7 @@ class SiteController extends Controller {
 
         return $models;
     }
+
 	public function actionAjaxLoadDataset(){
 		 $type=0;
 

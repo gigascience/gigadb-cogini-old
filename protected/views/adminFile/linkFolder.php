@@ -34,7 +34,7 @@
 		<?php echo $form->labelEx($model,'folder_name',array('class'=>'control-label')); ?>
 				
             <a class="myHint" data-content="input the detailed ftp address, for example<br/>
-               192.168.171.46/home/jesse"></a>                  
+               aspera.gigadb.org"></a>                  
                       <div class="controls">              
 		<?php echo $form->textField($model,'folder_name',array('size'=>60,'maxlength'=>100)); ?>
                       

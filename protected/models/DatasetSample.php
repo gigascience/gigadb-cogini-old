@@ -25,6 +25,7 @@ class DatasetSample extends CActiveRecord
         public $attribute;
         public $code;
         public $tax_id;
+        public $dataset_title;
 
 	public static function model($className=__CLASS__)
 	{
@@ -81,7 +82,8 @@ class DatasetSample extends CActiveRecord
 			'doi_search' => 'DOI',
                         'species' =>'Species',
                         'attribute' =>'Attribute',
-                        'code' =>'Sample ID'
+                        'code' =>'Sample ID',
+                        'dataset_title'=>'Dataset Title',
 		);
 	}
 

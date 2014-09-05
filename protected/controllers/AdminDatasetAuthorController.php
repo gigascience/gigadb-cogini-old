@@ -113,7 +113,7 @@ class AdminDatasetAuthorController extends Controller
             if ($valid) {
                 foreach ($namearray as $name) {
                     if ($name == "") {
-                        $model->addError("error", "name can't be blank!");
+                        $model->addError("author_id", "Name can't be blank!");
                         $valid = false;
                         break;
                     }
@@ -128,7 +128,7 @@ class AdminDatasetAuthorController extends Controller
 //                        break;
 //                    }
                     if (!is_numeric($rank)) {
-                        $model->addError("error", "rank should be an integer!");
+                        $model->addError("rank", "rank should be an integer!");
                         $valid = false;
                         break;
                     }
@@ -166,7 +166,7 @@ class AdminDatasetAuthorController extends Controller
                     //check if there is duplicate input                 
                     foreach ($authors as $key => $author) {
                         if ($author['rank'] == $rank && $author['name'] == $name) {
-                            $model->addError("warning", "Duplicate input");
+                            $model->addError("author_id", "Duplicate input");
                             $valid = false;
                             break;
                         }
@@ -195,7 +195,7 @@ class AdminDatasetAuthorController extends Controller
         }
         //   $model = new DatasetAuthor;
         $author_model = new CArrayDataProvider($authors);
-       // $model = new DatasetAuthor;
+      //  $model = new DatasetAuthor;
         $this->render('create1', array(
             'model' => $model,
             'author_model' => $author_model,

@@ -1,7 +1,10 @@
 <? $this->pageTitle = Yii::app()->name ?>
 
+<p style="text-align:center"><i>  
+        GigaDB contains <? echo $count ?> discoverable, trackable, and citable datasets that have been assigned DOIs and are available for public download and use.  
+        <? // echo $this->renderInternal('Yii::app()->basePath'.'/../files/html/gigadb.html?count='.$count); ?>
+    </i></p>
 
-<p style="text-align:center"><i><? echo $this->renderInternal('Yii::app()->basePath'.'/../files/html/gigadb.html'); ?></i></p>
 <p>
 <? $this->renderPartial('/search/_form',array('model'=>$form,'dataset'=>$dataset,'search_result'=>null)); ?>
 

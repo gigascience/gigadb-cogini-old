@@ -21,7 +21,8 @@ class RssController extends Controller {
         $criteria=new CDbCriteria;
         $criteria->limit = $this->numberOfLatestDataset;
         $criteria->condition = "upload_status = 'Published'";
-        $criteria->order = "id DESC";
+        #$criteria->order = "id DESC";
+        $criteria->order = 'publication_date DESC';
         $datasets = Dataset::model()->findAll($criteria);
 
         $criteria->condition = null;

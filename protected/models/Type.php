@@ -18,6 +18,7 @@ class Type extends CActiveRecord
 	 * @param string $className active record class name.
 	 * @return DatasetTypes the static model class
 	 */
+        public $number; 
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
@@ -81,7 +82,13 @@ class Type extends CActiveRecord
 		// Warning: Please modify the following code to remove attributes that
 		// should not be searched.
 
-		$criteria=new CDbCriteria;
+                $criteria=new CDbCriteria;
+                $criteria->alias='t';
+                $criteria->select='t.id, t.name, t.description, count(dataset_type.dataset_id) as number';
+                $criteria->join='LEFT JOIN dataset_type ON dataset_type.type_id=t.id';
+                $criteria->group='t.id';
+                $criteria->order='number DESC';
+               
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('LOWER(name)',strtolower($this->name) , true);

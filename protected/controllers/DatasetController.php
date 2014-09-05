@@ -199,7 +199,7 @@ class DatasetController extends Controller
           $model= Dataset::model()->find("identifier=?",array($id));
           if (!$model) {
             $this->redirect('/site/index');
-          } else if ($model->upload_status != 'Pending') {
+          } else if ($model->upload_status == 'Published') {
             $this->redirect('/dataset/'.$model->identifier);
           }
 
@@ -225,9 +225,12 @@ class DatasetController extends Controller
             $model->attributes = $_POST['Dataset'];
             $date = new DateTime();
             $date = $date->format('Y-m-d');
+            
             if ($model->upload_status == 'Published') {
                 $files = $model->files;
+                if(strpos($model->ftp_site, "10.5524") == FALSE){
                 $model->ftp_site="ftp://climb.genomics.cn/pub/10.5524/100001_101000/" . $model->identifier;
+                
              
                 
                 if (count($files) > 0) {
@@ -249,8 +252,9 @@ class DatasetController extends Controller
                             return false;
                     }
                 }
+                }
             }
-            $model->publication_date=$date;
+           // $model->publication_date=$date;
             $model->image->attributes = $_POST['Images'];
             if ($model->publication_date == "")
                 $model->publication_date = null;
@@ -296,11 +300,12 @@ class DatasetController extends Controller
                 
                 
                 
-                
             }
             }catch (Exception $e) {
                 $model->addError('error', $e->getMessage());
             }
+            
+            
         }
 
         $this->render('update', array(
@@ -774,7 +779,27 @@ EO_MAIL;
             $dataset->attributes = $_POST['Dataset'];
 
             $dataset->upload_status = "Incomplete";
-            $dataset->dataset_size = $_SESSION['dataset']['dataset_size'];
+            
+            if($_POST['Dataset']['union']=='B')
+            {
+                $dataset->dataset_size=$_POST['Dataset']['dataset_size'];
+            }
+            if($_POST['Dataset']['union']=='M')
+            {
+                 $dataset->dataset_size=$_POST['Dataset']['dataset_size']*1024*1024;
+                
+                 
+            }
+             if($_POST['Dataset']['union']=='G')
+            {
+                 $dataset->dataset_size=$_POST['Dataset']['dataset_size']*1024*1024*1024;
+            }
+             if($_POST['Dataset']['union']=='T')
+            {
+                 $dataset->dataset_size=$_POST['Dataset']['dataset_size']*1024*1024*1024*1024;
+            }
+           
+            $_SESSION['dataset']['dataset_size']=$dataset->dataset_size;
 // $dataset->ftp_site = $_SESSION['dataset']['ftp_site'];
             $dataset->submitter_id = Yii::app()->user->_id;
             
@@ -911,16 +936,14 @@ EO_MAIL;
                 $identifier = $_SESSION['identifier'];
                 $dataset = Dataset::model()->findByAttributes(array('identifier' => $identifier));
             } else {
-            	
-               $file = fopen(Yii::app()->basePath."/scripts/data/lastdoi.txt", 'r');
-               $test=fread($file, filesize(Yii::app()->basePath."/scripts/data/lastdoi.txt"));
-               $file1 = fopen(Yii::app()->basePath."/scripts/data/lastdoi.txt", 'w');
+                $file = fopen(Yii::app()->basePath."/scripts/data/lastdoi.txt", 'r');
+                $test=fread($file, filesize(Yii::app()->basePath."/scripts/data/lastdoi.txt"));
+                $file1 = fopen(Yii::app()->basePath."/scripts/data/lastdoi.txt", 'w');
                fwrite($file1, $test+1);
                fclose($file);
                fclose($file1);
                
                $identifier=$test;
-              
             }
 //convert 
 
@@ -933,7 +956,7 @@ EO_MAIL;
             if ($dataset->dataset_size == '')
                 $dataset->dataset_size = 0;
             $dataset->ftp_site = "''";
-            var_dump($dataset->ftp_site);
+          //  var_dump($dataset->ftp_site);
 
             $dataset->submitter_id = Yii::app()->user->_id;
             if ($dataset == null)
@@ -947,6 +970,30 @@ EO_MAIL;
                             return false;
                         $dataset->image_id = $dataset->image->id;
                     }
+                     
+                                     /*   else {
+                        //
+                        $dataset->image_id = 72;
+                        //
+                        if (isset($_SESSION['datasettypes'])) {
+                            $datasettypes = $_SESSION['datasettypes'];
+                            if (count($datasettypes) == 1) {
+                                foreach ($datasettypes as $id => $datasettype)
+                                    $type_id = $id;
+                                //workflow
+                                if ($type_id == 5) {
+                                    $dataset->image_id = 71;
+                                } else if ($type_id == 2
+                                ) {
+                                    //genomics
+                                    $dataset->image_id = 70;
+                                } else if ($type_id == 4) {
+                                    //transcriptomics
+                                    $dataset->image_id = 69;
+                                }
+                            }
+                        }
+                    }*/
                     else {
                         //
                                     $dataset->image->url="http://gigadb.org/images/data/cropped/no_image.png";
@@ -990,10 +1037,11 @@ EO_MAIL;
                             }
                         }
                         
-                        $dataset->image->validate();
-                        $dataset->image->save();
-                        
-                         $dataset->image_id = $dataset->image->id;
+                       if (!( $dataset->image->validate() && $dataset->image->save() ))
+                            return false;
+                     
+                             $dataset->image_id = $dataset->image->id;
+
                         
                     }
 // save image

@@ -62,6 +62,40 @@ class AdminSampleController extends Controller
 		if(isset($_POST['Sample']))
 		{
 			$model->attributes=$_POST['Sample'];
+                        
+                         if(strstr(($model->code),':'))
+                {
+                $temp=explode(':', $model->code);
+                if($temp[0]=='SAMPLE')
+                {
+                    $attribute_temp=null;
+                    $xmlpath=  'http://www.ebi.ac.uk/ena/data/view/'."$temp[1]".'&display=xml';
+                    $allfile= simplexml_load_file($xmlpath);
+                    
+                   
+                    
+                   foreach ($allfile->SAMPLE->SAMPLE_ATTRIBUTES->SAMPLE_ATTRIBUTE as $child)
+                {
+                    if($child->TAG=='Sample type'||$child->TAG=='Time of sample collection'||$child->TAG=='Habitat'||$child->TAG=='Sample extracted from')
+                        $attribute_temp.= $child->TAG." = ".$child->VALUE.",";
+                }
+                $attribute_temp.="Description = ".$allfile->SAMPLE->DESCRIPTION.",";
+                if($attribute_temp !=null)
+                {
+                $model->s_attrs=$attribute_temp;    
+                }
+                
+                      
+                }
+                
+                
+             
+                }
+                        
+                        $array = explode(":",$_POST['Sample']['species_id']);
+                        $tax_id=$array[0];
+                        $species = Species::model()->findByAttributes(array('tax_id' => $tax_id));
+                        $model->species_id=$species->id;
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -183,14 +217,13 @@ class AdminSampleController extends Controller
 	public function actionUpdate($id)
 	{
 		$model=$this->loadModel($id);
-		$old_code= $model->code;
-
+                $old_code= $model->code;
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
 		if(isset($_POST['Sample']))
 		{
-		   $model->attributes = $_POST['Sample'];
+			$model->attributes = $_POST['Sample'];
 
             if (strpos($_POST['Sample']['species_id'], ":") !== false) {
                 $array = explode(":", $_POST['Sample']['species_id']);
@@ -202,7 +235,7 @@ class AdminSampleController extends Controller
 //                var_dump($tax_id);
                     if ($model->save())
                     {
-                    	$dataset_id= DatasetSample::model()->findByAttributes(array('sample_id'=>$model->id))->dataset_id;
+                        $dataset_id= DatasetSample::model()->findByAttributes(array('sample_id'=>$model->id))->dataset_id;
                             $files= File::model()->findAllByAttributes(array('code'=>$old_code,'dataset_id'=>$dataset_id));
                             foreach($files as $file)
                             {
@@ -211,15 +244,15 @@ class AdminSampleController extends Controller
                                 //echo $model->code;
                             }
                         $this->redirect(array('view', 'id' => $model->id));
-                    
                     }
+                    
                 }
                 else {
                     $model->addError("error", 'The species id should be numeric');
                 }
-            	} else {
+            } else {
                 $model->addError("error", 'The input format is wrong, should be id:common_name');
-        	}
+            }
 		}
 
 		$this->render('update',array(

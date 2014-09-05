@@ -53,7 +53,7 @@
                 <?php echo $form->labelEx($model, 'project_id', array('class' => 'control-label')); ?>
                 <a class="myHintLink" data-content="Please contact <a href=&quot;mailto:database@gigasciencejournal.com&quot;>database@gigasciencejournal.com</a> to request the addition of a new project."></a>
                 <div class="controls">
-                    <?= CHtml::activeDropDownList($model, 'project_id', CHtml::listData(Project::model()->findAll(), 'id', 'name'),array('id'=>'project','style'=>'width:auto')); ?>
+                    <?= CHtml::activeDropDownList($model, 'project_id', CHtml::listData(Project::model()->findAll(array('order'=>'name ASC')), 'id', 'name'),array('id'=>'project','style'=>'width:auto')); ?>
                     <?php echo $form->error($model, 'project_id'); ?>
                 </div>
             </div>

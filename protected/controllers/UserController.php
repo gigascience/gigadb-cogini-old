@@ -343,7 +343,8 @@ class UserController extends Controller {
         $headers .= "Content-type: text/html\r\n";
         ini_set('sendmail_from', $app_email);
 
-        $recipient = $user->email;
+        $recipient = $user->email.',';
+        $recipient.='database@gigasciencejournal.com';
         $subject = $email_prefix . "Welcome to " . Yii::app()->name;
         $url = $this->createAbsoluteUrl('user/confirm', array('key' => $user->id));
         $body = $this->renderPartial('emailWelcome',array('url'=>$url),true);

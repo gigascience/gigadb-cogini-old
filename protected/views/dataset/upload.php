@@ -61,7 +61,7 @@ if (isset($_GET['status'])) {
     ?>
 
     <div class="row form well">
-        GigaDB primarily serves as a repository to host data and tools associated wcith articles in <a href="http://www.gigasciencejournal.com/" target="_blank"><em>GigaScience</em></a>, as well as certain <a href="http://www.genomics.cn" target="_blank">BGI</a> data not associated with GigaScience articles. Datasets that are not affiliated with a GigaScience article are approved for inclusion by the Editors of GigaScience. Inclusion of particularly interesting, previously unpublished datasets may be considered, especially if they meet the criteria for inclusion as a Data Note article in the journal (see author instructions <a href="http://www.gigasciencejournal.com/authors/instructions/datanote" target="_blank">here</a>).
+        GigaDB primarily serves as a repository to host data and tools associated with articles in <a href="http://www.gigasciencejournal.com/" target="_blank"><em>GigaScience</em></a>, as well as certain <a href="http://www.genomics.cn" target="_blank">BGI</a> data not associated with GigaScience articles. Datasets that are not affiliated with a GigaScience article are approved for inclusion by the Editors of GigaScience. Inclusion of particularly interesting, previously unpublished datasets may be considered, especially if they meet the criteria for inclusion as a Data Note article in the journal (see author instructions <a href="http://www.gigasciencejournal.com/authors/instructions/datanote" target="_blank">here</a>).
         You may send a short summary of your data to the <a href="mailto:editorial@gigasciencejournal.com">Editors</a> for review prior to submission.
 
     </div>

@@ -62,7 +62,7 @@
 
             <div class="control-group">
                 <?php echo $form->labelEx($model, 'author_name', array('class' => 'control-label')); ?>
-                <a class="myHint" data-content="Please provide all author names in the format &lt; Surname, Initials>. e.g. Hunter, CI."></a>
+                <a class="myHint" data-content="Please provide all author names in the format <Surname, Initial>; and separate multiple authors by use of semi-colons ; . e.g. Hunter, CI; Li,P;"></a>
                 <div class="controls">
 
                     <?php
@@ -110,10 +110,10 @@
 
             <div class="control-group">
                     <?php echo $form->labelEx($model, 'rank', array('class' => 'control-label')); ?>
-                 <a class="myHint" data-content="Please input the orders separated by ; if you input multiple authors simultaneously."></a>
+                 <a class="myHint" data-content="Please input the order you wish the author to appear separated by ;. If you have put the authors names in the correct order please leave this field blank."></a>
                 <div class="controls">
-                    <?= $form->textField($model, 'rank') ?>
-<?php echo $form->error($model, 'rank'); ?>
+                    <?= $form->textField($model, 'rank',array('size' => 60, 'maxlength' => 200)); ?>
+                    <?php echo $form->error($model, 'rank'); ?>
                 </div>
             </div>
 
