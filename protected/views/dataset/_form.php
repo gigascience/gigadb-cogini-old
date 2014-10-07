@@ -191,9 +191,37 @@ $cs->registerCssFile($cssCoreUrl . '/jui/css/base/jquery-ui.css');
 	</div>
 </div>
 
+<script language="javascript">
+function checkdate() {
+    
+    
+    
+    var date= document.getElementById("pdate").value;
+    var current = new Date();
+    var month = current.getMonth()+1;
+    
+    var today = current.getFullYear()+'-'+month + '-'+current.getDate();
+    
+    
+    if(date !== today)
+    {
+        var r= window.confirm("The publication date is currently "+ date+", Do you want this changed to todays date "+ today);
+        if(r==true) {
+            
+            document.getElementById("pdate").value=today;
+        }else {
+            
+            
+        }
+        
+    }
+    
+}
+
+</script>
 <div class="span12" style="text-align:center">
 	<a href="<?=Yii::app()->createUrl('/dataset/admin')?>" class="btn"/>Cancel</a>
-	<?= CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('class' => 'btn-green')); ?>
+	<?= CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('class' => 'btn-green','onclick'=>'js:checkdate()')); ?>
         <? if (!$model->isNewRecord && ($model->upload_status != 'Published')) { ?>
 	<a href="<?=Yii::app()->createUrl('/dataset/private/identifier/'.$model->identifier)?>" class="btn-green"/>Create/Reset Private URL</a>
         <?if($model->token){?>

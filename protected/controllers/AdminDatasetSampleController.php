@@ -52,9 +52,9 @@ class AdminDatasetSampleController extends Controller
             $model->dataset_title=$result[0]->title;
             $model->code=$result_sample[0]->code;
             
-           
-            $this->render('view',
-			array('model' => $model));
+            $this->render('view',array(
+			'model'=>$model,
+		));
 	}
 
 	/**
@@ -174,7 +174,7 @@ class AdminDatasetSampleController extends Controller
         }
     }
 
-  public function storeSample(&$model, &$id) {
+    public function storeSample(&$model, &$id) {
 
         
         if (isset($_SESSION['dataset_id'])) {
@@ -214,32 +214,8 @@ class AdminDatasetSampleController extends Controller
             }
             //2) insert sample 
             $sample = new Sample;
-            $attribute_temp=null;
             $sample->species_id = $species_id;
             $sample->code = $model->code;
-            if(strstr(($model->code),':'))
-            {
-                $temp=explode(':', $model->code);
-                if($temp[0]=='SAMPLE')
-                {
-                    $xmlpath=  'http://www.ebi.ac.uk/ena/data/view/'."$temp[1]".'&display=xml';
-                    $allfile= simplexml_load_file($xmlpath);
-                    
-                   
-                    
-                   foreach ($allfile->SAMPLE->SAMPLE_ATTRIBUTES->SAMPLE_ATTRIBUTE as $child)
-                {
-                    if($child->TAG=='Sample type'||$child->TAG=='Time of sample collection'||$child->TAG=='Habitat'||$child->TAG=='Sample extracted from')
-                        $attribute_temp.= $child->TAG." = ".$child->VALUE.",";
-                }
-                $attribute_temp.="Description = ".$allfile->SAMPLE->DESCRIPTION.",";
-                      
-                }
-                
-                $sample->s_attrs=$attribute_temp;
-             
-            }
-            else
             $sample->s_attrs = $model->attribute;
            // $sample_id = 0;
             if (!$sample->save()) {
@@ -271,7 +247,7 @@ class AdminDatasetSampleController extends Controller
      * Creates a new model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      */
-public function actionCreate1() {
+    public function actionCreate1() {
 
         $model = new DatasetSample;
         $model->dataset_id = 1;
@@ -305,13 +281,11 @@ public function actionCreate1() {
             $model->species = $species;
             $model->tax_id = $tax_id;
             $model->attribute = $attrs;
-            
-            
           //  var_dump( $model->code, $model->attribute);
 
             $id = 0;
             
-            if(strstr(($name),':'))
+            if(strpos($name,'SAMPLE') == 0)
             {
                 $attribute_temp=null;
                 $species1=null;
@@ -320,33 +294,34 @@ public function actionCreate1() {
                 if($temp[0]=='SAMPLE')
                 {
                     $xmlpath=  'http://www.ebi.ac.uk/ena/data/view/'."$temp[1]".'&display=xml';
-                    $allfile= simplexml_load_file($xmlpath);
-                    
-                   
+                    $allfile= simplexml_load_file($xmlpath);                 
                     
                    foreach ($allfile->SAMPLE->SAMPLE_ATTRIBUTES->SAMPLE_ATTRIBUTE as $child)
                 {
                     if($child->TAG=='Sample type'||$child->TAG=='Time of sample collection'||$child->TAG=='Habitat'||$child->TAG=='Sample extracted from')
-                        $attribute_temp.= $child->TAG." = ".$child->VALUE.",";
+                        $attribute_temp.= $child->TAG." = \"".$child->VALUE."\",";
                 }
-                $attribute_temp.="Description = ".$allfile->SAMPLE->DESCRIPTION.",";
-                
-                            $species1.=$allfile->SAMPLE->SAMPLE_NAME->TAXON_ID.":";
-                            $tax_id1=$allfile->SAMPLE->SAMPLE_NAME->TAXON_ID;
-                            $species1.=$allfile->SAMPLE->SAMPLE_NAME->COMMON_NAME.",";
-                            $species1.=$allfile->SAMPLE->SAMPLE_NAME->SCIENTIFIC_NAME;
-                            
-                        
+                $attribute_temp.="Description = \"".$allfile->SAMPLE->DESCRIPTION."\",";
+                    foreach($allfile->SAMPLE->SAMPLE_NAME as $child)
+                    {
+                        if($child->TAG=='TAXON_ID')
+                        {
+                            $species1.=$child->VALUE.":";
+                            $tax_id1=$child->VALUE;
+                        }
+                        if($child->TAG=='SCIENTIFIC_NAME')
+                            $species1.=$child->VALUE.",";
+                        if($child->TAG=='COMMON_NAME')
+                            $species1.=$child->VALUE;
                            
-                    
+                    }
                    
                       
                 }
                      $attrs=$attribute_temp;
-                     $species=$species1;
-                    
+                    // $species=$species1;
                      $model->attribute = $attrs;
-                     $model->tax_id=$tax_id1;
+                    // $model->tax_id=$tax_id1;
                      
                
             }

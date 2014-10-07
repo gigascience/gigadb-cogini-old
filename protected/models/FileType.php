@@ -18,7 +18,6 @@ class FileType extends CActiveRecord
 	 * @param string $className active record class name.
 	 * @return FileTypes the static model class
 	 */
-        public $number; 
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
@@ -83,11 +82,6 @@ class FileType extends CActiveRecord
 		// should not be searched.
 
 		$criteria=new CDbCriteria;
-                $criteria->alias='f';
-                $criteria->select='f.id, f.name, f.description, count(f.name) as number';
-                $criteria->join='LEFT JOIN file ON file.type_id=f.id';
-                $criteria->group='f.id, f.name, f.description';
-                $criteria->order='number DESC';
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('LOWER(name)',strtolower($this->name),true);

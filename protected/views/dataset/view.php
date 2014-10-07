@@ -1,7 +1,6 @@
 <?
 Yii::app()->clientScript->registerScriptFile('/js/jquery.tablesorter.js');
 
-
 $title= strlen($model->title)>100?strip_tags(substr($model->title, 0,100))." ...":strip_tags($model->title);
 $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title;
 ?>
@@ -86,7 +85,7 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
         <? if (count($model->relations) > 0) { ?>
         <h4><?= Yii::t('app' , 'Related datasets:')?></h4>
         <p>
-              <?php foreach ($model->relations as $key=>$relation){
+          <?php foreach ($model->relations as $key=>$relation){
                 if($relation->relationship == "IsPreviousVersionOf")
                 {
                 echo "doi:" . MyHtml::link("10.5524/". $model->identifier, '/dataset/'.$model->identifier) ." " . $relation->relationship . " " .'doi:' . MyHtml::link("10.5524/".$relation->related_doi, '/dataset/'.$relation->related_doi)."<b> (It is a more recent version of this dataset) </b>";
@@ -131,14 +130,8 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
                 }
              }
             ?>
-             
-            
         </p>
         <? } ?>
-        
-       
-        
-
         <? if (count($model->externalLinks) > 0) { ?>
         <p>
             <?  $types = array();
@@ -500,9 +493,6 @@ function setCookie(column){
     </div>
 
 </div>
-
-
-
 <!-- Place this tag in your head or just before your close body tag. -->
 <script>
 $(".hint").tooltip({'placement':'right'});

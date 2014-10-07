@@ -135,6 +135,7 @@ class DatasetController extends Controller
             'criteria'=>array(
                 'condition' => "dataset_id = $model->id",
                 'join' => 'JOIN dataset ON dataset.id = t.dataset_id',
+                'order'=>'id ASC',
             ),
             'sort' => $fsort,
             'pagination' => $fpagination
@@ -147,6 +148,7 @@ class DatasetController extends Controller
             'criteria'=>array(
                 'join' => 'JOIN dataset_sample ON sample_id = t.id',
                 'condition' => "dataset_id = $model->id",
+                'order' =>'id ASC',
             ),
             'pagination' => $spagination
         ));
@@ -798,7 +800,6 @@ EO_MAIL;
             {
                  $dataset->dataset_size=$_POST['Dataset']['dataset_size']*1024*1024*1024*1024;
             }
-           
             $_SESSION['dataset']['dataset_size']=$dataset->dataset_size;
 // $dataset->ftp_site = $_SESSION['dataset']['ftp_site'];
             $dataset->submitter_id = Yii::app()->user->_id;

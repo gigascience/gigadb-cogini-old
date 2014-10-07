@@ -82,7 +82,10 @@ foreach ($dsort->directions as $key => $value) {
                     <?}?>
                 </td>
 		    <td><? echo MyHtml::encode(strftime('%d-%m-%Y' , strtotime($data[$i]->publication_date))); ?></td>
-                <td><? echo MyHtml::encode(strftime('%d-%m-%Y' , strtotime($data[$i]->modification_date))); ?> </td>
+                <td><? if($data[$i]->modification_date == null) {
+                    echo MyHtml::encode(strftime('%d-%m-%Y' , strtotime($data[$i]->publication_date)));
+                    } else
+                    echo MyHtml::encode(strftime('%d-%m-%Y' , strtotime($data[$i]->modification_date))); ?> </td>
                 <td><? echo MyHtml::link(Yii::t('app' , "Hide"), $model->getParams($data[$i]->id) ,array('class'=>'btn btn_hide')) ; ?></td>
             </tr>
        <? }

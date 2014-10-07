@@ -154,7 +154,6 @@ class Dataset extends MyActiveRecord
             'new_image_url' => 'Image URL',
             'new_image_location' => 'Image Location',
             'email' => 'email',
-            'union' => 'union',
         );
     }
 

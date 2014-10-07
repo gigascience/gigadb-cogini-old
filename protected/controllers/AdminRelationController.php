@@ -65,8 +65,79 @@ class AdminRelationController extends Controller
 		if(isset($_POST['Relation']))
 		{
 			$model->attributes=$_POST['Relation'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+                        if($model->save())
+                        {
+                            $related_id=$model->related_doi;
+                            $dataset_id=$model->dataset_id;
+                            $relationship= $model->relationship;
+                            
+                  if($relationship=="IsSupplementTo") 
+               {
+                $model1=  new Relation;
+                $model1->dataset_id= Dataset::model()->findByAttributes(array('identifier' => $related_id))->id;
+                $model1->related_doi=Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
+                $model1->relationship='IsSupplementedBy';
+                $model1->save();
+               }
+                 if($relationship=="IsSupplementBy") 
+               {
+                 $model1=  new Relation;
+                $model1->dataset_id= Dataset::model()->findByAttributes(array('identifier' => $related_id))->id;
+                $model1->related_doi=Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
+                $model1->relationship='IsSupplementedTo';
+                $model1->save();
+               }
+                 if($relationship=="IsNewVersionOf") 
+               {
+                $model1=  new Relation;
+                $model1->dataset_id= Dataset::model()->findByAttributes(array('identifier' => $related_id))->id;
+                $model1->related_doi=Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
+                $model1->relationship='IsPreviousVersionOf';
+                $model1->save();
+               }
+               if($relationship=="IsPreviousVersionOf") 
+               {
+                $model1=  new Relation;
+                $model1->dataset_id= Dataset::model()->findByAttributes(array('identifier' => $related_id))->id;
+                $model1->related_doi=Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
+                $model1->relationship='IsNewVersionOf';
+                $model1->save();
+               }
+               if($relationship=="IsPartOf") 
+               {
+                $model1=  new Relation;
+                $model1->dataset_id= Dataset::model()->findByAttributes(array('identifier' => $related_id))->id;
+                $model1->related_doi=Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
+                $model1->relationship='HasPart';
+                $model1->save();
+               }
+                if($relationship=="HasPartOf") 
+               {
+                $model1=  new Relation;
+                $model1->dataset_id= Dataset::model()->findByAttributes(array('identifier' => $related_id))->id;
+                $model1->related_doi=Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
+                $model1->relationship='IsPartOf';
+                $model1->save();
+               }
+                  if($relationship=="IsReferencedBy") 
+               {
+                $model1=  new Relation;
+                $model1->dataset_id= Dataset::model()->findByAttributes(array('identifier' => $related_id))->id;
+                $model1->related_doi=Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
+                $model1->relationship='References';
+                $model1->save();
+               }
+                   if($relationship=="References") 
+               {
+                $model1=  new Relation;
+                $model1->dataset_id= Dataset::model()->findByAttributes(array('identifier' => $related_id))->id;
+                $model1->related_doi=Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
+                $model1->relationship='IsReferencedBy';
+                $model1->save();
+               }
+                            
+                            $this->redirect(array('view','id'=>$model->id));
+                        }
 		}
 
 		$this->render('create',array(
@@ -126,15 +197,12 @@ class AdminRelationController extends Controller
 
             $model->related_doi = $related_doi;
             $model->relationship = $relationship;
-            
-            $related_id=$related_doi;
-            $dataset_id=$model->dataset_id;
 
             $id = 0;
             if ($this->storeRelation($model, $id)) {
                 $newItem = array('id' => $id, 'related_doi' => $related_doi, 'relationship' => $relationship);
 
-                if($relationship=="IsSupplementTo") 
+                 if($relationship=="IsSupplementTo") 
                {
                 $model1=  new Relation;
                 $model1->dataset_id= Dataset::model()->findByAttributes(array('identifier' => $related_id))->id;

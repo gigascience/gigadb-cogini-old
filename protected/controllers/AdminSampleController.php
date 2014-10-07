@@ -63,12 +63,17 @@ class AdminSampleController extends Controller
 		{
 			$model->attributes=$_POST['Sample'];
                         
-                         if(strstr(($model->code),':'))
+                        $array = explode(":",$_POST['Sample']['species_id']);
+                        $tax_id=$array[0];
+                        $species = Species::model()->findByAttributes(array('tax_id' => $tax_id));
+                        $model->species_id=$species->id;
+                        
+                         if(strstr($_POST['Sample']['code'],':'))
                 {
-                $temp=explode(':', $model->code);
+                $attribute_temp=null;
+                $temp=explode(':', $_POST['Sample']['code']);
                 if($temp[0]=='SAMPLE')
                 {
-                    $attribute_temp=null;
                     $xmlpath=  'http://www.ebi.ac.uk/ena/data/view/'."$temp[1]".'&display=xml';
                     $allfile= simplexml_load_file($xmlpath);
                     
@@ -77,25 +82,13 @@ class AdminSampleController extends Controller
                    foreach ($allfile->SAMPLE->SAMPLE_ATTRIBUTES->SAMPLE_ATTRIBUTE as $child)
                 {
                     if($child->TAG=='Sample type'||$child->TAG=='Time of sample collection'||$child->TAG=='Habitat'||$child->TAG=='Sample extracted from')
-                        $attribute_temp.= $child->TAG." = ".$child->VALUE.",";
+                        $attribute_temp.= $child->TAG." = "."\"".$child->VALUE."\", ";
                 }
-                $attribute_temp.="Description = ".$allfile->SAMPLE->DESCRIPTION.",";
-                if($attribute_temp !=null)
-                {
-                $model->s_attrs=$attribute_temp;    
-                }
-                
+                $attribute_temp.="Description = "."\"".$allfile->SAMPLE->DESCRIPTION."\", ";
                       
                 }
-                
-                
-             
-                }
-                        
-                        $array = explode(":",$_POST['Sample']['species_id']);
-                        $tax_id=$array[0];
-                        $species = Species::model()->findByAttributes(array('tax_id' => $tax_id));
-                        $model->species_id=$species->id;
+                     $model->s_attrs=$attribute_temp;
+            }
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}

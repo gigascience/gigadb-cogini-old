@@ -74,7 +74,7 @@ $form = $this->beginWidget('CActiveForm', array(
                    ?>
                 <div class="controls">
                     <?php echo $form->textField($model, 'dataset_size', array('size' => 60, 'maxlength' => 200));
-                          echo CHtml::activeDropDownList($model,'union', array('B'=>'Bytes','M'=>'MB','G'=>'GB','T'=>'TB'));?>  
+                          echo CHtml::activeDropDownList($model,'union', array('B'=>'Bytes','M'=>'MB','G'=>'GB','T'=>'TB'));?>
                     <?php echo $form->error($model, 'dataset_size'); ?>
                 </div>
             </div>

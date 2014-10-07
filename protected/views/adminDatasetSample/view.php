@@ -22,6 +22,6 @@ $this->menu=array(
 		'dataset_id',
 		'sample_id',
                 'dataset_title',
-                'code'
+                'code',
 	),
 )); ?>

@@ -46,6 +46,7 @@ class Project extends CActiveRecord
 			array('url', 'length', 'max'=>128),
 			array('name', 'length', 'max'=>255),
 			array('image_location', 'length', 'max'=>100),
+                        array('url','check_duplicate'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, url, name, image_location', 'safe', 'on'=>'search'),
@@ -105,6 +106,22 @@ class Project extends CActiveRecord
             $list[$model->id] = $model->common_name;
         }
         return $list;
+    }
+    
+    function check_duplicate(){
+        
+        
+        $db_url= Project::model()->findBySql("select name from project where url='$this->url'");
+        
+        if($db_url !=null){
+        $this->addError('url','Duplicate URL');}
+        
+        $db_name= Project::model()->findBySql("select url from project where name='$this->name'");
+       
+        if($db_name !=null){
+        $this->addError('name','Duplicate Project Name');}
+        
+             
     }
 
 }
