@@ -25,3 +25,16 @@ table: sample
 to: nmkl_1
 sql: |
   ALTER TABLE sample RENAME attributes TO s_attrs;
+---
+table: sample
+to: stpn_1
+depends:
+  - [gigadb_user, knn_6]
+sql: |
+  ALTER TABLE sample ADD COLUMN name VARCHAR(50) NOT NULL DEFAULT 'SAMPLE:SRS188811';
+  ALTER TABLE sample ADD COLUMN consent_document VARCHAR(45) NULL;
+  ALTER TABLE sample ADD COLUMN submitted_id INTEGER NULL REFERENCES gigadb_user(id);
+  ALTER TABLE sample ADD COLUMN submission_date DATE;
+  ALTER TABLE sample ADD COLUMN contact_author_name VARCHAR(45) NULL;
+  ALTER TABLE sample ADD COLUMN contact_author_email VARCHAR(100) NULL;
+  ALTER TABLE sample ADD COLUMN sampling_protocol VARCHAR(100) NULL;

@@ -47,3 +47,9 @@ table: file
 to: thk_2
 sql: |
   ALTER TABLE file DROP COLUMN sample_id;
+---
+table: file
+from: thk_2
+to: stpn_1
+sql: |
+  ALTER TABLE file ADD COLUMN index4blast VARCHAR(45) NULL;

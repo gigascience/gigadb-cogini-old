@@ -1,0 +1,10 @@
+---
+table: unit 
+from: null
+to: stpn_1
+sql: |
+  CREATE TABLE unit (
+    id VARCHAR(30) NOT NULL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    definition VARCHAR(500) NOT NULL
+  );

@@ -1,0 +1,14 @@
+---
+table: file_relationship 
+from: null
+to: stpn_1
+depends:
+  - [relationship, stpn_1]
+  - [file, thk_2]
+sql: |
+  CREATE TABLE file_relationship (
+    id SERIAL NOT NULL PRIMARY KEY,
+    relationship_id INTEGER NULL REFERENCES relationship(id),
+    file_id INTEGER NOT NULL REFERENCES file(id),
+    related_file_id INTEGER NOT NULL
+  );

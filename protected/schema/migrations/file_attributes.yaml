@@ -1,0 +1,16 @@
+---
+table: file_attributes 
+from: null
+to: stpn_1
+depends:
+  - [unit, stpn_1]
+  - [attribute, stpn_1]
+  - [file, thk_2]
+sql: |
+  CREATE TABLE file_attributes (
+    id SERIAL NOT NULL PRIMARY KEY,
+    value VARCHAR(50) NOT NULL,
+    unit_id VARCHAR(30) NULL REFERENCES unit(id),
+    attribute_id INTEGER NOT NULL REFERENCES attribute(id),
+    file_id INTEGER NOT NULL REFERENCES file(id)
+  );

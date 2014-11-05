@@ -1,0 +1,10 @@
+---
+table: funder_name 
+from: null
+to: stpn_1
+sql: |
+  CREATE TABLE funder_name (
+    id SERIAL NOT NULL PRIMARY KEY,
+    primary_name_display VARCHAR(1000) NULL,
+    uri VARCHAR(100) NOT NULL
+  );

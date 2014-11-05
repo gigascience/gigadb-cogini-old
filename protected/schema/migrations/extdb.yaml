@@ -1,0 +1,12 @@
+---
+table: extdb 
+from: null
+to: stpn_1
+sql: |
+  CREATE TABLE extdb (
+    id SERIAL NOT NULL PRIMARY KEY,
+    database_search_url VARCHAR(100) NULL,
+    database_homepage VARCHAR(100) NULL,
+    definition VARCHAR(1000) NULL,
+    database_name VARCHAR(100) NULL
+  );

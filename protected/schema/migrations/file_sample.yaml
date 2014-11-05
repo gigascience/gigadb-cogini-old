@@ -1,0 +1,13 @@
+---
+table: file_sample 
+from: null
+to: stpn_1
+depends:
+  - [sample, stpn_1]
+  - [file, thk_2]
+sql: |
+  CREATE TABLE file_sample (
+    id SERIAL NOT NULL PRIMARY KEY,
+    file_id INTEGER NOT NULL REFERENCES file(id),
+    sample_id INTEGER NOT NULL REFERENCES sample(id)
+  );

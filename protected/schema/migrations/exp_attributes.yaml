@@ -1,0 +1,15 @@
+---
+table: exp_attributes 
+from: null
+to: stpn_1
+depends:
+  - [experiment, stpn_1]
+  - [attribute, stpn_1]
+sql: |
+  CREATE TABLE exp_attributes (
+    id SERIAL NOT NULL PRIMARY KEY,
+    exp_id INTEGER NOT NULL REFERENCES experiment(id) ON DELETE CASCADE,
+    attribute_id INTEGER NOT NULL REFERENCES attribute(id) ON DELETE CASCADE,
+    value VARCHAR(1000) NOT NULL,
+    units_id VARCHAR(50) NOT NULL
+  );
