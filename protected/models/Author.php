@@ -5,9 +5,11 @@
  *
  * The followings are the available columns in table 'author':
  * @property integer $id
- * @property string $name
+ * @property string $name$surname
+ * @property string $middle_name
+ * @property string $first_name
  * @property string $orcid
- * @property integer $position
+ * @property integer $position$gigadb_user_id
  *
  * The followings are the available model relations:
  * @property DatasetAuthor[] $datasetAuthors
@@ -42,13 +44,13 @@ class Author extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name, orcid, rank', 'required'),
-			array('rank', 'numerical', 'integerOnly'=>true),
-			array('name', 'length', 'max'=>255),
+			array('surname', 'required'),
+			array('gigadb_user_id', 'numerical', 'integerOnly'=>true),
+			array('surname, middle_name, first_name', 'length', 'max'=>255),
 			array('orcid', 'length', 'max'=>128),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, name, orcid, rank, dois_search', 'safe', 'on'=>'search'),
+			array('id, surname, middle_name, first_name, orcid, gigadb_user_id', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -61,7 +63,7 @@ class Author extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'datasetAuthors' => array(self::HAS_MANY, 'DatasetAuthor', 'author_id'),
-			'datasets' => array(self::MANY_MANY, 'Dataset', 'dataset_author(dataset_id,author_id)')
+			//'datasets' => array(self::MANY_MANY, 'Dataset', 'dataset_author(dataset_id,author_id)')
 		);
 	}
 
@@ -71,12 +73,13 @@ class Author extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
-			'name' => 'Name',
-			'orcid' => 'Orcid',
-			'rank' => 'Rank',
-			'dois_search' => 'DOIs',
-		);
+            'id' => 'ID',
+            'surname' => 'Surname',
+            'middle_name' => 'Middle Name',
+            'first_name' => 'First Name',
+            'orcid' => 'Orcid',
+            'gigadb_user_id' => 'Gigadb User',
+        );
 	}
 
 	/**
@@ -91,9 +94,12 @@ class Author extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('LOWER(name)', strtolower($this->name),true);
+		$criteria->compare('LOWER(surname)',strtolower($this->surname),true);
+		$criteria->compare('LOWER(middle_name)',strtolower($this->middle_name),true);
+		$criteria->compare('LOWER(first_name)',strtolower($this->first_name),true);
 		$criteria->compare('LOWER(orcid)',strtolower($this->orcid),true);
-		$criteria->compare('rank',$this->rank);
+		$criteria->compare('gigadb_user_id',$this->gigadb_user_id);
+
 		if ($this->dois_search) {
 			$matchedSql = 'SELECT dataset_id, author_id FROM dataset, dataset_author WHERE dataset.identifier LIKE \'%'.$this->dois_search.'%\' AND dataset.id = dataset_author.dataset_id';
 			$criteria->addInCondition('t.id',CHtml::listData(DatasetAuthor::model()->findAllBySql($matchedSql),'dataset_id','author_id'));
@@ -105,6 +111,16 @@ class Author extends CActiveRecord
 	}
 
     public function getFullAuthor(){
-        return $this->name . ' - ORCID:' . $this->orcid . ' - RANK:' . $this->rank;
+        //return $this->name . ' - ORCID:' . $this->orcid . ' - RANK:' . $this->rank;
+        return $this->first_name . ' ' . $this->surname . ' - ORCID:' . $this->orcid;
+    }
+
+    /**
+     * Return first name and surname
+     * @return string
+     */
+    public function getName()
+    {
+    	return $this->surname . ', ' . $this->first_name;
     }
 }

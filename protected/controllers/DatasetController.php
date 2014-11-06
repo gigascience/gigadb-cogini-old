@@ -189,9 +189,9 @@ class DatasetController extends Controller
 			'dataset'=>$dataset,
 			'files'=>$files,
 			'samples'=>$samples,
-                        'email' => $email,
-                        'previous_doi' => $previous_doi,
-                        'next_doi' => $next_doi,
+            'email' => $email,
+            'previous_doi' => $previous_doi,
+            'next_doi' => $next_doi,
 		));
 	}
 

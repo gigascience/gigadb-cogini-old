@@ -7,9 +7,19 @@
  * @property integer $id
  * @property integer $species_id
  * @property string $s_attrs
+ * @property string $name
+ * @property string $consent_document
+ * @property integer $submitted_id
+ * @property string $submission_date
+ * @property string $contact_author_name
+ * @property string $contact_author_email
+ * @property string $sampling_protocol
  *
  * The followings are the available model relations:
- * @property File[] $files
+ * @property GigadbUser $submitted
+ * @property SampleRel[] $sampleRels
+ * @property SampleExperiment[] $sampleExperiments
+ * @property FileSample[] $fileSamples
  * @property Species $species
  * @property DatasetSample[] $datasetSamples
  */
@@ -45,12 +55,16 @@ class Sample extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('species_id', 'required'),
-			array('species_id', 'numerical', 'integerOnly'=>true),
-			array('s_attrs', 'safe'),
-			array('code', 'required'),
+			array('species_id, submitted_id', 'numerical', 'integerOnly'=>true),
+			array('name', 'length', 'max'=>50),
+            array('consent_document, contact_author_name', 'length', 'max'=>45),
+            array('contact_author_email, sampling_protocol', 'length', 'max'=>100),
+			array('s_attrs, submission_date', 'safe'),
+			//array('code', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, species_id, s_attrs, code , species_search, dois_search', 'safe', 'on'=>'search'),
+			//array('id, species_id, s_attrs, code , species_search, dois_search', 'safe', 'on'=>'search'),
+			array('id, species_id, s_attrs, name, consent_document, submitted_id, submission_date, contact_author_name, contact_author_email, sampling_protocol', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -62,10 +76,15 @@ class Sample extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'files' => array(self::HAS_MANY, 'File', 'sample_id'),
+			//'files' => array(self::HAS_MANY, 'File', 'sample_id'),
 			'species' => array(self::BELONGS_TO, 'Species', 'species_id'),
+			'submitted' => array(self::BELONGS_TO, 'GigadbUser', 'submitted_id'),
+			'sampleRels' => array(self::HAS_MANY, 'SampleRel', 'sample_id'),
+			'sampleExperiments' => array(self::HAS_MANY, 'SampleExperiment', 'sample_id'),
+			'fileSamples' => array(self::HAS_MANY, 'FileSample', 'sample_id'),
 			'datasetSamples' => array(self::HAS_MANY, 'DatasetSample', 'sample_id'),
-			'datasets' => array(self::MANY_MANY, 'Dataset', 'dataset_sample(dataset_id,sample_id)')
+			//'datasets' => array(self::MANY_MANY, 'Dataset', 'dataset_sample(dataset_id,sample_id)'),
+			'alternativeIdentifiers' => array(self::HAS_MANY, 'AlternativeIdentifiers', 'sample_id'),
 		);
 	}
 
@@ -78,9 +97,16 @@ class Sample extends CActiveRecord
 			'id' => 'ID',
 			'species_id' => 'Species',
 			's_attrs' => 'Attributes',
-			'code' => 'Sample ID',
+			//'code' => 'Sample ID',
+			'name' => 'Name',
             'species_search' => 'Species Name',
             'dois_search' => 'DOIs',
+			'consent_document' => 'Consent Document',
+            'submitted_id' => 'Submitted',
+            'submission_date' => 'Submission Date',
+            'contact_author_name' => 'Contact Author Name',
+            'contact_author_email' => 'Contact Author Email',
+            'sampling_protocol' => 'Sampling Protocol',
 		);
 	}
 

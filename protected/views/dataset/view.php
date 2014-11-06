@@ -32,8 +32,9 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
                 foreach( $model->authors as $key => $author){
                 ?>
                     <?
-                    if (++$i < count($model->authors)) echo $author->name.';'; else echo $author->name.' ';
+                    //if (++$i < count($model->authors)) echo $author->name.';'; else echo $author->name.' ';
                     ?>
+                    <?php echo (++$i < count($model->authors)) ? $author->getName() . ';' : $author->getName() . ' ' ?>
                 <? }
             ?>
             (<?=substr($model->publication_date,0,4)?>): <?echo $model->title.' '.$model->publisher->name.'. '; ?>
@@ -86,9 +87,9 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
         <h4><?= Yii::t('app' , 'Related datasets:')?></h4>
         <p>
           <?php foreach ($model->relations as $key=>$relation){
-                if($relation->relationship == "IsPreviousVersionOf")
+                if($relation->relationship_id == "IsPreviousVersionOf")
                 {
-                echo "doi:" . MyHtml::link("10.5524/". $model->identifier, '/dataset/'.$model->identifier) ." " . $relation->relationship . " " .'doi:' . MyHtml::link("10.5524/".$relation->related_doi, '/dataset/'.$relation->related_doi)."<b> (It is a more recent version of this dataset) </b>";
+                echo "doi:" . MyHtml::link("10.5524/". $model->identifier, '/dataset/'.$model->identifier) ." " . $relation->relationship->id . " " .'doi:' . MyHtml::link("10.5524/".$relation->related_doi, '/dataset/'.$relation->related_doi)."<b> (It is a more recent version of this dataset) </b>";
                 echo "<br/>";
                 ?>
             
@@ -125,7 +126,7 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
                
                 else
                 {
-                echo "doi:" . MyHtml::link("10.5524/". $model->identifier, '/dataset/'.$model->identifier) ." " . $relation->relationship . " " .'doi:' . MyHtml::link("10.5524/".$relation->related_doi, '/dataset/'.$relation->related_doi);
+                echo "doi:" . MyHtml::link("10.5524/". $model->identifier, '/dataset/'.$model->identifier) ." " . $relation->relationship->id . " " .'doi:' . MyHtml::link("10.5524/".$relation->related_doi, '/dataset/'.$relation->related_doi);
                 echo "<br/>";
                 }
              }
@@ -240,7 +241,7 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
             <th class="span6"><a href='#sample-table'><?=Yii::t('app' , 'Sample attributes')?></a></th>
             </thead>
             <? foreach ($samples->getData() as  $sample) {
-                $samplelink = $samplecode = $sample->code;
+                $samplelink = $samplecode = $sample->name;
                 //if(strstr($samplecode , 'SAMPLE:')){
                     $samplecode = explode(":" , $samplecode);
                     if(count($samplecode) > 1)

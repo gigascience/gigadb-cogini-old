@@ -14,11 +14,17 @@
  * @property string $date_stamp
  * @property integer $format_id
  * @property integer $type_id
+ * @property string $code
+ * @property string $index4blast
  *
  * The followings are the available model relations:
  * @property Dataset $dataset
  * @property FileFormat $format
  * @property FileType $type
+ * @property FileSample[] $fileSamples
+ * @property FileRelationship[] $fileRelationships
+ * @property FileExperiment[] $fileExperiments
+ * @property FileAttributes[] $fileAttributes
  */
 class File extends MyActiveRecord
 {
@@ -54,12 +60,13 @@ class File extends MyActiveRecord
 			array('dataset_id, name, location, extension, size', 'required'),
 			array('dataset_id, format_id, type_id', 'numerical', 'integerOnly'=>true),
 			array('name', 'length', 'max'=>100),
-			array('location', 'length', 'max'=>200),
+			array('location, code', 'length', 'max'=>200),
+			array('index4blast', 'length', 'max'=>45),
 			array('extension', 'length', 'max'=>30),
 			array('description, date_stamp, code', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, dataset_id, name, location, extension, size, description, date_stamp, format_id, type_id , doi_search,format_search, type_search', 'safe', 'on'=>'search'),
+			array('id, dataset_id, name, location, extension, size, description, date_stamp, format_id, type_id , doi_search,format_search, type_search, index4blast', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -74,6 +81,10 @@ class File extends MyActiveRecord
 			'dataset' => array(self::BELONGS_TO, 'Dataset', 'dataset_id'),
 			'format' => array(self::BELONGS_TO, 'FileFormat', 'format_id'),
 			'type' => array(self::BELONGS_TO, 'FileType', 'type_id'),
+			'fileSamples' => array(self::HAS_MANY, 'FileSample', 'file_id'),
+			'fileRelationships' => array(self::HAS_MANY, 'FileRelationship', 'file_id'),
+			'fileExperiments' => array(self::HAS_MANY, 'FileExperiment', 'file_id'),
+			'fileAttributes' => array(self::HAS_MANY, 'FileAttributes', 'file_id'),
 		);
 	}
 
@@ -94,9 +105,10 @@ class File extends MyActiveRecord
 			'format_id' => Yii::t('app' , 'File Format'),
 			'type_id' => Yii::t('app' , 'File Type'),
 			'code' => Yii::t('app' , 'Sample ID') ,
-      'doi_search' => 'DOI',
-      'format_search' => 'File Format',
-      'type_search' => 'File Type'
+			'doi_search' => 'DOI',
+			'format_search' => 'File Format',
+			'type_search' => 'File Type',
+			'index4blast' => 'Index4blast'
 		);
 	}
 
@@ -111,7 +123,7 @@ class File extends MyActiveRecord
 
 		$criteria=new CDbCriteria;
 
-    $criteria->with = array( 'dataset' , 'format' , 'type' );
+    	$criteria->with = array( 'dataset' , 'format' , 'type' );
 		$criteria->compare('t.id',$this->id);
 
 		$criteria->compare('LOWER(t.name)',strtolower($this->name),true);
@@ -123,6 +135,7 @@ class File extends MyActiveRecord
 		//$criteria->compare('format_id',$this->format_id);
 		//$criteria->compare('type_id',$this->type_id);
 		$criteria->compare('LOWER(code)',strtolower($this->code),true);
+		$criteria->compare('LOWER(index4blast)',$this->index4blast,true);
 
 		$criteria->compare('LOWER(dataset.identifier)',strtolower($this->doi_search),true);
 		$criteria->compare('LOWER(format.name)',strtolower($this->format_search),true);

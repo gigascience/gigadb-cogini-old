@@ -7,7 +7,7 @@
  * @property integer $id
  * @property integer $dataset_id
  * @property string $related_doi
- * @property string $relationship
+ * @property integer $relationship_id
  *
  * The followings are the available model relations:
  * @property Dataset $dataset
@@ -41,13 +41,12 @@ class Relation extends MyActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('dataset_id, related_doi, relationship', 'required'),
-			array('dataset_id', 'numerical', 'integerOnly'=>true),
+			array('dataset_id, related_doi', 'required'),
+			array('dataset_id, relationship_id', 'numerical', 'integerOnly'=>true),
 			array('related_doi', 'length', 'max'=>15),
-			array('relationship', 'length', 'max'=>30),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, dataset_id, related_doi, relationship , doi_search', 'safe', 'on'=>'search'),
+			array('id, dataset_id, related_doi, relationship , doi_search, relationship_id', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -60,6 +59,7 @@ class Relation extends MyActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'dataset' => array(self::BELONGS_TO, 'Dataset', 'dataset_id'),
+			'relationship' => array(self::BELONGS_TO, 'Relationship', 'relationship_id'),
 		);
 	}
 
@@ -72,7 +72,7 @@ class Relation extends MyActiveRecord
 			'id' => 'ID',
 			'dataset_id' => 'Dataset',
 			'related_doi' => 'Related Doi',
-			'relationship' => 'Relationship',
+			'relationship_id' => 'Relationship',
             'doi_search' => 'DOI'
 		);
 	}
@@ -93,6 +93,7 @@ class Relation extends MyActiveRecord
 		$criteria->compare('dataset_id',$this->dataset_id);
 		$criteria->compare('related_doi',$this->related_doi,true);
 		$criteria->compare('LOWER(relationship)',strtolower($this->relationship),true);
+		$criteria->compare('relationship_id',$this->relationship_id);
 
 		$criteria->compare('dataset.identifier',$this->doi_search,true);
 

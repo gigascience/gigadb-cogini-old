@@ -106,7 +106,8 @@ class Dataset extends MyActiveRecord
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
-                        'authors' => array(self::MANY_MANY, 'Author', 'dataset_author(dataset_id,author_id)', 'order'=>'authors.rank ASC', ),
+            //'authors' => array(self::MANY_MANY, 'Author', 'dataset_author(dataset_id,author_id)', 'order'=>'authors.rank ASC', ),
+            'authors' => array(self::MANY_MANY, 'Author', 'dataset_author(dataset_id,author_id)', ),
             'projects' => array(self::MANY_MANY, 'Project', 'dataset_project(dataset_id,project_id)'),
             'submitter' => array(self::BELONGS_TO, 'User', 'submitter_id'),
             'image' => array(self::BELONGS_TO, 'Images', 'image_id'),
