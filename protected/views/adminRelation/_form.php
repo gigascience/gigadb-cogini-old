@@ -32,8 +32,9 @@
 	<div class="control-group">
 		<?php echo $form->labelEx($model,'relationship',array('class'=>'control-label')); ?>
 				<div class="controls">
-		<?php echo $form->textField($model,'relationship',array('size'=>30,'maxlength'=>30)); ?>
-		<?php echo $form->error($model,'relationship'); ?>
+		<?php //echo $form->textField($model,'relationship',array('size'=>30,'maxlength'=>30)); ?>
+		<?= CHtml::activeDropDownList($model, 'relationship_id',CHtml::listData(Relationship::model()->findAll(),'id','name')); ?>
+		<?php echo $form->error($model,'relationship_id'); ?>
                 </div>
 	</div>
 

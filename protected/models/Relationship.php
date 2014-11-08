@@ -90,4 +90,13 @@ class Relationship extends CActiveRecord
             'criteria'=>$criteria,
         ));
     }
+
+    /**
+     * Name of the relationship
+     * @return string name
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
 }

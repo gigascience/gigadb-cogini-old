@@ -65,14 +65,12 @@ class AdminRelationController extends Controller
 		if(isset($_POST['Relation']))
 		{
 			$model->attributes=$_POST['Relation'];
-                        if($model->save())
-                        {
-                            $related_id=$model->related_doi;
-                            $dataset_id=$model->dataset_id;
-                            $relationship= $model->relationship;
+      if($model->save()) {
+          $related_id=$model->related_doi;
+          $dataset_id=$model->dataset_id;
+          $relationship= $model->relationship;
                             
-                  if($relationship=="IsSupplementTo") 
-               {
+        if($relationship=="IsSupplementTo") {
                 $model1=  new Relation;
                 $model1->dataset_id= Dataset::model()->findByAttributes(array('identifier' => $related_id))->id;
                 $model1->related_doi=Dataset::model()->findByAttributes(array('id' => $dataset_id))->identifier;
@@ -304,6 +302,7 @@ class AdminRelationController extends Controller
 		if(isset($_POST['Relation']))
 		{
 			$model->attributes=$_POST['Relation'];
+
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -365,7 +364,7 @@ class AdminRelationController extends Controller
 
 	/**
 	 * Manages all models.
-	 */
+	 */  
 	public function actionAdmin()
 	{
 		$model=new Relation('search');
