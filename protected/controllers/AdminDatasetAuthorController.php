@@ -292,17 +292,18 @@ class AdminDatasetAuthorController extends Controller
 	}
         
         public function actionSearch($term) {
+
         if (Yii::app()->request->isAjaxRequest && !empty($term)) {
             $variants = array();
             $criteria = new CDbCriteria;
-            $criteria->select = 'name';
+            $criteria->select = 'first_name, surname';
             $criteria->distinct = 'true';
-            $criteria->addSearchCondition('name', '%' . $term . '%', false);
+            $criteria->addSearchCondition("LOWER(first_name) || ' ' || LOWER(surname)", '%' . strtolower($term) . '%', false);
 
             $tags = Author::model()->findAll($criteria);
             if (!empty($tags)) {
                 foreach ($tags as $tag) {
-                    $variants[] = $tag->attributes['name'];
+                    $variants[] = $tag->attributes['surname'] . ' ' . $tag->attributes['first_name'];
                 }
             }
             echo CJSON::encode($variants);
@@ -346,9 +347,9 @@ class AdminDatasetAuthorController extends Controller
             if (!$datasetAuthor->validate())
                 return false;
 
+            //$author = Author::model()->findByAttributes(array('name' => $name, 'rank' => $rank));
 
-            $author = Author::model()->findByAttributes(array('name' => $name,
-                'rank' => $rank));
+            $author = Author::model()->findByCompleteName($name);
             if ($author != NULL) {
                 $author_id = $author->id;
             } else {
