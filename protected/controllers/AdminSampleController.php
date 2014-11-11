@@ -70,7 +70,7 @@ class AdminSampleController extends Controller
                         
                          if(strstr($_POST['Sample']['code'],':'))
                 {
-                $attribute_temp=null;
+                //$attribute_temp=null;
                 $temp=explode(':', $_POST['Sample']['code']);
                 if($temp[0]=='SAMPLE')
                 {
@@ -79,15 +79,15 @@ class AdminSampleController extends Controller
                     
                    
                     
-                   foreach ($allfile->SAMPLE->SAMPLE_ATTRIBUTES->SAMPLE_ATTRIBUTE as $child)
+                /*foreach ($allfile->SAMPLE->SAMPLE_ATTRIBUTES->SAMPLE_ATTRIBUTE as $child)
                 {
                     if($child->TAG=='Sample type'||$child->TAG=='Time of sample collection'||$child->TAG=='Habitat'||$child->TAG=='Sample extracted from')
                         $attribute_temp.= $child->TAG." = "."\"".$child->VALUE."\", ";
-                }
-                $attribute_temp.="Description = "."\"".$allfile->SAMPLE->DESCRIPTION."\", ";
+                }*/
+                //$attribute_temp.="Description = "."\"".$allfile->SAMPLE->DESCRIPTION."\", ";
                       
                 }
-                     $model->s_attrs=$attribute_temp;
+                //$model->s_attrs=$attribute_temp;
             }
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));

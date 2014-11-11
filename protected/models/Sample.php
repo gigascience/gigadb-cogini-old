@@ -6,7 +6,6 @@
  * The followings are the available columns in table 'sample':
  * @property integer $id
  * @property integer $species_id
- * @property string $s_attrs
  * @property string $name
  * @property string $consent_document
  * @property integer $submitted_id
@@ -22,6 +21,7 @@
  * @property FileSample[] $fileSamples
  * @property Species $species
  * @property DatasetSample[] $datasetSamples
+ * @property Species $speciesSampleAttribute[] $sampleAttributes
  */
 class Sample extends CActiveRecord
 {
@@ -59,12 +59,12 @@ class Sample extends CActiveRecord
 			array('name', 'length', 'max'=>50),
             array('consent_document, contact_author_name', 'length', 'max'=>45),
             array('contact_author_email, sampling_protocol', 'length', 'max'=>100),
-			array('s_attrs, submission_date', 'safe'),
+			array('submission_date', 'safe'),
 			//array('code', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			//array('id, species_id, s_attrs, code , species_search, dois_search', 'safe', 'on'=>'search'),
-			array('id, species_id, s_attrs, name, consent_document, submitted_id, submission_date, contact_author_name, contact_author_email, sampling_protocol', 'safe', 'on'=>'search'),
+			//array('id, species_id, code , species_search, dois_search', 'safe', 'on'=>'search'),
+			array('id, species_id, name, consent_document, submitted_id, submission_date, contact_author_name, contact_author_email, sampling_protocol', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -83,6 +83,7 @@ class Sample extends CActiveRecord
 			'sampleExperiments' => array(self::HAS_MANY, 'SampleExperiment', 'sample_id'),
 			'fileSamples' => array(self::HAS_MANY, 'FileSample', 'sample_id'),
 			'datasetSamples' => array(self::HAS_MANY, 'DatasetSample', 'sample_id'),
+			'sampleAttributes' => array(self::HAS_MANY, 'SampleAttribute', 'sample_id'),
 			//'datasets' => array(self::MANY_MANY, 'Dataset', 'dataset_sample(dataset_id,sample_id)'),
 			'alternativeIdentifiers' => array(self::HAS_MANY, 'AlternativeIdentifiers', 'sample_id'),
 		);
@@ -96,7 +97,6 @@ class Sample extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'species_id' => 'Species',
-			's_attrs' => 'Attributes',
 			//'code' => 'Sample ID',
 			'name' => 'Name',
             'species_search' => 'Species Name',
@@ -124,7 +124,6 @@ class Sample extends CActiveRecord
         $criteria->with = array('species','datasets');
 		$criteria->compare('t.id',$this->id);
 		$criteria->compare('species_id',$this->species_id);
-		$criteria->compare('LOWER(s_attrs)',strtolower($this->s_attrs),true);
 		$criteria->compare('LOWER(code)',strtolower($this->code),true);
 
 		$criteria->compare('LOWER(species.common_name)',strtolower($this->species_search),true);
@@ -229,5 +228,28 @@ EO_SQL;
 		} else {
 			return $sampleAttributes;
 		}
+	}
+
+	/**
+	 * Get Samples Attributes from sample.id
+	 * @return string
+	 */
+	public function getSampleAttribute()
+	{
+		$string = '';
+		$sampleAttributes = Yii::app()->db->createCommand()
+			->select('a.structured_comment_name, sa.value')
+			->from('sample_attribute sa')
+			->join('attribute a', 'a.id = sa.attribute_id')
+			->where('sa.sample_id = :id', array(':id' => $this->id))
+			->queryAll();
+
+		// Concat all attribute=value
+		foreach ($sampleAttributes as $sampleAttribute) {
+			$string .= $sampleAttribute['structured_comment_name'] 
+					. '="' . $sampleAttribute['value'] . '"<br/>';
+		}
+
+		return $string;
 	}
 }

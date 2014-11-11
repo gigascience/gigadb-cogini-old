@@ -216,7 +216,7 @@ class AdminDatasetSampleController extends Controller
             $sample = new Sample;
             $sample->species_id = $species_id;
             $sample->code = $model->code;
-            $sample->s_attrs = $model->attribute;
+            //$sample->s_attrs = $model->attribute;
            // $sample_id = 0;
             if (!$sample->save()) {
                 $model->addError('error', 'Sample save error');
