@@ -229,7 +229,7 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
 
 <div class="row">
     <div class="span12">
-        <?if($samples->getData()){?>
+        <?php if ($samples) { ?>
         <h4><?=Yii::t('app' , 'Samples:')?></h4>
         <table class="table table-bordered" id='sample-table'>
             <thead>
@@ -256,20 +256,8 @@ $this->pageTitle="GigaDB Dataset - DOI 10.5524/".$model->identifier." - ".$title
                     <td><?= MyHtml::encode($sample->species->genbank_name) ?></td>
                     <td><?= MyHtml::encode($sample->species->scientific_name) ?></td>
                     <td class="left">
-<?
-                    $s_attrs = Sample::model()->embedDiseaseLinkInAttributes($sample->s_attrs);
-                    Yii::log("{$sample->s_attrs}    .... $s_attrs" , 'debug');
-                    $s_attrs = Sample::model()->sampleAttributesToArray($s_attrs);
-                    $print_sa = '';
-                    foreach($s_attrs as $key=>$value){
-                        $print_sa .= "$key=\"$value\"<br>";
-                    }
-                    //$s_attrs = implode('<br>' , Sample::model()->sampleAttributesToArray($s_attrs));
-                    //$s_attrs = http_build_query($s_attrs ,'' , '<br>');
-                    //$s_attrs = urldecode($s_attrs);
-                    echo $print_sa;
-
- ?>
+                        <?php echo $attributes = $sample->embedDiseaseLinkInAttributes($sample->getSampleAttribute()) ?>
+                        <?php echo Yii::log("{$attributes}    .... $attributes" , 'debug'); ?>
                     </td>
                 </tr>
 
