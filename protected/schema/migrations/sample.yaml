@@ -38,3 +38,7 @@ sql: |
   ALTER TABLE sample ADD COLUMN contact_author_name VARCHAR(45) NULL;
   ALTER TABLE sample ADD COLUMN contact_author_email VARCHAR(100) NULL;
   ALTER TABLE sample ADD COLUMN sampling_protocol VARCHAR(100) NULL;
+  ALTER TABLE sample ADD COLUMN code varchar(50) NOT NULL DEFAULT 'SRS188811';
+  ALTER TABLE sample DROP COLUMN s_attrs_text;
+  ALTER TABLE sample ADD COLUMN sample_attribute INTEGER NULL REFERENCES sample_attribute(id);
+

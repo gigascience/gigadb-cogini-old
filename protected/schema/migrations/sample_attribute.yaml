@@ -15,3 +15,10 @@ sql: |
     value VARCHAR(200) NULL,
     PRIMARY KEY (id, attribute_id)
   );
+---
+table: sample
+to: stpn_2
+depends:
+  - [sample, stpn_1]
+sql: |
+ALTER TABLE sample_attribute ADD CONSTRAINT "sample_attribute_id_fkey" FOREIGN KEY (sample_id) REFERENCES sample(id);
