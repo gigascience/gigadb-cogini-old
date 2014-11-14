@@ -10,7 +10,7 @@ class SearchForm extends CFormModel {
 	public $tab = "";
 
 	public $params = array(
-		'dataset_type', 'project', 'file_type',
+		'dataset_type', 'project', 'file_type', 'type',
 		'file_format', 'pubdate_from', 'pubdate_to', 'moddate_from',
 		'moddate_to', 'common_name', 'reldate_from', 'reldate_to',
 		'size_from', 'size_to', 'exclude', 'external_link_type',
@@ -27,7 +27,7 @@ class SearchForm extends CFormModel {
 	public $pubdate_to = "";
 	public $moddate_from = "";
 	public $moddate_to = "";
-	public $type = array('lol', 'dede');
+	public $type = array();
 	public $common_name = array();
 	public $external_link_type = array();
 	public $exclude = "";
@@ -127,6 +127,9 @@ class SearchForm extends CFormModel {
 		}
 		if (!empty($this->size_from_unit)) {
 			$params['size_from_unit'] = $this->size_from_unit;
+		}
+		if (!empty($this->type)) {
+			$params['type'] = $this->type;
 		}
 
 		return $params;

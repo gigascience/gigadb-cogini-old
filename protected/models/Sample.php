@@ -252,4 +252,25 @@ EO_SQL;
 
 		return $string;
 	}
+
+	/**
+	 * SphinxSearch search sample
+	 * 
+	 * @param  array $criteria
+	 * @param  array $extraSampleIds
+	 * @return array
+	 */
+	public function sphinxSearch($criteria, $extraSampleIds)
+	{
+		$s = Utils::newSphinxClient();
+		$keyword = isset($criteria['keyword']) ? $criteria['keyword'] : "";
+		$result = $s->query($keyword, "sample");
+
+		$matches = array();
+		if (isset($result['matches'])) {
+			$matches = $result['matches'];
+		}
+
+		return array_keys($matches);
+	}
 }

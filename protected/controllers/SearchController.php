@@ -40,6 +40,8 @@ class SearchController extends Controller {
             // Prepare list result criteria
 			$list_result_dataset_criteria = $list_result_dataset = $this->searchDataset($criteria);
 			$list_result_file_criteria = Dataset::getFileIdsByDatasetIds($list_result_dataset);
+            $list_result_author = Author::searchAuthor($criteria);
+            $list_result_sample = $this->searchSample($criteria);
 
 			//important, filter again the file result
 			list($list_result_file_criteria, $total_files_found) = $this->searchFile($criteria, $list_result_file_criteria);
@@ -47,6 +49,10 @@ class SearchController extends Controller {
 			//Now fetch files from Yii (we will put file size filter here)
 			$file_criteria = new CDbCriteria();
 			$file_criteria->addInCondition("t.id", $list_result_file_criteria);
+
+            //Now fetch samples from Yii
+            $file_criteria = new CDbCriteria();
+            $file_criteria->addInCondition("t.id", $list_result_file_criteria);
 
 			if ($this->hasSizeFilter($criteria)) {
 				list($size_from, $size_to) = $this->getFileSizeFilter($criteria);
@@ -108,9 +114,7 @@ class SearchController extends Controller {
 			}
 
             $sample_result = new CActiveDataProvider('Sample', array('criteria' => $file_criteria));
-            if ($this->hasSizeFilter($criteria)) {
-                $total_files_found = $file_result->totalItemCount;
-            }
+            $total_files_found = $file_result->totalItemCount;
 
 			// Refine dataset search again, in order to make it linked with files result
 			$file_ids = CHtml::listData(File::model()->findAll($file_criteria), 'id', 'id');
@@ -270,6 +274,10 @@ class SearchController extends Controller {
 	private function searchDataset($criteria, $extraDatasetIds = array()) {
 		return Dataset::sphinxSearch($criteria, $extraDatasetIds);
 	}
+
+    private function searchSample($criteria, $extraSampleIds = array()) {
+        return Sample::sphinxSearch($criteria, $extraSampleIds);
+    }
 
 	public function actionSave() {
 		$result = array();

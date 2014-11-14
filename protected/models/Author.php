@@ -129,4 +129,21 @@ class Author extends CActiveRecord {
 
         return $result ? $result[0] : false;
     }
+
+    public static function searchAuthor($criteria)
+    {
+        $keyword = $criteria['keyword'] ? $criteria['keyword'] : '';
+        $criteria = new CDbCriteria;
+        $criteria->select = 'id';
+        $criteria->limit = 1;
+        $criteria->addSearchCondition("LOWER(surname) || ' ' || LOWER(first_name)", '%' . strtolower($keyword) . '%', false);
+        $result = new CActiveDataProvider('Author', array('criteria' => $criteria));
+        
+        $data = array();
+        foreach ($result->getData() as $author) {
+            $data[] = $author->id;
+        }
+
+        return $data;
+    }
 }

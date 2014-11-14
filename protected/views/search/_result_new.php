@@ -18,7 +18,7 @@
 
 			<?php foreach ($dataset->samples as $sample) : ?>
 				<p class="link-result link-sample">
-					<a class="" href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=<?php echo $sample->species->tax_id ?>"><?php echo $sample->name ?></a><br/>
+					<a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=<?php echo $sample->species->tax_id ?>"><?php echo $sample->name ?></a><br/>
 					<strong><?php echo $sample->species->common_name ?></strong><br/>
 					NCBI taxonomy : <?php echo $sample->species->tax_id ?>
 				</p>
@@ -27,7 +27,7 @@
 			<?php foreach ($search_result['file_result']->getData() as $file) : ?>
 				<?php if ($file->dataset->id == $dataset->id) : ?>
 					<p class="link-result link-file info-file first">
-						<a class="" href="<?php echo $file->location ?>"><?php echo strlen($file->name) > 20 ? substr($file->name, 0, 20). '...' : $file->name ?></a>
+						<a href="<?php echo $file->location ?>"><?php echo strlen($file->name) > 20 ? substr($file->name, 0, 20). '...' : $file->name ?></a>
 					</p>
 					<p class="info-file middle type"><?php echo $file->type->name ?></p>
 					<p class="info-file middle size"><?php echo MyHtml::encode(File::staticBytesToSize($file->size))?></p>
