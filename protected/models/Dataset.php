@@ -384,7 +384,6 @@ class Dataset extends MyActiveRecord {
 
     /**
      * Get all authors in dataset
-     * @param  integer $id
      * @return array
      */
     public function getAuthor()
@@ -397,5 +396,24 @@ class Dataset extends MyActiveRecord {
                             ->queryAll();
 
         return $authors ? $authors : array();
+    }
+
+	/**
+     * Get all samples in dataset
+     * @return array
+     */
+    public function getSamples()
+    {
+    	$samples = Yii::app()->db->createCommand()
+                            ->select('s.name, sp.tax_id, sp.common_name, sp.genbank_name')
+                            ->from('sample s')
+                            ->join('dataset_sample ds', 's.id = ds.sample_id')
+                            ->join('species sp', 's.species_id = sp.id')
+                            ->where('ds.dataset_id = :id', array(':id' => $this->id))
+                            ->queryAll();
+
+        var_dump(count($samples)); die;
+
+        return $samples ? $samples : array();
     }
 }

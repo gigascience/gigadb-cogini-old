@@ -17,6 +17,7 @@ $projects=array();
 $file_types=array();
 $file_formats=array();
 $common_names=array();
+$types = array(Yii::t('app', 'Datasets'), Yii::t('app', 'Samples'), Yii::t('app', 'Files'));
 $external_link_types=array();
 
 
@@ -75,6 +76,7 @@ for($i = 0 ; $i < count($file_data) ; $i++){
 }
 
 ?>
+    <p class="filter-title"><?= Yii::t('app', 'Filter your results') ?></p>
     <a data-toggle="modal" href="#how-to-use-filters" class="btn filter"><?=Yii::t('app' , 'How to use filters')?></a>
 <div class="modal hide fade" id="how-to-use-filters">
   <div class="modal-header">
@@ -93,13 +95,19 @@ for($i = 0 ; $i < count($file_data) ; $i++){
     echo MyHtml::hiddenField("keyword",$model->keyword);
     echo MyHtml::hiddenField("tab",$model->tab,array('id'=>'filter_tab'));
     echo MyHtml::hiddenField("exclude",$model->exclude);
-    echo MyHtml::submitButton(Yii::t('app' ,'Apply Filters'), array('class'=>'span2 btn-green filter'));
-
-
 ?>
 
 <!-- FILTERS FOR DATASETS -->
     <div id="dataset_filter">
+        <div class="filter">
+        <h4 class='heading'><?=Yii::t('app' , 'Type')?></h4>
+            <div class='filter-content'>
+                <button class="btn btn_filter" id="btn_type"><? if(empty($model->type)) echo Yii::t('app' , 'Enable All'); else echo Yii::t('app' , 'Disable'); ?></button>
+                <div class="options <? if(empty($model->type)) echo 'disabled'; ?> ">
+                    <? echo MyHtml::checkBoxList("type",$model->type, $types,array('class'=>'type')); ?>
+                </div>
+            </div>
+        </div>
         <div class="filter">
         <h4 class='heading'><?=Yii::t('app' , 'Common Name')?></h4>
             <div class='filter-content'>
@@ -169,7 +177,7 @@ for($i = 0 ; $i < count($file_data) ; $i++){
 
 <!-- FILTERS FOR FILES -->
 
-    <div id="file_filter" style="display:none;">
+    <div id="file_filter">
         <div class="filter" >
         <h4 class='heading'><?=Yii::t('app' , 'File Type')?></h4>
             <div class='filter-content'>
